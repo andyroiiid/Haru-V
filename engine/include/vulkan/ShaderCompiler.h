@@ -6,6 +6,8 @@
 
 #include <vulkan/vulkan.hpp>
 
+struct ShaderIncluder;
+
 class ShaderCompiler {
 public:
     ShaderCompiler();
@@ -20,12 +22,10 @@ public:
 
     ShaderCompiler &operator=(ShaderCompiler &&) = delete;
 
-    void SetPreamble(std::string preamble);
-
     std::vector<uint32_t> Compile(vk::ShaderStageFlagBits stage, const std::string &source);
 
     std::vector<uint32_t> CompileFromFile(vk::ShaderStageFlagBits stage, const std::string &filename);
 
 private:
-    std::string m_preamble;
+    std::unique_ptr<ShaderIncluder> m_includer;
 };
