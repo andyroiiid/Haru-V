@@ -55,8 +55,9 @@ void VulkanDevice::CreateInstance() {
             enabledExtensions.data()
     );
 
-    m_instance = vk::createInstance(instanceCreateInfo);
-    DebugCheckCritical(m_instance, "Failed to create Vulkan instance.");
+    const auto [result, instance] = vk::createInstance(instanceCreateInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan instance.");
+    m_instance = instance;
 }
 
 [[maybe_unused]] static VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(
@@ -111,23 +112,25 @@ void VulkanDevice::CreateDebugMessenger() {
             vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance,
             VulkanDebugCallback
     );
-    m_debugMessenger = m_instance.createDebugUtilsMessengerEXT(createInfo);
-    DebugCheckCritical(m_debugMessenger, "Failed to create Vulkan debug messenger.");
+    const auto [result, debugMessenger] = m_instance.createDebugUtilsMessengerEXT(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan debug messenger.");
+    m_debugMessenger = debugMessenger;
 }
 
 void VulkanDevice::PickPhysicalDevice() {
-    const std::vector<vk::PhysicalDevice> physicalDevices = m_instance.enumeratePhysicalDevices();
+    const auto [result, physicalDevices] = m_instance.enumeratePhysicalDevices();
+    DebugCheckCriticalVk(result, "Failed to enumerate Vulkan physical devices.");
     DebugCheck(!physicalDevices.empty(), "Can't find any Vulkan physical device.");
 
     // select the first discrete gpu or the first physical device
-    vk::PhysicalDevice result = physicalDevices.front();
+    vk::PhysicalDevice selected = physicalDevices.front();
     for (const vk::PhysicalDevice &physicalDevice: physicalDevices) {
         if (physicalDevice.getProperties().deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
-            result = physicalDevice;
+            selected = physicalDevice;
             break;
         }
     }
-    m_physicalDevice = result;
+    m_physicalDevice = selected;
 
     const std::vector<vk::QueueFamilyProperties> queueFamilies = m_physicalDevice.getQueueFamilyProperties();
     m_graphicsQueueFamily = 0;
@@ -165,8 +168,9 @@ void VulkanDevice::CreateDevice() {
             enabledExtensions.data(),
             &features
     );
-    m_device = m_physicalDevice.createDevice(createInfo);
-    DebugCheckCritical(m_device, "Failed to create Vulkan device.");
+    const auto [result, device] = m_physicalDevice.createDevice(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan device.");
+    m_device = device;
 
     m_graphicsQueue = m_device.getQueue(m_graphicsQueueFamily, 0);
     DebugCheckCritical(m_device, "Failed to get Vulkan graphics queue.");
@@ -174,8 +178,9 @@ void VulkanDevice::CreateDevice() {
 
 void VulkanDevice::CreateCommandPool() {
     const vk::CommandPoolCreateInfo createInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer, m_graphicsQueueFamily);
-    m_commandPool = m_device.createCommandPool(createInfo);
-    DebugCheckCritical(m_commandPool, "Failed to create Vulkan command pool.");
+    const auto [result, commandPool] = m_device.createCommandPool(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan command pool.");
+    m_commandPool = commandPool;
 }
 
 void VulkanDevice::CreateAllocator() {
@@ -200,10 +205,17 @@ VulkanDevice::~VulkanDevice() {
     m_instance.destroy();
 }
 
+void VulkanDevice::WaitIdle() {
+    DebugCheckCriticalVk(
+            m_device.waitIdle(),
+            "Failed when waiting for Vulkan device to be idle."
+    );
+}
+
 vk::Fence VulkanDevice::CreateFence(vk::FenceCreateFlags flags) {
     const vk::FenceCreateInfo createInfo(flags);
-    const vk::Fence fence = m_device.createFence(createInfo);
-    DebugCheckCritical(fence, "Failed to create Vulkan fence.");
+    const auto [result, fence] = m_device.createFence(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan fence.");
     return fence;
 }
 
@@ -217,8 +229,8 @@ void VulkanDevice::WaitAndResetFence(vk::Fence fence, uint64_t timeout) {
 
 vk::Semaphore VulkanDevice::CreateSemaphore() {
     const vk::SemaphoreCreateInfo createInfo;
-    const vk::Semaphore semaphore = m_device.createSemaphore(createInfo);
-    DebugCheckCritical(semaphore, "Failed to create Vulkan semaphore.");
+    const auto [result, semaphore] = m_device.createSemaphore(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan semaphore.");
     return semaphore;
 }
 
@@ -269,8 +281,8 @@ vk::SwapchainKHR VulkanDevice::CreateSwapchain(
             oldSwapchain,
             nullptr
     );
-    const vk::SwapchainKHR swapchain = m_device.createSwapchainKHR(createInfo);
-    DebugCheckCritical(swapchain, "Failed to create Vulkan swapchain.");
+    const auto [result, swapchain] = m_device.createSwapchainKHR(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan swapchain.");
     return swapchain;
 }
 
@@ -289,8 +301,8 @@ vk::ImageView VulkanDevice::CreateImageView(vk::Image image, vk::Format format, 
                     1
             }
     );
-    const vk::ImageView imageView = m_device.createImageView(createInfo);
-    DebugCheckCritical(imageView, "Failed to create Vulkan image view.");
+    const auto [result, imageView] = m_device.createImageView(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan image view.");
     return imageView;
 }
 
@@ -358,8 +370,8 @@ vk::RenderPass VulkanDevice::CreateRenderPass(
             attachments,
             subpass
     );
-    vk::RenderPass renderPass = m_device.createRenderPass(createInfo);
-    DebugCheckCritical(renderPass, "Failed to create Vulkan render pass.");
+    const auto [result, renderPass] = m_device.createRenderPass(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan render pass.");
     return renderPass;
 }
 
@@ -380,8 +392,8 @@ vk::Framebuffer VulkanDevice::CreateFramebuffer(
             extent.height,
             1
     );
-    const vk::Framebuffer framebuffer = m_device.createFramebuffer(createInfo);
-    DebugCheckCritical(renderPass, "Failed to create Vulkan framebuffer.");
+    const auto [result, framebuffer] = m_device.createFramebuffer(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan framebuffer.");
     return framebuffer;
 }
 
@@ -395,8 +407,8 @@ vk::ShaderModule VulkanDevice::CreateShaderModule(const std::vector<uint32_t> &s
             spirv.size() * sizeof(uint32_t),
             spirv.data()
     );
-    const vk::ShaderModule shaderModule = m_device.createShaderModule(createInfo);
-    DebugCheckCritical(shaderModule, "Failed to create Vulkan shader module.");
+    const auto [result, shaderModule] = m_device.createShaderModule(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan shader module.");
     return shaderModule;
 }
 
@@ -413,8 +425,8 @@ vk::PipelineLayout VulkanDevice::CreatePipelineLayout(
             descriptorSetLayouts,
             pushConstantRanges
     );
-    const vk::PipelineLayout pipelineLayout = m_device.createPipelineLayout(createInfo);
-    DebugCheckCritical(pipelineLayout, "Failed to create Vulkan pipeline layout.");
+    const auto [result, pipelineLayout] = m_device.createPipelineLayout(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan pipeline layout.");
     return pipelineLayout;
 }
 

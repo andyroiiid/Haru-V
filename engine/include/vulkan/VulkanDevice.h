@@ -32,7 +32,7 @@ public:
 
     VulkanDevice &operator=(VulkanDevice &&) = delete;
 
-    void WaitIdle() { m_device.waitIdle(); }
+    void WaitIdle();
 
     vk::RenderPass CreateRenderPass(
             const std::initializer_list<vk::Format> &colorAttachmentFormats,

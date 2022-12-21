@@ -41,7 +41,8 @@ void VulkanBase::CreateImmediateContext() {
 void VulkanBase::CreateSurfaceSwapchainAndImageViews() {
     m_surface = CreateSurface(m_window);
 
-    const vk::SurfaceCapabilitiesKHR capabilities = m_physicalDevice.getSurfaceCapabilitiesKHR(m_surface);
+    const auto [capabilitiesResult, capabilities] = m_physicalDevice.getSurfaceCapabilitiesKHR(m_surface);
+    DebugCheckCriticalVk(capabilitiesResult, "Failed to get Vulkan surface capabilities.");
     uint32_t imageCount = capabilities.minImageCount + 1;
     if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount) {
         imageCount = capabilities.maxImageCount;
@@ -59,7 +60,9 @@ void VulkanBase::CreateSurfaceSwapchainAndImageViews() {
             m_swapchain
     );
 
-    for (const vk::Image &image: m_device.getSwapchainImagesKHR(m_swapchain)) {
+    const auto [swapchainImagesResult, swapchainImages] = m_device.getSwapchainImagesKHR(m_swapchain);
+    DebugCheckCriticalVk(swapchainImagesResult, "Failed to get Vulkan swapchain images.");
+    for (const vk::Image &image: swapchainImages) {
         m_swapchainImageViews.push_back(CreateImageView(image, SURFACE_FORMAT, vk::ImageAspectFlagBits::eColor));
     }
 }
@@ -137,7 +140,10 @@ VulkanBase::BeginFrameInfo VulkanBase::BeginFrame() {
     );
 
     bufferingObjects.CommandBuffer.reset();
-    bufferingObjects.CommandBuffer.begin({vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
+    DebugCheckCriticalVk(
+            bufferingObjects.CommandBuffer.begin({vk::CommandBufferUsageFlagBits::eOneTimeSubmit}),
+            "Failed to begin Vulkan command buffer."
+    );
 
     return {
             &m_primaryRenderPassBeginInfos[m_currentSwapchainImageIndex],
@@ -149,7 +155,10 @@ VulkanBase::BeginFrameInfo VulkanBase::BeginFrame() {
 void VulkanBase::EndFrame() {
     BufferingObjects &bufferingObjects = m_bufferingObjects[m_currentBufferingIndex];
 
-    bufferingObjects.CommandBuffer.end();
+    DebugCheckCriticalVk(
+            bufferingObjects.CommandBuffer.end(),
+            "Failed to end Vulkan command buffer."
+    );
 
     vk::PipelineStageFlags waitStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
     const vk::SubmitInfo submitInfo(
@@ -158,7 +167,10 @@ void VulkanBase::EndFrame() {
             bufferingObjects.CommandBuffer,
             bufferingObjects.RenderSemaphore
     );
-    m_graphicsQueue.submit(submitInfo, bufferingObjects.RenderFence);
+    DebugCheckCriticalVk(
+            m_graphicsQueue.submit(submitInfo, bufferingObjects.RenderFence),
+            "Failed to submit Vulkan command buffer."
+    );
 
     const vk::PresentInfoKHR presentInfo(
             bufferingObjects.RenderSemaphore,

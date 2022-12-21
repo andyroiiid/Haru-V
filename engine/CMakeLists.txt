@@ -21,6 +21,7 @@ add_library(engine
 target_include_directories(engine PUBLIC include)
 
 target_compile_definitions(engine PUBLIC
+        VULKAN_HPP_NO_EXCEPTIONS
         GLFW_INCLUDE_VULKAN
         GLM_FORCE_LEFT_HANDED
         GLM_FORCE_DEPTH_ZERO_TO_ONE)
