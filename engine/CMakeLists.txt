@@ -8,11 +8,15 @@ add_library(engine
         include/file/FileSystem.h
         include/file/JsonFile.h
         include/window/Window.h
+        include/vulkan/ShaderCompiler.h
         include/vulkan/VulkanDevice.h
+        include/vulkan/VulkanBase.h
 
         src/file/FileSystem.cpp
         src/window/Window.cpp
-        src/vulkan/VulkanDevice.cpp)
+        src/vulkan/ShaderCompiler.cpp
+        src/vulkan/VulkanDevice.cpp
+        src/vulkan/VulkanBase.cpp)
 
 target_include_directories(engine PUBLIC include)
 
