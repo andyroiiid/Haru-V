@@ -58,8 +58,6 @@ void main() {
         m_fragmentShaderModule = m_device->CreateShaderModule(fragmentSpirv);
 
         vk::PipelineVertexInputStateCreateInfo inputState;
-        VulkanPipelineOptions pipelineOptions;
-        pipelineOptions.Extent = m_device->GetSwapchainExtent();
         m_pipeline = m_device->CreatePipeline(
                 m_device->GetPrimaryRenderPass(),
                 0,
@@ -69,7 +67,7 @@ void main() {
                         {{}, vk::ShaderStageFlagBits::eVertex,   m_vertexShaderModule,   "main"},
                         {{}, vk::ShaderStageFlagBits::eFragment, m_fragmentShaderModule, "main"}
                 },
-                pipelineOptions,
+                {},
                 {
                         {
                                 VK_FALSE,
@@ -99,7 +97,21 @@ void main() {
 
         cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
 
+        const vk::Extent2D &size = m_device->GetSwapchainExtent();
+        // flipped upside down so that it's consistent with OpenGL
+        vk::Viewport viewport(
+                0.0f, static_cast<float>(size.height),
+                static_cast<float>(size.width), -static_cast<float>(size.height),
+                0.0f, 1.0f
+        );
+        vk::Rect2D scissor(
+                {0, 0},
+                size
+        );
+
         cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline);
+        cmd.setViewport(0, viewport);
+        cmd.setScissor(0, scissor);
         cmd.draw(3, 1, 0, 0);
 
         cmd.endRenderPass();

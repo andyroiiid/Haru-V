@@ -11,9 +11,8 @@ struct GLFWwindow;
 
 struct VulkanPipelineOptions {
     vk::PrimitiveTopology Topology = vk::PrimitiveTopology::eTriangleList;
-    vk::Extent2D Extent{};
     vk::PolygonMode PolygonMode = vk::PolygonMode::eFill;
-    vk::CullModeFlags CullMode = vk::CullModeFlagBits::eNone;
+    vk::CullModeFlags CullMode = vk::CullModeFlagBits::eBack;
     vk::Bool32 DepthTestEnable = VK_FALSE;
     vk::Bool32 DepthWriteEnable = VK_FALSE;
     vk::CompareOp DepthCompareOp = vk::CompareOp::eAlways;

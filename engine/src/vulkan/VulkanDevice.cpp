@@ -2,6 +2,9 @@
 // Created by andyroiiid on 12/18/2022.
 //
 
+// !!! WARNING: You'll probably want to read this file with parameter hints
+// !!! https://www.jetbrains.com/help/clion/parameter-hints.html
+
 #include "vulkan/VulkanDevice.h"
 
 #include <GLFW/glfw3.h>
@@ -433,21 +436,12 @@ vk::Pipeline VulkanDevice::CreatePipeline(
             options.Topology
     );
 
-    const vk::Extent2D &size = options.Extent;
-    // flipped upside down so that it's consistent with OpenGL
-    vk::Viewport viewport(
-            0.0f, static_cast<float>(size.height),
-            static_cast<float>(size.width), -static_cast<float>(size.height),
-            0.0f, 1.0f
-    );
-    vk::Rect2D scissor(
-            {0, 0},
-            size
-    );
     vk::PipelineViewportStateCreateInfo viewportState(
             {},
-            viewport,
-            scissor
+            1,
+            nullptr,
+            1,
+            nullptr
     );
 
     vk::PipelineRasterizationStateCreateInfo rasterizationState(
@@ -483,6 +477,15 @@ vk::Pipeline VulkanDevice::CreatePipeline(
             attachmentColorBlends
     );
 
+    vk::DynamicState dynamicStates[] = {
+            vk::DynamicState::eViewport,
+            vk::DynamicState::eScissor
+    };
+    vk::PipelineDynamicStateCreateInfo dynamicState(
+            {},
+            dynamicStates
+    );
+
     vk::GraphicsPipelineCreateInfo createInfo(
             {},
             shaderStages,
@@ -494,7 +497,7 @@ vk::Pipeline VulkanDevice::CreatePipeline(
             &multisampleState,
             &depthStencilState,
             &colorBlendState,
-            nullptr,
+            &dynamicState,
             pipelineLayout,
             renderPass,
             subpass

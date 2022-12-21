@@ -2,6 +2,9 @@
 // Created by andyroiiid on 12/20/2022.
 //
 
+// !!! WARNING: You'll probably want to read this file with parameter hints
+// !!! https://www.jetbrains.com/help/clion/parameter-hints.html
+
 #include "vulkan/VulkanBase.h"
 
 #include <GLFW/glfw3.h>
