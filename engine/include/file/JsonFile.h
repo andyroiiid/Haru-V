@@ -12,7 +12,7 @@
 template<class T>
 T UnpackJsonValue(simdjson::ondemand::value &value, const std::string &name) {
     T result;
-    simdjson::error_code error = value.get(result);
+    const simdjson::error_code error = value.get(result);
     DebugCheckCritical(
             error == simdjson::SUCCESS,
             "Failed to unpack JSON value '{}': {}",
@@ -25,7 +25,7 @@ T UnpackJsonValue(simdjson::ondemand::value &value, const std::string &name) {
 class JsonFile {
 public:
     explicit JsonFile(const std::string &filename) : m_json(FileSystem::Read(filename)) {
-        simdjson::error_code error = m_parser.iterate(m_json).get(m_document);
+        const simdjson::error_code error = m_parser.iterate(m_json).get(m_document);
         DebugCheckCritical(
                 error == simdjson::SUCCESS,
                 "Failed to load json document: {}",
@@ -46,7 +46,7 @@ public:
     template<class T>
     T GetField(const std::string &key) {
         simdjson::ondemand::value value;
-        simdjson::error_code error = m_document.find_field(key).get(value);
+        const simdjson::error_code error = m_document.find_field(key).get(value);
         DebugCheckCritical(
                 error == simdjson::SUCCESS,
                 "Failed to find key '{}': {}",

@@ -81,7 +81,7 @@ static inline const char *GetShaderStageName(vk::ShaderStageFlagBits stage) {
 }
 
 std::vector<uint32_t> ShaderCompiler::Compile(vk::ShaderStageFlagBits stage, const std::string &source) {
-    EShLanguage glslStage = GetShaderStageLanguage(stage);
+    const EShLanguage glslStage = GetShaderStageLanguage(stage);
     const char *stageName = GetShaderStageName(stage);
 
     glslang::TShader shader(glslStage);

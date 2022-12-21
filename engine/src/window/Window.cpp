@@ -37,7 +37,7 @@ void Window::MainLoop(App *app) {
     double prevTime = glfwGetTime();
     while (!glfwWindowShouldClose(m_window)) {
         glfwPollEvents();
-        double currTime = glfwGetTime();
+        const double currTime = glfwGetTime();
         app->Frame(static_cast<float>(currTime - prevTime));
         prevTime = currTime;
     }

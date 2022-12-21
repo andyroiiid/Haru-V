@@ -47,7 +47,7 @@ public:
         func(m_immediateCommandBuffer);
         m_immediateCommandBuffer.end();
 
-        vk::SubmitInfo submitInfo({}, {}, m_immediateCommandBuffer, {});
+        const vk::SubmitInfo submitInfo({}, {}, m_immediateCommandBuffer, {});
         m_graphicsQueue.submit(submitInfo, m_immediateFence);
         WaitAndResetFence(m_immediateFence);
     }

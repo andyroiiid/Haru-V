@@ -35,7 +35,7 @@ std::string FileSystem::Read(const std::string &filename) {
         DebugError("PhysFS failed to open file {}: {}", filename.c_str(), GetLastError());
         return {};
     }
-    PHYSFS_sint64 length = PHYSFS_fileLength(file);
+    const PHYSFS_sint64 length = PHYSFS_fileLength(file);
     if (length == -1) {
         DebugError("PhysFS failed to get file size {}: {}", filename.c_str(), GetLastError());
         return {};

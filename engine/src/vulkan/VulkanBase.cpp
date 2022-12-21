@@ -16,7 +16,7 @@ static vk::Extent2D CalcSwapchainExtent(const vk::SurfaceCapabilitiesKHR &capabi
         capabilities.currentExtent.height == std::numeric_limits<uint32_t>::max()) {
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
-        vk::Extent2D extent(
+        const vk::Extent2D extent(
                 std::clamp(static_cast<uint32_t>(width), capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
                 std::clamp(static_cast<uint32_t>(height), capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
         );
@@ -41,7 +41,7 @@ void VulkanBase::CreateImmediateContext() {
 void VulkanBase::CreateSurfaceSwapchainAndImageViews() {
     m_surface = CreateSurface(m_window);
 
-    vk::SurfaceCapabilitiesKHR capabilities = m_physicalDevice.getSurfaceCapabilitiesKHR(m_surface);
+    const vk::SurfaceCapabilitiesKHR capabilities = m_physicalDevice.getSurfaceCapabilitiesKHR(m_surface);
     uint32_t imageCount = capabilities.minImageCount + 1;
     if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount) {
         imageCount = capabilities.maxImageCount;
@@ -59,7 +59,7 @@ void VulkanBase::CreateSurfaceSwapchainAndImageViews() {
             m_swapchain
     );
 
-    for (vk::Image image: m_device.getSwapchainImagesKHR(m_swapchain)) {
+    for (const vk::Image &image: m_device.getSwapchainImagesKHR(m_swapchain)) {
         m_swapchainImageViews.push_back(CreateImageView(image, SURFACE_FORMAT, vk::ImageAspectFlagBits::eColor));
     }
 }
@@ -73,7 +73,7 @@ void VulkanBase::CreatePrimaryRenderPassAndFramebuffers() {
             true
     );
 
-    for (vk::ImageView imageView: m_swapchainImageViews) {
+    for (const vk::ImageView &imageView: m_swapchainImageViews) {
         m_primaryFramebuffers.push_back(CreateFramebuffer(m_primaryRenderPass, {imageView}, m_swapchainExtent));
     }
 
@@ -86,7 +86,7 @@ void VulkanBase::CreatePrimaryRenderPassAndFramebuffers() {
             {{0, 0}, m_swapchainExtent},
             clearValues
     );
-    for (vk::Framebuffer framebuffer: m_primaryFramebuffers) {
+    for (const vk::Framebuffer &framebuffer: m_primaryFramebuffers) {
         beginInfo.framebuffer = framebuffer;
         m_primaryRenderPassBeginInfos.push_back(beginInfo);
     }
@@ -104,19 +104,19 @@ void VulkanBase::CreateBufferingObjects() {
 VulkanBase::~VulkanBase() {
     WaitIdle();
 
-    for (BufferingObjects &bufferingObject: m_bufferingObjects) {
+    for (const BufferingObjects &bufferingObject: m_bufferingObjects) {
         m_device.destroy(bufferingObject.RenderFence);
         m_device.destroy(bufferingObject.PresentSemaphore);
         m_device.destroy(bufferingObject.RenderSemaphore);
         m_device.free(m_commandPool, bufferingObject.CommandBuffer);
     }
 
-    for (vk::Framebuffer framebuffer: m_primaryFramebuffers) {
+    for (const vk::Framebuffer &framebuffer: m_primaryFramebuffers) {
         DestroyFramebuffer(framebuffer);
     }
     DestroyRenderPass(m_primaryRenderPass);
 
-    for (vk::ImageView imageView: m_swapchainImageViews) {
+    for (const vk::ImageView &imageView: m_swapchainImageViews) {
         m_device.destroy(imageView);
     }
     m_device.destroy(m_swapchain);
@@ -127,7 +127,7 @@ VulkanBase::~VulkanBase() {
 }
 
 VulkanBase::BeginFrameInfo VulkanBase::BeginFrame() {
-    BufferingObjects &bufferingObjects = m_bufferingObjects[m_currentBufferingIndex];
+    const BufferingObjects &bufferingObjects = m_bufferingObjects[m_currentBufferingIndex];
 
     WaitAndResetFence(bufferingObjects.RenderFence);
 
@@ -152,7 +152,7 @@ void VulkanBase::EndFrame() {
     bufferingObjects.CommandBuffer.end();
 
     vk::PipelineStageFlags waitStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-    vk::SubmitInfo submitInfo(
+    const vk::SubmitInfo submitInfo(
             bufferingObjects.PresentSemaphore,
             waitStage,
             bufferingObjects.CommandBuffer,
@@ -160,7 +160,7 @@ void VulkanBase::EndFrame() {
     );
     m_graphicsQueue.submit(submitInfo, bufferingObjects.RenderFence);
 
-    vk::PresentInfoKHR presentInfo(
+    const vk::PresentInfoKHR presentInfo(
             bufferingObjects.RenderSemaphore,
             m_swapchain,
             m_currentSwapchainImageIndex

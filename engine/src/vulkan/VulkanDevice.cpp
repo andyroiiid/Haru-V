@@ -35,7 +35,7 @@ static std::vector<const char *> GetEnabledInstanceExtensions() {
 }
 
 void VulkanDevice::CreateInstance() {
-    vk::ApplicationInfo applicationInfo(
+    const vk::ApplicationInfo applicationInfo(
             "Haru-V",
             VK_MAKE_VERSION(1, 0, 0),
             "Haru-V",
@@ -43,10 +43,10 @@ void VulkanDevice::CreateInstance() {
             VK_API_VERSION_1_3
     );
 
-    std::vector<const char *> enabledLayers = GetEnabledInstanceLayers();
-    std::vector<const char *> enabledExtensions = GetEnabledInstanceExtensions();
+    const std::vector<const char *> enabledLayers = GetEnabledInstanceLayers();
+    const std::vector<const char *> enabledExtensions = GetEnabledInstanceExtensions();
 
-    vk::InstanceCreateInfo instanceCreateInfo(
+    const vk::InstanceCreateInfo instanceCreateInfo(
             {},
             &applicationInfo,
             enabledLayers.size(),
@@ -65,7 +65,7 @@ void VulkanDevice::CreateInstance() {
         const VkAllocationCallbacks *pAllocator,
         VkDebugUtilsMessengerEXT *pMessenger
 ) {
-    auto proc = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    const auto proc = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
     DebugCheckCritical(proc != nullptr, "Failed to fetch vkCreateDebugUtilsMessengerEXT address.");
     return proc(instance, pCreateInfo, pAllocator, pMessenger);
 }
@@ -75,7 +75,7 @@ void VulkanDevice::CreateInstance() {
         VkDebugUtilsMessengerEXT messenger,
         const VkAllocationCallbacks *pAllocator
 ) {
-    auto proc = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+    const auto proc = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     DebugCheckCritical(proc != nullptr, "Failed to fetch vkDestroyDebugUtilsMessengerEXT address.");
     return proc(instance, messenger, pAllocator);
 }
@@ -101,7 +101,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugCallback(
 }
 
 void VulkanDevice::CreateDebugMessenger() {
-    vk::DebugUtilsMessengerCreateInfoEXT createInfo(
+    const vk::DebugUtilsMessengerCreateInfoEXT createInfo(
             {},
             vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
             vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
@@ -116,12 +116,12 @@ void VulkanDevice::CreateDebugMessenger() {
 }
 
 void VulkanDevice::PickPhysicalDevice() {
-    std::vector<vk::PhysicalDevice> physicalDevices = m_instance.enumeratePhysicalDevices();
+    const std::vector<vk::PhysicalDevice> physicalDevices = m_instance.enumeratePhysicalDevices();
     DebugCheck(!physicalDevices.empty(), "Can't find any Vulkan physical device.");
 
     // select the first discrete gpu or the first physical device
     vk::PhysicalDevice result = physicalDevices.front();
-    for (vk::PhysicalDevice &physicalDevice: physicalDevices) {
+    for (const vk::PhysicalDevice &physicalDevice: physicalDevices) {
         if (physicalDevice.getProperties().deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
             result = physicalDevice;
             break;
@@ -129,7 +129,7 @@ void VulkanDevice::PickPhysicalDevice() {
     }
     m_physicalDevice = result;
 
-    std::vector<vk::QueueFamilyProperties> queueFamilies = m_physicalDevice.getQueueFamilyProperties();
+    const std::vector<vk::QueueFamilyProperties> queueFamilies = m_physicalDevice.getQueueFamilyProperties();
     m_graphicsQueueFamily = 0;
     for (const vk::QueueFamilyProperties &queueFamily: queueFamilies) {
         if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) {
@@ -147,15 +147,15 @@ static std::vector<const char *> GetEnabledDeviceExtensions() {
 }
 
 void VulkanDevice::CreateDevice() {
-    float queuePriority = 1.0f;
-    vk::DeviceQueueCreateInfo queueCreateInfo({}, m_graphicsQueueFamily, 1, &queuePriority);
+    const float queuePriority = 1.0f;
+    const vk::DeviceQueueCreateInfo queueCreateInfo({}, m_graphicsQueueFamily, 1, &queuePriority);
 
-    std::vector<const char *> enabledExtensions = GetEnabledDeviceExtensions();
+    const std::vector<const char *> enabledExtensions = GetEnabledDeviceExtensions();
 
     vk::PhysicalDeviceFeatures features;
     features.fillModeNonSolid = VK_TRUE;
 
-    vk::DeviceCreateInfo createInfo(
+    const vk::DeviceCreateInfo createInfo(
             {},
             1,
             &queueCreateInfo,
@@ -173,7 +173,7 @@ void VulkanDevice::CreateDevice() {
 }
 
 void VulkanDevice::CreateCommandPool() {
-    vk::CommandPoolCreateInfo createInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer, m_graphicsQueueFamily);
+    const vk::CommandPoolCreateInfo createInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer, m_graphicsQueueFamily);
     m_commandPool = m_device.createCommandPool(createInfo);
     DebugCheckCritical(m_commandPool, "Failed to create Vulkan command pool.");
 }
@@ -201,8 +201,8 @@ VulkanDevice::~VulkanDevice() {
 }
 
 vk::Fence VulkanDevice::CreateFence(vk::FenceCreateFlags flags) {
-    vk::FenceCreateInfo createInfo(flags);
-    vk::Fence fence = m_device.createFence(createInfo);
+    const vk::FenceCreateInfo createInfo(flags);
+    const vk::Fence fence = m_device.createFence(createInfo);
     DebugCheckCritical(fence, "Failed to create Vulkan fence.");
     return fence;
 }
@@ -216,14 +216,14 @@ void VulkanDevice::WaitAndResetFence(vk::Fence fence, uint64_t timeout) {
 }
 
 vk::Semaphore VulkanDevice::CreateSemaphore() {
-    vk::SemaphoreCreateInfo createInfo;
-    vk::Semaphore semaphore = m_device.createSemaphore(createInfo);
+    const vk::SemaphoreCreateInfo createInfo;
+    const vk::Semaphore semaphore = m_device.createSemaphore(createInfo);
     DebugCheckCritical(semaphore, "Failed to create Vulkan semaphore.");
     return semaphore;
 }
 
 vk::CommandBuffer VulkanDevice::AllocateCommandBuffer() {
-    vk::CommandBufferAllocateInfo allocateInfo(m_commandPool, vk::CommandBufferLevel::ePrimary, 1);
+    const vk::CommandBufferAllocateInfo allocateInfo(m_commandPool, vk::CommandBufferLevel::ePrimary, 1);
     vk::CommandBuffer commandBuffer;
     DebugCheckCriticalVk(
             m_device.allocateCommandBuffers(&allocateInfo, &commandBuffer),
@@ -251,7 +251,7 @@ vk::SwapchainKHR VulkanDevice::CreateSwapchain(
         vk::PresentModeKHR presentMode,
         vk::SwapchainKHR oldSwapchain
 ) {
-    vk::SwapchainCreateInfoKHR createInfo(
+    const vk::SwapchainCreateInfoKHR createInfo(
             {},
             surface,
             imageCount,
@@ -269,13 +269,13 @@ vk::SwapchainKHR VulkanDevice::CreateSwapchain(
             oldSwapchain,
             nullptr
     );
-    vk::SwapchainKHR swapchain = m_device.createSwapchainKHR(createInfo);
+    const vk::SwapchainKHR swapchain = m_device.createSwapchainKHR(createInfo);
     DebugCheckCritical(swapchain, "Failed to create Vulkan swapchain.");
     return swapchain;
 }
 
 vk::ImageView VulkanDevice::CreateImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectMask) {
-    vk::ImageViewCreateInfo createInfo(
+    const vk::ImageViewCreateInfo createInfo(
             {},
             image,
             vk::ImageViewType::e2D,
@@ -289,7 +289,7 @@ vk::ImageView VulkanDevice::CreateImageView(vk::Image image, vk::Format format, 
                     1
             }
     );
-    vk::ImageView imageView = m_device.createImageView(createInfo);
+    const vk::ImageView imageView = m_device.createImageView(createInfo);
     DebugCheckCritical(imageView, "Failed to create Vulkan image view.");
     return imageView;
 }
@@ -304,7 +304,7 @@ vk::RenderPass VulkanDevice::CreateRenderPass(
     vk::AttachmentReference depthStencilAttachmentRef;
 
     uint32_t attachmentIndex = 0;
-    for (vk::Format colorAttachmentFormat: colorAttachmentFormats) {
+    for (const vk::Format &colorAttachmentFormat: colorAttachmentFormats) {
         attachments.emplace_back(
                 vk::AttachmentDescriptionFlags{},
                 colorAttachmentFormat,
@@ -353,7 +353,7 @@ vk::RenderPass VulkanDevice::CreateRenderPass(
         subpass.setPDepthStencilAttachment(&depthStencilAttachmentRef);
     }
 
-    vk::RenderPassCreateInfo createInfo(
+    const vk::RenderPassCreateInfo createInfo(
             {},
             attachments,
             subpass
@@ -372,7 +372,7 @@ vk::Framebuffer VulkanDevice::CreateFramebuffer(
         const std::initializer_list<vk::ImageView> &attachments,
         const vk::Extent2D &extent
 ) {
-    vk::FramebufferCreateInfo createInfo(
+    const vk::FramebufferCreateInfo createInfo(
             {},
             renderPass,
             attachments,
@@ -380,7 +380,7 @@ vk::Framebuffer VulkanDevice::CreateFramebuffer(
             extent.height,
             1
     );
-    vk::Framebuffer framebuffer = m_device.createFramebuffer(createInfo);
+    const vk::Framebuffer framebuffer = m_device.createFramebuffer(createInfo);
     DebugCheckCritical(renderPass, "Failed to create Vulkan framebuffer.");
     return framebuffer;
 }
@@ -390,12 +390,12 @@ void VulkanDevice::DestroyFramebuffer(vk::Framebuffer framebuffer) {
 }
 
 vk::ShaderModule VulkanDevice::CreateShaderModule(const std::vector<uint32_t> &spirv) {
-    vk::ShaderModuleCreateInfo createInfo(
+    const vk::ShaderModuleCreateInfo createInfo(
             {},
             spirv.size() * sizeof(uint32_t),
             spirv.data()
     );
-    vk::ShaderModule shaderModule = m_device.createShaderModule(createInfo);
+    const vk::ShaderModule shaderModule = m_device.createShaderModule(createInfo);
     DebugCheckCritical(shaderModule, "Failed to create Vulkan shader module.");
     return shaderModule;
 }
@@ -408,12 +408,12 @@ vk::PipelineLayout VulkanDevice::CreatePipelineLayout(
         const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
         const std::initializer_list<vk::PushConstantRange> &pushConstantRanges
 ) {
-    vk::PipelineLayoutCreateInfo createInfo(
+    const vk::PipelineLayoutCreateInfo createInfo(
             {},
             descriptorSetLayouts,
             pushConstantRanges
     );
-    vk::PipelineLayout pipelineLayout = m_device.createPipelineLayout(createInfo);
+    const vk::PipelineLayout pipelineLayout = m_device.createPipelineLayout(createInfo);
     DebugCheckCritical(pipelineLayout, "Failed to create Vulkan pipeline layout.");
     return pipelineLayout;
 }
@@ -431,12 +431,12 @@ vk::Pipeline VulkanDevice::CreatePipeline(
         const VulkanPipelineOptions &options,
         const std::initializer_list<vk::PipelineColorBlendAttachmentState> &attachmentColorBlends
 ) {
-    vk::PipelineInputAssemblyStateCreateInfo inputAssemblyState(
+    const vk::PipelineInputAssemblyStateCreateInfo inputAssemblyState(
             {},
             options.Topology
     );
 
-    vk::PipelineViewportStateCreateInfo viewportState(
+    const vk::PipelineViewportStateCreateInfo viewportState(
             {},
             1,
             nullptr,
@@ -444,7 +444,7 @@ vk::Pipeline VulkanDevice::CreatePipeline(
             nullptr
     );
 
-    vk::PipelineRasterizationStateCreateInfo rasterizationState(
+    const vk::PipelineRasterizationStateCreateInfo rasterizationState(
             {},
             VK_FALSE,
             VK_FALSE,
@@ -458,35 +458,35 @@ vk::Pipeline VulkanDevice::CreatePipeline(
             1.0f
     );
 
-    vk::PipelineMultisampleStateCreateInfo multisampleState(
+    const vk::PipelineMultisampleStateCreateInfo multisampleState(
             {},
             vk::SampleCountFlagBits::e1
     );
 
-    vk::PipelineDepthStencilStateCreateInfo depthStencilState(
+    const vk::PipelineDepthStencilStateCreateInfo depthStencilState(
             {},
             options.DepthTestEnable,
             options.DepthWriteEnable,
             options.DepthCompareOp
     );
 
-    vk::PipelineColorBlendStateCreateInfo colorBlendState(
+    const vk::PipelineColorBlendStateCreateInfo colorBlendState(
             {},
             VK_FALSE,
             vk::LogicOp::eCopy,
             attachmentColorBlends
     );
 
-    vk::DynamicState dynamicStates[] = {
+    const vk::DynamicState dynamicStates[] = {
             vk::DynamicState::eViewport,
             vk::DynamicState::eScissor
     };
-    vk::PipelineDynamicStateCreateInfo dynamicState(
+    const vk::PipelineDynamicStateCreateInfo dynamicState(
             {},
             dynamicStates
     );
 
-    vk::GraphicsPipelineCreateInfo createInfo(
+    const vk::GraphicsPipelineCreateInfo createInfo(
             {},
             shaderStages,
             vertexInput,
@@ -502,7 +502,7 @@ vk::Pipeline VulkanDevice::CreatePipeline(
             renderPass,
             subpass
     );
-    auto [result, pipeline] = m_device.createGraphicsPipeline({}, createInfo);
+    const auto [result, pipeline] = m_device.createGraphicsPipeline({}, createInfo);
     DebugCheckCriticalVk(result, "Failed to create Vulkan graphics pipeline.");
     return pipeline;
 }

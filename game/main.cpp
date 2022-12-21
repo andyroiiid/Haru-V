@@ -15,13 +15,13 @@ public:
         );
 
         ShaderCompiler shaderCompiler;
-        std::vector<uint32_t> vertexSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eVertex, "shaders/test.vert");
-        std::vector<uint32_t> fragmentSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, "shaders/test.frag");
+        const std::vector<uint32_t> vertexSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eVertex, "shaders/test.vert");
+        const std::vector<uint32_t> fragmentSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, "shaders/test.frag");
 
         m_vertexShaderModule = m_device->CreateShaderModule(vertexSpirv);
         m_fragmentShaderModule = m_device->CreateShaderModule(fragmentSpirv);
 
-        vk::PipelineVertexInputStateCreateInfo inputState;
+        const vk::PipelineVertexInputStateCreateInfo inputState;
         m_pipeline = m_device->CreatePipeline(
                 m_device->GetPrimaryRenderPass(),
                 0,
@@ -57,18 +57,18 @@ public:
     }
 
     void Frame(float deltaTime) override {
-        auto [primaryRenderPassBeginInfo, bufferingIndex, cmd] = m_device->BeginFrame();
+        const auto [primaryRenderPassBeginInfo, bufferingIndex, cmd] = m_device->BeginFrame();
 
         cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
 
         const vk::Extent2D &size = m_device->GetSwapchainExtent();
         // flipped upside down so that it's consistent with OpenGL
-        vk::Viewport viewport(
+        const vk::Viewport viewport(
                 0.0f, static_cast<float>(size.height),
                 static_cast<float>(size.width), -static_cast<float>(size.height),
                 0.0f, 1.0f
         );
-        vk::Rect2D scissor(
+        const vk::Rect2D scissor(
                 {0, 0},
                 size
         );
