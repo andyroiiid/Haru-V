@@ -1,4 +1,5 @@
 add_executable(game
+        JsonFiles.cpp JsonFiles.h
         VertexFormats.cpp VertexFormats.h
         main.cpp)
 

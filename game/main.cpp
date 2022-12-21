@@ -1,11 +1,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "file/FileSystem.h"
-#include "file/JsonFile.h"
 #include "window/Window.h"
 #include "vulkan/ShaderCompiler.h"
 #include "vulkan/VulkanBase.h"
 #include "vulkan/VulkanMesh.h"
+
+#include "JsonFiles.h"
 #include "VertexFormats.h"
 
 class Game : public App {
@@ -113,12 +114,8 @@ int main() {
     FileSystem::Init();
     FileSystem::Mount("assets", "/");
     {
-        JsonFile gameJson("game.json");
-        auto name = gameJson.GetField<std::string>("name");
-        auto width = gameJson.GetField<int>("width");
-        auto height = gameJson.GetField<int>("height");
-        DebugInfo("name = {}, width = {}, height = {}", name, width, height);
-        Window window(name, width, height);
+        const GameConfig gameConfig("game.json");
+        Window window(gameConfig.Name, gameConfig.Width, gameConfig.Height);
         Game game;
         window.MainLoop(&game);
     }
