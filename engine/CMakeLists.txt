@@ -4,19 +4,24 @@ add_subdirectory(dependencies EXCLUDE_FROM_ALL)
 
 add_library(engine
         include/core/Debug.h
-        include/core/DebugVk.h
         include/file/FileSystem.h
         include/file/JsonFile.h
         include/window/Window.h
+        include/vulkan/DebugVk.h
         include/vulkan/ShaderCompiler.h
         include/vulkan/VulkanDevice.h
+        include/vulkan/VulkanBuffer.h
         include/vulkan/VulkanBase.h
+        include/vulkan/VulkanMesh.h
 
         src/file/FileSystem.cpp
         src/window/Window.cpp
         src/vulkan/ShaderCompiler.cpp
+        src/vulkan/vk_mem_alloc.cpp
         src/vulkan/VulkanDevice.cpp
-        src/vulkan/VulkanBase.cpp)
+        src/vulkan/VulkanBuffer.cpp
+        src/vulkan/VulkanBase.cpp
+        src/vulkan/VulkanMesh.cpp)
 
 target_include_directories(engine PUBLIC include)
 

@@ -1,4 +1,5 @@
 add_executable(game
+        VertexFormats.cpp VertexFormats.h
         main.cpp)
 
 target_include_directories(game PRIVATE .)

@@ -9,7 +9,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "core/DebugVk.h"
+#include "vulkan/DebugVk.h"
 
 static vk::Extent2D CalcSwapchainExtent(const vk::SurfaceCapabilitiesKHR &capabilities, GLFWwindow *window) {
     if (capabilities.currentExtent.width == std::numeric_limits<uint32_t>::max() &&
@@ -140,10 +140,7 @@ VulkanBase::BeginFrameInfo VulkanBase::BeginFrame() {
     );
 
     bufferingObjects.CommandBuffer.reset();
-    DebugCheckCriticalVk(
-            bufferingObjects.CommandBuffer.begin({vk::CommandBufferUsageFlagBits::eOneTimeSubmit}),
-            "Failed to begin Vulkan command buffer."
-    );
+    BeginCommandBuffer(bufferingObjects.CommandBuffer, vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
 
     return {
             &m_primaryRenderPassBeginInfos[m_currentSwapchainImageIndex],
@@ -155,10 +152,7 @@ VulkanBase::BeginFrameInfo VulkanBase::BeginFrame() {
 void VulkanBase::EndFrame() {
     BufferingObjects &bufferingObjects = m_bufferingObjects[m_currentBufferingIndex];
 
-    DebugCheckCriticalVk(
-            bufferingObjects.CommandBuffer.end(),
-            "Failed to end Vulkan command buffer."
-    );
+    EndCommandBuffer(bufferingObjects.CommandBuffer);
 
     vk::PipelineStageFlags waitStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
     const vk::SubmitInfo submitInfo(
@@ -167,10 +161,7 @@ void VulkanBase::EndFrame() {
             bufferingObjects.CommandBuffer,
             bufferingObjects.RenderSemaphore
     );
-    DebugCheckCriticalVk(
-            m_graphicsQueue.submit(submitInfo, bufferingObjects.RenderFence),
-            "Failed to submit Vulkan command buffer."
-    );
+    SubmitToGraphicsQueue(submitInfo, bufferingObjects.RenderFence);
 
     const vk::PresentInfoKHR presentInfo(
             bufferingObjects.RenderSemaphore,

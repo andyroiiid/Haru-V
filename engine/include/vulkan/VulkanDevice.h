@@ -7,6 +7,8 @@
 #include <vulkan/vulkan.hpp>
 #include <vk_mem_alloc.h>
 
+#include "vulkan/VulkanBuffer.h"
+
 struct GLFWwindow;
 
 struct VulkanPipelineOptions {
@@ -33,6 +35,15 @@ public:
     VulkanDevice &operator=(VulkanDevice &&) = delete;
 
     void WaitIdle();
+
+    VulkanBuffer CreateBuffer(
+            vk::DeviceSize size,
+            vk::BufferUsageFlags bufferUsage,
+            VmaAllocationCreateFlags flags,
+            VmaMemoryUsage memoryUsage
+    ) {
+        return {m_allocator, size, bufferUsage, flags, memoryUsage};
+    }
 
     vk::RenderPass CreateRenderPass(
             const std::initializer_list<vk::Format> &colorAttachmentFormats,
@@ -82,6 +93,8 @@ protected:
 
     void CreateDevice();
 
+    void SubmitToGraphicsQueue(const vk::SubmitInfo &submitInfo, vk::Fence fence);
+
     void CreateCommandPool();
 
     void CreateAllocator();
@@ -121,3 +134,7 @@ protected:
 
     VmaAllocator m_allocator = VK_NULL_HANDLE;
 };
+
+void BeginCommandBuffer(vk::CommandBuffer commandBuffer, vk::CommandBufferUsageFlags flags = {});
+
+void EndCommandBuffer(vk::CommandBuffer commandBuffer);

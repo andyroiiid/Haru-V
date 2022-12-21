@@ -3,6 +3,8 @@
 #include "window/Window.h"
 #include "vulkan/ShaderCompiler.h"
 #include "vulkan/VulkanBase.h"
+#include "vulkan/VulkanMesh.h"
+#include "VertexFormats.h"
 
 class Game : public App {
 public:
@@ -21,12 +23,11 @@ public:
         m_vertexShaderModule = m_device->CreateShaderModule(vertexSpirv);
         m_fragmentShaderModule = m_device->CreateShaderModule(fragmentSpirv);
 
-        const vk::PipelineVertexInputStateCreateInfo inputState;
         m_pipeline = m_device->CreatePipeline(
                 m_device->GetPrimaryRenderPass(),
                 0,
                 m_pipelineLayout,
-                &inputState,
+                VertexBase::GetPipelineVertexInputStateCreateInfo(),
                 {
                         {{}, vk::ShaderStageFlagBits::eVertex,   m_vertexShaderModule,   "main"},
                         {{}, vk::ShaderStageFlagBits::eFragment, m_fragmentShaderModule, "main"}
@@ -44,11 +45,19 @@ public:
                         }
                 }
         );
+
+        const std::vector<VertexBase> vertices{
+                {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
+                {{1.0f,  -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},
+                {{0.0f,  1.0f,  0.0f}, {0.0f, 0.0f, -1.0f}, {0.5f, 1.0f}},
+        };
+        m_mesh = VulkanMesh(m_device.get(), vertices.size(), sizeof(VertexBase), vertices.data());
     }
 
     void Shutdown() override {
         m_device->WaitIdle();
 
+        m_mesh = {};
         m_device->DestroyPipeline(m_pipeline);
         m_device->DestroyShaderModule(m_vertexShaderModule);
         m_device->DestroyShaderModule(m_fragmentShaderModule);
@@ -76,7 +85,7 @@ public:
         cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline);
         cmd.setViewport(0, viewport);
         cmd.setScissor(0, scissor);
-        cmd.draw(3, 1, 0, 0);
+        m_mesh.BindAndDraw(cmd);
 
         cmd.endRenderPass();
 
@@ -89,6 +98,7 @@ private:
     vk::ShaderModule m_vertexShaderModule;
     vk::ShaderModule m_fragmentShaderModule;
     vk::Pipeline m_pipeline;
+    VulkanMesh m_mesh;
 };
 
 int main() {

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "VulkanDevice.h"
+#include "vulkan/VulkanDevice.h"
 
 class VulkanBase : public VulkanDevice {
 public:
@@ -43,12 +43,12 @@ public:
     template<class Func>
     void ImmediateSubmit(Func &&func) {
         m_immediateCommandBuffer.reset();
-        m_immediateCommandBuffer.begin({vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
+        BeginCommandBuffer(m_immediateCommandBuffer, vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
         func(m_immediateCommandBuffer);
-        m_immediateCommandBuffer.end();
+        EndCommandBuffer(m_immediateCommandBuffer);
 
         const vk::SubmitInfo submitInfo({}, {}, m_immediateCommandBuffer, {});
-        m_graphicsQueue.submit(submitInfo, m_immediateFence);
+        SubmitToGraphicsQueue(submitInfo, m_immediateFence);
         WaitAndResetFence(m_immediateFence);
     }
 

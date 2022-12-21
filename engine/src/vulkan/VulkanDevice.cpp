@@ -9,7 +9,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "core/DebugVk.h"
+#include "vulkan/DebugVk.h"
 
 VulkanDevice::VulkanDevice() {
     CreateInstance();
@@ -174,6 +174,13 @@ void VulkanDevice::CreateDevice() {
 
     m_graphicsQueue = m_device.getQueue(m_graphicsQueueFamily, 0);
     DebugCheckCritical(m_device, "Failed to get Vulkan graphics queue.");
+}
+
+void VulkanDevice::SubmitToGraphicsQueue(const vk::SubmitInfo &submitInfo, vk::Fence fence) {
+    DebugCheckCriticalVk(
+            m_graphicsQueue.submit(submitInfo, fence),
+            "Failed to submit Vulkan command buffer."
+    );
 }
 
 void VulkanDevice::CreateCommandPool() {
@@ -521,4 +528,18 @@ vk::Pipeline VulkanDevice::CreatePipeline(
 
 void VulkanDevice::DestroyPipeline(vk::Pipeline pipeline) {
     m_device.destroyPipeline(pipeline);
+}
+
+void BeginCommandBuffer(vk::CommandBuffer commandBuffer, vk::CommandBufferUsageFlags flags) {
+    DebugCheckCriticalVk(
+            commandBuffer.begin({flags}),
+            "Failed to begin Vulkan command buffer."
+    );
+}
+
+void EndCommandBuffer(vk::CommandBuffer commandBuffer) {
+    DebugCheckCriticalVk(
+            commandBuffer.end(),
+            "Failed to end Vulkan command buffer."
+    );
 }
