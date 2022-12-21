@@ -6,7 +6,11 @@ layout (location = 2) in vec2 aTexCoord;
 
 layout (location = 0) out vec3 vColor;
 
+layout (push_constant) uniform PushConstantData {
+    mat4 uModel;
+};
+
 void main() {
-    gl_Position = vec4(aPosition, 1);
+    gl_Position = uModel * vec4(aPosition, 1);
     vColor = vec3(aTexCoord, 0);
 }

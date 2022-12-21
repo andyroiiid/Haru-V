@@ -1,3 +1,5 @@
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "file/FileSystem.h"
 #include "file/JsonFile.h"
 #include "window/Window.h"
@@ -13,7 +15,9 @@ public:
 
         m_pipelineLayout = m_device->CreatePipelineLayout(
                 {},
-                {}
+                {
+                        {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
+                }
         );
 
         ShaderCompiler shaderCompiler;
@@ -70,21 +74,25 @@ public:
 
         cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
 
-        const vk::Extent2D &size = m_device->GetSwapchainExtent();
-        // flipped upside down so that it's consistent with OpenGL
-        const vk::Viewport viewport(
-                0.0f, static_cast<float>(size.height),
-                static_cast<float>(size.width), -static_cast<float>(size.height),
-                0.0f, 1.0f
-        );
-        const vk::Rect2D scissor(
-                {0, 0},
-                size
-        );
-
         cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline);
+        const vk::Extent2D &size = m_device->GetSwapchainExtent();
+        const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(size);
         cmd.setViewport(0, viewport);
         cmd.setScissor(0, scissor);
+        const glm::mat4 projection = glm::perspective(
+                glm::radians(75.0f),
+                static_cast<float>(size.width) / static_cast<float>(size.height),
+                0.01f,
+                100.0f
+        );
+        const glm::mat4 view = glm::lookAt(
+                glm::vec3{3.0f, 4.0f, -5.0f},
+                glm::vec3{0.0f, 0.0f, 0.0f},
+                glm::vec3{0.0f, 1.0f, 0.0f}
+        );
+        const glm::mat4 model{1.0f};
+        const glm::mat4 matrix = projection * view * model;
+        cmd.pushConstants(m_pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4), &matrix);
         m_mesh.BindAndDraw(cmd);
 
         cmd.endRenderPass();
