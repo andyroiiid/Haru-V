@@ -9,6 +9,7 @@
 #include <glslang/SPIRV/GlslangToSpv.h>
 
 #include "core/Debug.h"
+#include "file/FileSystem.h"
 
 ShaderCompiler::ShaderCompiler() {
     DebugInfo("glslang version: {}", glslang::GetGlslVersionString());
@@ -38,11 +39,12 @@ static inline std::tuple<EShLanguage, const char *> GetShaderStageLanguageAndNam
     }
 }
 
-bool ShaderCompiler::Compile(vk::ShaderStageFlagBits stage, const char *source, std::vector<uint32_t> &spirv) {
+std::vector<uint32_t> ShaderCompiler::Compile(vk::ShaderStageFlagBits stage, const std::string &source) {
     auto [glslStage, stageName] = GetShaderStageLanguageAndName(stage);
 
     glslang::TShader shader(glslStage);
-    shader.setStrings(&source, 1);
+    const char *sourceCStr = source.c_str();
+    shader.setStrings(&sourceCStr, 1);
     shader.setPreamble(m_preamble.c_str());
     shader.setEnvInput(glslang::EShSourceGlsl, glslStage, glslang::EShClientVulkan, 100);
     shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_3);
@@ -50,7 +52,7 @@ bool ShaderCompiler::Compile(vk::ShaderStageFlagBits stage, const char *source, 
 
     if (!shader.parse(GetDefaultResources(), 100, false, EShMsgDefault)) {
         DebugError("Failed to parse {} shader: {}", stageName, shader.getInfoLog());
-        return false;
+        return {};
     }
 
     glslang::TProgram program;
@@ -58,9 +60,14 @@ bool ShaderCompiler::Compile(vk::ShaderStageFlagBits stage, const char *source, 
 
     if (!program.link(EShMsgDefault)) {
         DebugError("Failed to link {} shader program: {}", stageName, program.getInfoLog());
-        return false;
+        return {};
     }
 
+    std::vector<uint32_t> spirv;
     glslang::GlslangToSpv(*program.getIntermediate(glslStage), spirv);
-    return true;
+    return spirv;
+}
+
+std::vector<uint32_t> ShaderCompiler::CompileFromFile(vk::ShaderStageFlagBits stage, const std::string &filename) {
+    return Compile(stage, FileSystem::Read(filename));
 }

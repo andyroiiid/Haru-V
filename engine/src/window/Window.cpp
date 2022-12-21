@@ -30,9 +30,9 @@ Window::~Window() {
 }
 
 void Window::MainLoop(App *app) {
-    glfwShowWindow(m_window);
-
     app->Init(m_window);
+
+    glfwShowWindow(m_window);
 
     double prevTime = glfwGetTime();
     while (!glfwWindowShouldClose(m_window)) {

@@ -14,45 +14,9 @@ public:
                 {}
         );
 
-        std::vector<uint32_t> vertexSpirv;
-        std::vector<uint32_t> fragmentSpirv;
-
         ShaderCompiler shaderCompiler;
-        DebugCheckCritical(
-                shaderCompiler.Compile(
-                        vk::ShaderStageFlagBits::eVertex,
-                        R"GLSL(
-#version 450
-
-void main() {
-    const vec3 POSITIONS[3] = vec3[3](
-        vec3(-1, -1, 0),
-        vec3(1, -1, 0),
-        vec3(0, 1, 0)
-    );
-    gl_Position = vec4(POSITIONS[gl_VertexIndex], 1);
-}
-)GLSL",
-                        vertexSpirv
-                ),
-                "Failed to compile vertex shader."
-        );
-        DebugCheckCritical(
-                shaderCompiler.Compile(
-                        vk::ShaderStageFlagBits::eFragment,
-                        R"GLSL(
-#version 450
-
-layout (location = 0) out vec4 fColor;
-
-void main() {
-    fColor = vec4(1, 0, 0, 1);
-}
-)GLSL",
-                        fragmentSpirv
-                ),
-                "Failed to compile fragment shader."
-        );
+        std::vector<uint32_t> vertexSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eVertex, "shaders/test.vert");
+        std::vector<uint32_t> fragmentSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, "shaders/test.frag");
 
         m_vertexShaderModule = m_device->CreateShaderModule(vertexSpirv);
         m_fragmentShaderModule = m_device->CreateShaderModule(fragmentSpirv);

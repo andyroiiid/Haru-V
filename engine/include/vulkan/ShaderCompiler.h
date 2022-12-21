@@ -22,7 +22,9 @@ public:
 
     void SetPreamble(std::string preamble);
 
-    bool Compile(vk::ShaderStageFlagBits stage, const char *source, std::vector<uint32_t> &spirv);
+    std::vector<uint32_t> Compile(vk::ShaderStageFlagBits stage, const std::string &source);
+
+    std::vector<uint32_t> CompileFromFile(vk::ShaderStageFlagBits stage, const std::string &filename);
 
 private:
     std::string m_preamble;
