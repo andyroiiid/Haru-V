@@ -9,8 +9,9 @@ add_library(engine
         include/window/Window.h
         include/vulkan/DebugVk.h
         include/vulkan/ShaderCompiler.h
-        include/vulkan/VulkanDevice.h
         include/vulkan/VulkanBuffer.h
+        include/vulkan/VulkanImage.h
+        include/vulkan/VulkanDevice.h
         include/vulkan/VulkanBase.h
         include/vulkan/VulkanMesh.h
 
@@ -18,8 +19,9 @@ add_library(engine
         src/window/Window.cpp
         src/vulkan/ShaderCompiler.cpp
         src/vulkan/vk_mem_alloc.cpp
-        src/vulkan/VulkanDevice.cpp
         src/vulkan/VulkanBuffer.cpp
+        src/vulkan/VulkanImage.cpp
+        src/vulkan/VulkanDevice.cpp
         src/vulkan/VulkanBase.cpp
         src/vulkan/VulkanMesh.cpp)
 

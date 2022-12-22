@@ -5,13 +5,14 @@
 #pragma once
 
 #include "vulkan/VulkanDevice.h"
+#include "vulkan/VulkanImage.h"
 
 static inline std::pair<vk::Viewport, vk::Rect2D> CalcViewportAndScissorFromExtent(const vk::Extent2D &extent) {
     // flipped upside down so that it's consistent with OpenGL
     const auto width = static_cast<float>(extent.width);
     const auto height = static_cast<float>(extent.height);
     return {
-            {0.0f, height, width, -height, 0.0f, 1.0f},
+            {0.0f,   height, width, -height, 0.0f, 1.0f},
             {{0, 0}, extent}
     };
 }
@@ -20,6 +21,7 @@ class VulkanBase : public VulkanDevice {
 public:
     static constexpr vk::Format SURFACE_FORMAT = vk::Format::eB8G8R8A8Unorm;
     static constexpr vk::ColorSpaceKHR SURFACE_COLOR_SPACE = vk::ColorSpaceKHR::eSrgbNonlinear;
+    static constexpr vk::Format DEPTH_FORMAT = vk::Format::eD32Sfloat;
     static constexpr vk::PresentModeKHR PRESENT_MODE = vk::PresentModeKHR::eMailbox;
 
     explicit VulkanBase(GLFWwindow *window);
@@ -81,6 +83,8 @@ private:
     vk::Extent2D m_swapchainExtent;
     vk::SwapchainKHR m_swapchain;
     std::vector<vk::ImageView> m_swapchainImageViews;
+    std::vector<VulkanImage> m_depthImages;
+    std::vector<vk::ImageView> m_depthImageViews;
 
     vk::RenderPass m_primaryRenderPass;
     std::vector<vk::Framebuffer> m_primaryFramebuffers;

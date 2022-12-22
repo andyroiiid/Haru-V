@@ -8,6 +8,7 @@
 #include <vk_mem_alloc.h>
 
 #include "vulkan/VulkanBuffer.h"
+#include "vulkan/VulkanImage.h"
 
 struct GLFWwindow;
 
@@ -15,9 +16,9 @@ struct VulkanPipelineOptions {
     vk::PrimitiveTopology Topology = vk::PrimitiveTopology::eTriangleList;
     vk::PolygonMode PolygonMode = vk::PolygonMode::eFill;
     vk::CullModeFlags CullMode = vk::CullModeFlagBits::eBack;
-    vk::Bool32 DepthTestEnable = VK_FALSE;
-    vk::Bool32 DepthWriteEnable = VK_FALSE;
-    vk::CompareOp DepthCompareOp = vk::CompareOp::eAlways;
+    vk::Bool32 DepthTestEnable = VK_TRUE;
+    vk::Bool32 DepthWriteEnable = VK_TRUE;
+    vk::CompareOp DepthCompareOp = vk::CompareOp::eLess;
 };
 
 class VulkanDevice {
@@ -43,6 +44,16 @@ public:
             VmaMemoryUsage memoryUsage
     ) {
         return {m_allocator, size, bufferUsage, flags, memoryUsage};
+    }
+
+    VulkanImage CreateImage(
+            vk::Format format,
+            const vk::Extent2D &extent,
+            vk::ImageUsageFlags imageUsage,
+            VmaAllocationCreateFlags flags,
+            VmaMemoryUsage memoryUsage
+    ) {
+        return {m_allocator, format, extent, imageUsage, flags, memoryUsage};
     }
 
     vk::RenderPass CreateRenderPass(

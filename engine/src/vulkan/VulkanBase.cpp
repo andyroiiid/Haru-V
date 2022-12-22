@@ -63,7 +63,24 @@ void VulkanBase::CreateSurfaceSwapchainAndImageViews() {
     const auto [swapchainImagesResult, swapchainImages] = m_device.getSwapchainImagesKHR(m_swapchain);
     DebugCheckCriticalVk(swapchainImagesResult, "Failed to get Vulkan swapchain images.");
     for (const vk::Image &image: swapchainImages) {
-        m_swapchainImageViews.push_back(CreateImageView(image, SURFACE_FORMAT, vk::ImageAspectFlagBits::eColor));
+        m_swapchainImageViews.push_back(CreateImageView(
+                image,
+                SURFACE_FORMAT,
+                vk::ImageAspectFlagBits::eColor
+        ));
+        VulkanImage depthImage = CreateImage(
+                DEPTH_FORMAT,
+                m_swapchainExtent,
+                vk::ImageUsageFlagBits::eDepthStencilAttachment,
+                0,
+                VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
+        );
+        m_depthImageViews.push_back(CreateImageView(
+                depthImage.Get(),
+                DEPTH_FORMAT,
+                vk::ImageAspectFlagBits::eDepth
+        ));
+        m_depthImages.push_back(std::move(depthImage));
     }
 }
 
@@ -72,16 +89,25 @@ void VulkanBase::CreatePrimaryRenderPassAndFramebuffers() {
             {
                     SURFACE_FORMAT
             },
-            vk::Format::eUndefined,
+            DEPTH_FORMAT,
             true
     );
 
-    for (const vk::ImageView &imageView: m_swapchainImageViews) {
-        m_primaryFramebuffers.push_back(CreateFramebuffer(m_primaryRenderPass, {imageView}, m_swapchainExtent));
+    const size_t numSwapchainImages = m_swapchainImageViews.size();
+    for (int i = 0; i < numSwapchainImages; i++) {
+        m_primaryFramebuffers.push_back(CreateFramebuffer(
+                m_primaryRenderPass,
+                {
+                        m_swapchainImageViews[i],
+                        m_depthImageViews[i]
+                },
+                m_swapchainExtent
+        ));
     }
 
     static vk::ClearValue clearValues[]{
-            {std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}
+            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+            {vk::ClearDepthStencilValue{1.0f, 0}}
     };
     vk::RenderPassBeginInfo beginInfo(
             m_primaryRenderPass,
@@ -119,6 +145,10 @@ VulkanBase::~VulkanBase() {
     }
     DestroyRenderPass(m_primaryRenderPass);
 
+    for (const vk::ImageView &imageView: m_depthImageViews) {
+        m_device.destroy(imageView);
+    }
+    m_depthImages.clear();
     for (const vk::ImageView &imageView: m_swapchainImageViews) {
         m_device.destroy(imageView);
     }
