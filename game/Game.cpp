@@ -6,16 +6,13 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "VertexFormats.h"
+#include "MeshUtilities.h"
 
 void Game::Init(GLFWwindow *window) {
     m_renderer = std::make_unique<Renderer>(window);
 
-    const std::vector<VertexBase> vertices{
-            {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
-            {{1.0f,  -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},
-            {{0.0f,  1.0f,  0.0f}, {0.0f, 0.0f, -1.0f}, {0.5f, 1.0f}},
-    };
+    std::vector<VertexBase> vertices;
+    AppendBoxVertices(vertices, {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f});
     m_mesh = m_renderer->CreateMesh(vertices);
 }
 
