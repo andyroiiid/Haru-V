@@ -72,9 +72,17 @@ public:
 
     void DestroyFramebuffer(vk::Framebuffer framebuffer);
 
-    vk::ShaderModule CreateShaderModule(const std::vector<uint32_t> &spirv);
+    vk::DescriptorSetLayout CreateDescriptorSetLayout(
+            const std::initializer_list<vk::DescriptorSetLayoutBinding> &bindings
+    );
 
-    void DestroyShaderModule(vk::ShaderModule shaderModule);
+    void DestroyDescriptorSetLayout(vk::DescriptorSetLayout descriptorSetLayout);
+
+    vk::DescriptorSet AllocateDescriptorSet(vk::DescriptorSetLayout descriptorSetLayout);
+
+    void FreeDescriptorSet(vk::DescriptorSet descriptorSet);
+
+    void WriteDescriptorSet(const vk::WriteDescriptorSet &writeDescriptorSet);
 
     vk::PipelineLayout CreatePipelineLayout(
             const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
@@ -82,6 +90,10 @@ public:
     );
 
     void DestroyPipelineLayout(vk::PipelineLayout pipelineLayout);
+
+    vk::ShaderModule CreateShaderModule(const std::vector<uint32_t> &spirv);
+
+    void DestroyShaderModule(vk::ShaderModule shaderModule);
 
     vk::Pipeline CreatePipeline(
             vk::RenderPass renderPass,
@@ -107,6 +119,8 @@ protected:
     void SubmitToGraphicsQueue(const vk::SubmitInfo &submitInfo, vk::Fence fence);
 
     void CreateCommandPool();
+
+    void CreateDescriptorPool();
 
     void CreateAllocator();
 
@@ -142,6 +156,8 @@ protected:
     vk::Queue m_graphicsQueue;
 
     vk::CommandPool m_commandPool;
+
+    vk::DescriptorPool m_descriptorPool;
 
     VmaAllocator m_allocator = VK_NULL_HANDLE;
 };

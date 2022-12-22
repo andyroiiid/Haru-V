@@ -17,6 +17,7 @@ VulkanDevice::VulkanDevice() {
     PickPhysicalDevice();
     CreateDevice();
     CreateCommandPool();
+    CreateDescriptorPool();
     CreateAllocator();
 }
 
@@ -190,6 +191,30 @@ void VulkanDevice::CreateCommandPool() {
     m_commandPool = commandPool;
 }
 
+void VulkanDevice::CreateDescriptorPool() {
+    const std::vector<vk::DescriptorPoolSize> poolSizes{
+            {vk::DescriptorType::eSampler,              1024},
+            {vk::DescriptorType::eCombinedImageSampler, 1024},
+            {vk::DescriptorType::eSampledImage,         1024},
+            {vk::DescriptorType::eStorageImage,         1024},
+            {vk::DescriptorType::eUniformTexelBuffer,   1024},
+            {vk::DescriptorType::eStorageTexelBuffer,   1024},
+            {vk::DescriptorType::eUniformBuffer,        1024},
+            {vk::DescriptorType::eStorageBuffer,        1024},
+            {vk::DescriptorType::eUniformBufferDynamic, 1024},
+            {vk::DescriptorType::eStorageBufferDynamic, 1024},
+            {vk::DescriptorType::eInputAttachment,      1024}
+    };
+    const vk::DescriptorPoolCreateInfo createInfo(
+            vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+            1024,
+            poolSizes
+    );
+    const auto [result, descriptorPool] = m_device.createDescriptorPool(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan descriptor pool.");
+    m_descriptorPool = descriptorPool;
+}
+
 void VulkanDevice::CreateAllocator() {
     VmaAllocatorCreateInfo createInfo{};
     createInfo.physicalDevice = m_physicalDevice;
@@ -206,6 +231,7 @@ VulkanDevice::~VulkanDevice() {
     WaitIdle();
 
     vmaDestroyAllocator(m_allocator);
+    m_device.destroy(m_descriptorPool);
     m_device.destroy(m_commandPool);
     m_device.destroy();
     m_instance.destroy(m_debugMessenger);
@@ -408,19 +434,38 @@ void VulkanDevice::DestroyFramebuffer(vk::Framebuffer framebuffer) {
     m_device.destroyFramebuffer(framebuffer);
 }
 
-vk::ShaderModule VulkanDevice::CreateShaderModule(const std::vector<uint32_t> &spirv) {
-    const vk::ShaderModuleCreateInfo createInfo(
+vk::DescriptorSetLayout VulkanDevice::CreateDescriptorSetLayout(
+        const std::initializer_list<vk::DescriptorSetLayoutBinding> &bindings
+) {
+    const vk::DescriptorSetLayoutCreateInfo createInfo(
             {},
-            spirv.size() * sizeof(uint32_t),
-            spirv.data()
+            bindings
     );
-    const auto [result, shaderModule] = m_device.createShaderModule(createInfo);
-    DebugCheckCriticalVk(result, "Failed to create Vulkan shader module.");
-    return shaderModule;
+    const auto [result, descriptorSetLayout] = m_device.createDescriptorSetLayout(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan descriptor set layout.");
+    return descriptorSetLayout;
 }
 
-void VulkanDevice::DestroyShaderModule(vk::ShaderModule shaderModule) {
-    m_device.destroyShaderModule(shaderModule);
+void VulkanDevice::DestroyDescriptorSetLayout(vk::DescriptorSetLayout descriptorSetLayout) {
+    m_device.destroyDescriptorSetLayout(descriptorSetLayout);
+}
+
+vk::DescriptorSet VulkanDevice::AllocateDescriptorSet(vk::DescriptorSetLayout descriptorSetLayout) {
+    const vk::DescriptorSetAllocateInfo allocateInfo(m_descriptorPool, descriptorSetLayout);
+    vk::DescriptorSet descriptorSet;
+    DebugCheckCriticalVk(
+            m_device.allocateDescriptorSets(&allocateInfo, &descriptorSet),
+            "Failed to allocate Vulkan descriptor set."
+    );
+    return descriptorSet;
+}
+
+void VulkanDevice::FreeDescriptorSet(vk::DescriptorSet descriptorSet) {
+    m_device.freeDescriptorSets(m_descriptorPool, descriptorSet);
+}
+
+void VulkanDevice::WriteDescriptorSet(const vk::WriteDescriptorSet &writeDescriptorSet) {
+    m_device.updateDescriptorSets(writeDescriptorSet, {});
 }
 
 vk::PipelineLayout VulkanDevice::CreatePipelineLayout(
@@ -439,6 +484,21 @@ vk::PipelineLayout VulkanDevice::CreatePipelineLayout(
 
 void VulkanDevice::DestroyPipelineLayout(vk::PipelineLayout pipelineLayout) {
     m_device.destroyPipelineLayout(pipelineLayout);
+}
+
+vk::ShaderModule VulkanDevice::CreateShaderModule(const std::vector<uint32_t> &spirv) {
+    const vk::ShaderModuleCreateInfo createInfo(
+            {},
+            spirv.size() * sizeof(uint32_t),
+            spirv.data()
+    );
+    const auto [result, shaderModule] = m_device.createShaderModule(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan shader module.");
+    return shaderModule;
+}
+
+void VulkanDevice::DestroyShaderModule(vk::ShaderModule shaderModule) {
+    m_device.destroyShaderModule(shaderModule);
 }
 
 vk::Pipeline VulkanDevice::CreatePipeline(

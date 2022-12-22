@@ -36,23 +36,21 @@ void Game::Frame(float deltaTime) {
             glm::vec3{0.0f, 1.0f, 0.0f}
     );
 
+    m_renderer->SetCameraMatrices(projection, view);
+
     const glm::mat4 IDENTITY{1.0f};
 
     glm::mat4 model = IDENTITY;
-    glm::mat4 matrix = projection * view * model;
-    m_renderer->Draw(m_mesh, matrix);
+    m_renderer->Draw(m_mesh, model);
 
     model = glm::translate(IDENTITY, {2.0f, 0.0f, 0.0f});
-    matrix = projection * view * model;
-    m_renderer->Draw(m_mesh, matrix);
+    m_renderer->Draw(m_mesh, model);
 
     model = glm::translate(IDENTITY, {0.0f, 2.0f, 0.0f});
-    matrix = projection * view * model;
-    m_renderer->Draw(m_mesh, matrix);
+    m_renderer->Draw(m_mesh, model);
 
     model = glm::translate(IDENTITY, {0.0f, 0.0f, 2.0f});
-    matrix = projection * view * model;
-    m_renderer->Draw(m_mesh, matrix);
+    m_renderer->Draw(m_mesh, model);
 
     m_renderer->DrawToScreen();
 }

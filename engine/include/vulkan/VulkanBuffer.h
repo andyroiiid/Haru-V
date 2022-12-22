@@ -43,7 +43,7 @@ public:
 
     void Swap(VulkanBuffer &other) noexcept;
 
-    void Upload(size_t size, const void *data);
+    void Upload(size_t size, const void *data) const;
 
     [[nodiscard]] const vk::Buffer &Get() const { return m_buffer; }
 

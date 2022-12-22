@@ -13,6 +13,11 @@
 
 struct GLFWwindow;
 
+struct RendererUniformData {
+    glm::mat4 Projection;
+    glm::mat4 View;
+};
+
 class Renderer {
 public:
     explicit Renderer(GLFWwindow *window);
@@ -40,6 +45,11 @@ public:
         return {m_device, vertices.size(), sizeof(VertexBase), vertices.data()};
     }
 
+    void SetCameraMatrices(const glm::mat4 &projection, const glm::mat4 &view) {
+        m_rendererUniformData.Projection = projection;
+        m_rendererUniformData.View = view;
+    }
+
     void Draw(const VulkanMesh &mesh, const glm::mat4 &modelMatrix) {
         m_drawCalls.emplace_back(mesh, modelMatrix);
     }
@@ -47,9 +57,22 @@ public:
     void DrawToScreen();
 
 private:
+    void CreateDescriptorSetLayout();
+
+    void CreateBufferingObjects();
+
     void CreatePipeline();
 
     VulkanBase m_device;
+
+    vk::DescriptorSetLayout m_rendererDescriptorSetLayout;
+
+    RendererUniformData m_rendererUniformData{};
+    struct BufferingObjects {
+        VulkanBuffer RendererUniformBuffer;
+        vk::DescriptorSet RendererDescriptorSet;
+    };
+    std::vector<BufferingObjects> m_bufferingObjects;
 
     vk::PipelineLayout m_pipelineLayout;
     vk::ShaderModule m_vertexShaderModule;

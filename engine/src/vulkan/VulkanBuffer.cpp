@@ -50,7 +50,7 @@ void VulkanBuffer::Swap(VulkanBuffer &other) noexcept {
     std::swap(m_allocation, other.m_allocation);
 }
 
-void VulkanBuffer::Upload(size_t size, const void *data) {
+void VulkanBuffer::Upload(size_t size, const void *data) const {
     void *mappedMemory = nullptr;
     DebugCheckCriticalVk(
             vmaMapMemory(m_allocator, m_allocation, &mappedMemory),
