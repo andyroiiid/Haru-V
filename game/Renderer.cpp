@@ -18,7 +18,7 @@ Renderer::Renderer(GLFWwindow *window)
 void Renderer::CreateDescriptorSetLayout() {
     m_rendererDescriptorSetLayout = m_device.CreateDescriptorSetLayout(
             {
-                    {0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex}
+                    {0, vk::DescriptorType::eUniformBufferDynamic, 1, vk::ShaderStageFlagBits::eVertex}
             }
     );
 }
@@ -33,27 +33,22 @@ void Renderer::CreateBufferingObjects() {
             VMA_MEMORY_USAGE_AUTO_PREFER_HOST
     );
 
-    m_bufferingObjects.resize(numBuffering);
-    for (int i = 0; i < numBuffering; i++) {
-        const vk::DescriptorSet rendererDescriptorSet = m_device.AllocateDescriptorSet(m_rendererDescriptorSetLayout);
+    m_rendererDescriptorSet = m_device.AllocateDescriptorSet(m_rendererDescriptorSetLayout);
 
-        const vk::DescriptorBufferInfo bufferInfo(
-                m_rendererUniformBuffer.Get(),
-                i * sizeof(RendererUniformData),
-                sizeof(RendererUniformData)
-        );
-        const vk::WriteDescriptorSet writeDescriptorSet(
-                rendererDescriptorSet,
-                0,
-                0,
-                vk::DescriptorType::eUniformBuffer,
-                {},
-                bufferInfo
-        );
-        m_device.WriteDescriptorSet(writeDescriptorSet);
-
-        m_bufferingObjects[i].RendererDescriptorSet = rendererDescriptorSet;
-    }
+    const vk::DescriptorBufferInfo bufferInfo(
+            m_rendererUniformBuffer.Get(),
+            0,
+            sizeof(RendererUniformData)
+    );
+    const vk::WriteDescriptorSet writeDescriptorSet(
+            m_rendererDescriptorSet,
+            0,
+            0,
+            vk::DescriptorType::eUniformBufferDynamic,
+            {},
+            bufferInfo
+    );
+    m_device.WriteDescriptorSet(writeDescriptorSet);
 }
 
 void Renderer::CreatePipeline() {
@@ -102,9 +97,7 @@ Renderer::~Renderer() {
     m_device.DestroyShaderModule(m_fragmentShaderModule);
     m_device.DestroyPipelineLayout(m_pipelineLayout);
 
-    for (const BufferingObjects &bufferingObjects: m_bufferingObjects) {
-        m_device.FreeDescriptorSet(bufferingObjects.RendererDescriptorSet);
-    }
+    m_device.FreeDescriptorSet(m_rendererDescriptorSet);
     m_rendererUniformBuffer = {};
 
     m_device.DestroyDescriptorSetLayout(m_rendererDescriptorSetLayout);
@@ -113,7 +106,8 @@ Renderer::~Renderer() {
 void Renderer::DrawToScreen() {
     const auto [primaryRenderPassBeginInfo, bufferingIndex, cmd] = m_device.BeginFrame();
 
-    m_rendererUniformBuffer.UploadRange(bufferingIndex * sizeof(RendererUniformData), sizeof(RendererUniformData), &m_rendererUniformData);
+    const uint32_t rendererUniformBufferOffset = bufferingIndex * sizeof(RendererUniformData);
+    m_rendererUniformBuffer.UploadRange(rendererUniformBufferOffset, sizeof(RendererUniformData), &m_rendererUniformData);
 
     cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
 
@@ -128,8 +122,8 @@ void Renderer::DrawToScreen() {
             vk::PipelineBindPoint::eGraphics,
             m_pipelineLayout,
             0,
-            m_bufferingObjects[bufferingIndex].RendererDescriptorSet,
-            {}
+            m_rendererDescriptorSet,
+            rendererUniformBufferOffset
     );
 
     for (const DrawCall &drawCall: m_drawCalls) {

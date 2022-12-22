@@ -71,10 +71,7 @@ private:
 
     RendererUniformData m_rendererUniformData{};
     VulkanBuffer m_rendererUniformBuffer;
-    struct BufferingObjects {
-        vk::DescriptorSet RendererDescriptorSet;
-    };
-    std::vector<BufferingObjects> m_bufferingObjects;
+    vk::DescriptorSet m_rendererDescriptorSet;
 
     vk::PipelineLayout m_pipelineLayout;
     vk::ShaderModule m_vertexShaderModule;
