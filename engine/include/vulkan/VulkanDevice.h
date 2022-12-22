@@ -72,9 +72,7 @@ public:
 
     void DestroyFramebuffer(vk::Framebuffer framebuffer);
 
-    vk::DescriptorSetLayout CreateDescriptorSetLayout(
-            const std::initializer_list<vk::DescriptorSetLayoutBinding> &bindings
-    );
+    vk::DescriptorSetLayout CreateDescriptorSetLayout(const vk::ArrayProxyNoTemporaries<vk::DescriptorSetLayoutBinding> &bindings);
 
     void DestroyDescriptorSetLayout(vk::DescriptorSetLayout descriptorSetLayout);
 

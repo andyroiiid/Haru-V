@@ -10,51 +10,24 @@
 
 Renderer::Renderer(GLFWwindow *window)
         : m_device(window) {
-    CreateDescriptorSetLayout();
-    CreateBufferingObjects();
+    CreateUniformBuffers();
     CreatePipeline();
 }
 
-void Renderer::CreateDescriptorSetLayout() {
-    m_rendererDescriptorSetLayout = m_device.CreateDescriptorSetLayout(
+void Renderer::CreateUniformBuffers() {
+    m_uniformBufferSet = VulkanUniformBufferSet(
+            m_device,
             {
-                    {0, vk::DescriptorType::eUniformBufferDynamic, 1, vk::ShaderStageFlagBits::eVertex}
+                    {0, vk::ShaderStageFlagBits::eVertex,   sizeof(RendererUniformData)},
+                    {1, vk::ShaderStageFlagBits::eFragment, sizeof(LightingUniformData)}
             }
     );
-}
-
-void Renderer::CreateBufferingObjects() {
-    const size_t numBuffering = m_device.GetNumBuffering();
-
-    m_rendererUniformBuffer = m_device.CreateBuffer(
-            numBuffering * sizeof(RendererUniformData),
-            vk::BufferUsageFlagBits::eUniformBuffer,
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
-            VMA_MEMORY_USAGE_AUTO_PREFER_HOST
-    );
-
-    m_rendererDescriptorSet = m_device.AllocateDescriptorSet(m_rendererDescriptorSetLayout);
-
-    const vk::DescriptorBufferInfo bufferInfo(
-            m_rendererUniformBuffer.Get(),
-            0,
-            sizeof(RendererUniformData)
-    );
-    const vk::WriteDescriptorSet writeDescriptorSet(
-            m_rendererDescriptorSet,
-            0,
-            0,
-            vk::DescriptorType::eUniformBufferDynamic,
-            {},
-            bufferInfo
-    );
-    m_device.WriteDescriptorSet(writeDescriptorSet);
 }
 
 void Renderer::CreatePipeline() {
     m_pipelineLayout = m_device.CreatePipelineLayout(
             {
-                    m_rendererDescriptorSetLayout
+                    m_uniformBufferSet.GetDescriptorSetLayout()
             },
             {
                     {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
@@ -97,17 +70,16 @@ Renderer::~Renderer() {
     m_device.DestroyShaderModule(m_fragmentShaderModule);
     m_device.DestroyPipelineLayout(m_pipelineLayout);
 
-    m_device.FreeDescriptorSet(m_rendererDescriptorSet);
-    m_rendererUniformBuffer = {};
-
-    m_device.DestroyDescriptorSetLayout(m_rendererDescriptorSetLayout);
+    m_uniformBufferSet = {};
 }
 
 void Renderer::DrawToScreen() {
     const auto [primaryRenderPassBeginInfo, bufferingIndex, cmd] = m_device.BeginFrame();
 
-    const uint32_t rendererUniformBufferOffset = bufferingIndex * sizeof(RendererUniformData);
-    m_rendererUniformBuffer.UploadRange(rendererUniformBufferOffset, sizeof(RendererUniformData), &m_rendererUniformData);
+    m_uniformBufferSet.UpdateAllBuffers(bufferingIndex, {
+            &m_rendererUniformData,
+            &m_lightingUniformData
+    });
 
     cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
 
@@ -122,8 +94,8 @@ void Renderer::DrawToScreen() {
             vk::PipelineBindPoint::eGraphics,
             m_pipelineLayout,
             0,
-            m_rendererDescriptorSet,
-            rendererUniformBufferOffset
+            m_uniformBufferSet.GetDescriptorSet(),
+            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
 
     for (const DrawCall &drawCall: m_drawCalls) {

@@ -7,6 +7,7 @@
 #include <glm/mat4x4.hpp>
 
 #include "vulkan/VulkanBase.h"
+#include "vulkan/VulkanUniformBufferSet.h"
 #include "vulkan/VulkanMesh.h"
 
 #include "VertexFormats.h"
@@ -18,7 +19,14 @@ struct alignas(256) RendererUniformData {
     glm::mat4 View;
 };
 
-static_assert(sizeof(RendererUniformData) == 256);
+struct alignas(256) LightingUniformData {
+    glm::vec3 LightDirection;
+    float Padding0;
+    glm::vec3 LightColor;
+    float Padding1;
+    glm::vec3 AmbientColor;
+    float Padding2;
+};
 
 class Renderer {
 public:
@@ -52,6 +60,12 @@ public:
         m_rendererUniformData.View = view;
     }
 
+    void SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor, const glm::vec3 &ambientColor) {
+        m_lightingUniformData.LightDirection = lightDirection;
+        m_lightingUniformData.LightColor = lightColor;
+        m_lightingUniformData.AmbientColor = ambientColor;
+    }
+
     void Draw(const VulkanMesh &mesh, const glm::mat4 &modelMatrix) {
         m_drawCalls.emplace_back(mesh, modelMatrix);
     }
@@ -59,19 +73,15 @@ public:
     void DrawToScreen();
 
 private:
-    void CreateDescriptorSetLayout();
-
-    void CreateBufferingObjects();
+    void CreateUniformBuffers();
 
     void CreatePipeline();
 
     VulkanBase m_device;
 
-    vk::DescriptorSetLayout m_rendererDescriptorSetLayout;
-
     RendererUniformData m_rendererUniformData{};
-    VulkanBuffer m_rendererUniformBuffer;
-    vk::DescriptorSet m_rendererDescriptorSet;
+    LightingUniformData m_lightingUniformData{};
+    VulkanUniformBufferSet m_uniformBufferSet;
 
     vk::PipelineLayout m_pipelineLayout;
     vk::ShaderModule m_vertexShaderModule;

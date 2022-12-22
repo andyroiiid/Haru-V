@@ -434,9 +434,7 @@ void VulkanDevice::DestroyFramebuffer(vk::Framebuffer framebuffer) {
     m_device.destroyFramebuffer(framebuffer);
 }
 
-vk::DescriptorSetLayout VulkanDevice::CreateDescriptorSetLayout(
-        const std::initializer_list<vk::DescriptorSetLayoutBinding> &bindings
-) {
+vk::DescriptorSetLayout VulkanDevice::CreateDescriptorSetLayout(const vk::ArrayProxyNoTemporaries<vk::DescriptorSetLayoutBinding> &bindings) {
     const vk::DescriptorSetLayoutCreateInfo createInfo(
             {},
             bindings

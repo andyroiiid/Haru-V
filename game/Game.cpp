@@ -33,12 +33,22 @@ void Game::Frame(float deltaTime) {
             100.0f
     );
     const glm::mat4 view = glm::lookAt(
-            glm::vec3{glm::cos(m_time) * 5.0f, 4.0f, glm::sin(m_time) * 5.0f},
+            glm::vec3{3.0f, 4.0f, -5.0f},
             glm::vec3{0.0f, 0.0f, 0.0f},
             glm::vec3{0.0f, 1.0f, 0.0f}
     );
-
     m_renderer->SetCameraMatrices(projection, view);
+
+    const glm::vec3 lightDirection{
+            glm::cos(glm::radians(m_time * 90.0f)),
+            1.0f,
+            glm::sin(glm::radians(m_time * 90.0f))
+    };
+    m_renderer->SetLightingData(
+            lightDirection,
+            {1.0f, 1.0f, 1.0f},
+            {0.2f, 0.2f, 0.2f}
+    );
 
     const glm::mat4 IDENTITY{1.0f};
 
