@@ -6,8 +6,6 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include "vulkan/ShaderCompiler.h"
-
 Renderer::Renderer(GLFWwindow *window)
         : m_device(window) {
     CreateUniformBuffers();
@@ -25,12 +23,6 @@ void Renderer::CreateUniformBuffers() {
 }
 
 void Renderer::CreatePipeline() {
-    ShaderCompiler shaderCompiler;
-    const std::vector<uint32_t> vertexSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eVertex, "shaders/test.vert");
-    const std::vector<uint32_t> fragmentSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, "shaders/test.frag");
-    m_vertexShaderModule = m_device.CreateShaderModule(vertexSpirv);
-    m_fragmentShaderModule = m_device.CreateShaderModule(fragmentSpirv);
-
     m_pipeline = VulkanPipeline(
             m_device,
             {
@@ -40,11 +32,7 @@ void Renderer::CreatePipeline() {
                     {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
             },
             VertexBase::GetPipelineVertexInputStateCreateInfo(),
-            {
-                    {{}, vk::ShaderStageFlagBits::eVertex,   m_vertexShaderModule,   "main"},
-                    {{}, vk::ShaderStageFlagBits::eFragment, m_fragmentShaderModule, "main"}
-            },
-            {},
+            "shaders/test.json",
             {
                     {
                             VK_FALSE,
@@ -63,10 +51,6 @@ void Renderer::CreatePipeline() {
 
 Renderer::~Renderer() {
     m_pipeline = {};
-
-    m_device.DestroyShaderModule(m_vertexShaderModule);
-    m_device.DestroyShaderModule(m_fragmentShaderModule);
-
     m_uniformBufferSet = {};
 }
 

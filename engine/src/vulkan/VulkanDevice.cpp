@@ -502,7 +502,7 @@ void VulkanDevice::DestroyShaderModule(vk::ShaderModule shaderModule) {
 vk::Pipeline VulkanDevice::CreatePipeline(
         vk::PipelineLayout pipelineLayout,
         const vk::PipelineVertexInputStateCreateInfo *vertexInput,
-        const std::initializer_list<vk::PipelineShaderStageCreateInfo> &shaderStages,
+        const vk::ArrayProxyNoTemporaries<vk::PipelineShaderStageCreateInfo> &shaderStages,
         const VulkanPipelineOptions &options,
         const std::initializer_list<vk::PipelineColorBlendAttachmentState> &attachmentColorBlends,
         vk::RenderPass renderPass,

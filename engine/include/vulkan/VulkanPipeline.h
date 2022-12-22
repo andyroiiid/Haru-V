@@ -19,8 +19,7 @@ public:
             const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
             const std::initializer_list<vk::PushConstantRange> &pushConstantRanges,
             const vk::PipelineVertexInputStateCreateInfo *vertexInput,
-            const std::initializer_list<vk::PipelineShaderStageCreateInfo> &shaderStages,
-            const VulkanPipelineOptions &options,
+            const std::string &shaderConfigFile,
             const std::initializer_list<vk::PipelineColorBlendAttachmentState> &attachmentColorBlends,
             vk::RenderPass renderPass,
             uint32_t subpass
@@ -58,5 +57,7 @@ private:
     VulkanDevice *m_device = nullptr;
 
     vk::PipelineLayout m_pipelineLayout;
+    vk::ShaderModule m_vertexShaderModule;
+    vk::ShaderModule m_fragmentShaderModule;
     vk::Pipeline m_pipeline;
 };

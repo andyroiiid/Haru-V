@@ -22,11 +22,11 @@ struct alignas(256) RendererUniformData {
 
 struct alignas(256) LightingUniformData {
     glm::vec3 LightDirection;
-    float Padding0;
+    [[maybe_unused]] float Padding0;
     glm::vec3 LightColor;
-    float Padding1;
+    [[maybe_unused]] float Padding1;
     glm::vec3 AmbientColor;
-    float Padding2;
+    [[maybe_unused]] float Padding2;
 };
 
 class Renderer {
@@ -83,9 +83,6 @@ private:
     RendererUniformData m_rendererUniformData{};
     LightingUniformData m_lightingUniformData{};
     VulkanUniformBufferSet m_uniformBufferSet;
-
-    vk::ShaderModule m_vertexShaderModule;
-    vk::ShaderModule m_fragmentShaderModule;
 
     VulkanPipeline m_pipeline;
 
