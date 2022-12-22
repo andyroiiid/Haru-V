@@ -500,13 +500,13 @@ void VulkanDevice::DestroyShaderModule(vk::ShaderModule shaderModule) {
 }
 
 vk::Pipeline VulkanDevice::CreatePipeline(
-        vk::RenderPass renderPass,
-        uint32_t subpass,
         vk::PipelineLayout pipelineLayout,
         const vk::PipelineVertexInputStateCreateInfo *vertexInput,
         const std::initializer_list<vk::PipelineShaderStageCreateInfo> &shaderStages,
         const VulkanPipelineOptions &options,
-        const std::initializer_list<vk::PipelineColorBlendAttachmentState> &attachmentColorBlends
+        const std::initializer_list<vk::PipelineColorBlendAttachmentState> &attachmentColorBlends,
+        vk::RenderPass renderPass,
+        uint32_t subpass
 ) {
     const vk::PipelineInputAssemblyStateCreateInfo inputAssemblyState(
             {},

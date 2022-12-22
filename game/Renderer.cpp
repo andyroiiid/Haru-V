@@ -25,25 +25,20 @@ void Renderer::CreateUniformBuffers() {
 }
 
 void Renderer::CreatePipeline() {
-    m_pipelineLayout = m_device.CreatePipelineLayout(
-            {
-                    m_uniformBufferSet.GetDescriptorSetLayout()
-            },
-            {
-                    {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
-            }
-    );
-
     ShaderCompiler shaderCompiler;
     const std::vector<uint32_t> vertexSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eVertex, "shaders/test.vert");
     const std::vector<uint32_t> fragmentSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, "shaders/test.frag");
     m_vertexShaderModule = m_device.CreateShaderModule(vertexSpirv);
     m_fragmentShaderModule = m_device.CreateShaderModule(fragmentSpirv);
 
-    m_pipeline = m_device.CreatePipeline(
-            m_device.GetPrimaryRenderPass(),
-            0,
-            m_pipelineLayout,
+    m_pipeline = VulkanPipeline(
+            m_device,
+            {
+                    m_uniformBufferSet.GetDescriptorSetLayout()
+            },
+            {
+                    {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
+            },
             VertexBase::GetPipelineVertexInputStateCreateInfo(),
             {
                     {{}, vk::ShaderStageFlagBits::eVertex,   m_vertexShaderModule,   "main"},
@@ -60,15 +55,17 @@ void Renderer::CreatePipeline() {
                             vk::ColorComponentFlagBits::eB |
                             vk::ColorComponentFlagBits::eA
                     }
-            }
+            },
+            m_device.GetPrimaryRenderPass(),
+            0
     );
 }
 
 Renderer::~Renderer() {
-    m_device.DestroyPipeline(m_pipeline);
+    m_pipeline = {};
+
     m_device.DestroyShaderModule(m_vertexShaderModule);
     m_device.DestroyShaderModule(m_fragmentShaderModule);
-    m_device.DestroyPipelineLayout(m_pipelineLayout);
 
     m_uniformBufferSet = {};
 }
@@ -83,7 +80,7 @@ void Renderer::DrawToScreen() {
 
     cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
 
-    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline);
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline.Get());
 
     const vk::Extent2D &extent = m_device.GetSwapchainExtent();
     const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(extent);
@@ -92,7 +89,7 @@ void Renderer::DrawToScreen() {
 
     cmd.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
-            m_pipelineLayout,
+            m_pipeline.GetLayout(),
             0,
             m_uniformBufferSet.GetDescriptorSet(),
             m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
@@ -100,7 +97,7 @@ void Renderer::DrawToScreen() {
 
     for (const DrawCall &drawCall: m_drawCalls) {
         cmd.pushConstants(
-                m_pipelineLayout,
+                m_pipeline.GetLayout(),
                 vk::ShaderStageFlagBits::eVertex,
                 0,
                 sizeof(glm::mat4),

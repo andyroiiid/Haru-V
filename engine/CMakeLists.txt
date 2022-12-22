@@ -14,6 +14,7 @@ add_library(engine
         include/vulkan/VulkanDevice.h
         include/vulkan/VulkanBase.h
         include/vulkan/VulkanUniformBufferSet.h
+        include/vulkan/VulkanPipeline.h
         include/vulkan/VulkanMesh.h
 
         src/file/FileSystem.cpp
@@ -25,6 +26,7 @@ add_library(engine
         src/vulkan/VulkanDevice.cpp
         src/vulkan/VulkanBase.cpp
         src/vulkan/VulkanUniformBufferSet.cpp
+        src/vulkan/VulkanPipeline.cpp
         src/vulkan/VulkanMesh.cpp)
 
 target_include_directories(engine PUBLIC include)

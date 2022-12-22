@@ -8,6 +8,7 @@
 
 #include "vulkan/VulkanBase.h"
 #include "vulkan/VulkanUniformBufferSet.h"
+#include "vulkan/VulkanPipeline.h"
 #include "vulkan/VulkanMesh.h"
 
 #include "VertexFormats.h"
@@ -83,10 +84,10 @@ private:
     LightingUniformData m_lightingUniformData{};
     VulkanUniformBufferSet m_uniformBufferSet;
 
-    vk::PipelineLayout m_pipelineLayout;
     vk::ShaderModule m_vertexShaderModule;
     vk::ShaderModule m_fragmentShaderModule;
-    vk::Pipeline m_pipeline;
+
+    VulkanPipeline m_pipeline;
 
     struct DrawCall {
         const VulkanMesh *Mesh;
