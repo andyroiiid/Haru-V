@@ -24,20 +24,22 @@ void Renderer::CreateDescriptorSetLayout() {
 }
 
 void Renderer::CreateBufferingObjects() {
-    m_bufferingObjects.resize(m_device.GetNumBuffering());
-    for (BufferingObjects &bufferingObjects: m_bufferingObjects) {
-        VulkanBuffer rendererUniformBuffer = m_device.CreateBuffer(
-                sizeof(RendererUniformData),
-                vk::BufferUsageFlagBits::eUniformBuffer,
-                VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
-                VMA_MEMORY_USAGE_AUTO_PREFER_HOST
-        );
+    const size_t numBuffering = m_device.GetNumBuffering();
 
+    m_rendererUniformBuffer = m_device.CreateBuffer(
+            numBuffering * sizeof(RendererUniformData),
+            vk::BufferUsageFlagBits::eUniformBuffer,
+            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+            VMA_MEMORY_USAGE_AUTO_PREFER_HOST
+    );
+
+    m_bufferingObjects.resize(numBuffering);
+    for (int i = 0; i < numBuffering; i++) {
         const vk::DescriptorSet rendererDescriptorSet = m_device.AllocateDescriptorSet(m_rendererDescriptorSetLayout);
 
         const vk::DescriptorBufferInfo bufferInfo(
-                rendererUniformBuffer.Get(),
-                0,
+                m_rendererUniformBuffer.Get(),
+                i * sizeof(RendererUniformData),
                 sizeof(RendererUniformData)
         );
         const vk::WriteDescriptorSet writeDescriptorSet(
@@ -50,8 +52,7 @@ void Renderer::CreateBufferingObjects() {
         );
         m_device.WriteDescriptorSet(writeDescriptorSet);
 
-        bufferingObjects.RendererUniformBuffer = std::move(rendererUniformBuffer);
-        bufferingObjects.RendererDescriptorSet = rendererDescriptorSet;
+        m_bufferingObjects[i].RendererDescriptorSet = rendererDescriptorSet;
     }
 }
 
@@ -101,19 +102,18 @@ Renderer::~Renderer() {
     m_device.DestroyShaderModule(m_fragmentShaderModule);
     m_device.DestroyPipelineLayout(m_pipelineLayout);
 
-    for (BufferingObjects &bufferingObjects: m_bufferingObjects) {
-        bufferingObjects.RendererUniformBuffer = {};
+    for (const BufferingObjects &bufferingObjects: m_bufferingObjects) {
         m_device.FreeDescriptorSet(bufferingObjects.RendererDescriptorSet);
     }
+    m_rendererUniformBuffer = {};
 
     m_device.DestroyDescriptorSetLayout(m_rendererDescriptorSetLayout);
 }
 
 void Renderer::DrawToScreen() {
     const auto [primaryRenderPassBeginInfo, bufferingIndex, cmd] = m_device.BeginFrame();
-    const BufferingObjects &bufferingObjects = m_bufferingObjects[bufferingIndex];
 
-    bufferingObjects.RendererUniformBuffer.Upload(sizeof(RendererUniformData), &m_rendererUniformData);
+    m_rendererUniformBuffer.UploadRange(bufferingIndex * sizeof(RendererUniformData), sizeof(RendererUniformData), &m_rendererUniformData);
 
     cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
 
@@ -124,7 +124,13 @@ void Renderer::DrawToScreen() {
     cmd.setViewport(0, viewport);
     cmd.setScissor(0, scissor);
 
-    cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0, bufferingObjects.RendererDescriptorSet, {});
+    cmd.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            m_pipelineLayout,
+            0,
+            m_bufferingObjects[bufferingIndex].RendererDescriptorSet,
+            {}
+    );
 
     for (const DrawCall &drawCall: m_drawCalls) {
         cmd.pushConstants(

@@ -50,12 +50,12 @@ void VulkanBuffer::Swap(VulkanBuffer &other) noexcept {
     std::swap(m_allocation, other.m_allocation);
 }
 
-void VulkanBuffer::Upload(size_t size, const void *data) const {
+void VulkanBuffer::UploadRange(size_t offset, size_t size, const void *data) const {
     void *mappedMemory = nullptr;
     DebugCheckCriticalVk(
             vmaMapMemory(m_allocator, m_allocation, &mappedMemory),
             "Failed to map Vulkan memory."
     );
-    memcpy(mappedMemory, data, size);
+    memcpy(static_cast<unsigned char *>(mappedMemory) + offset, data, size);
     vmaUnmapMemory(m_allocator, m_allocation);
 }

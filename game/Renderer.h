@@ -13,10 +13,12 @@
 
 struct GLFWwindow;
 
-struct RendererUniformData {
+struct alignas(256) RendererUniformData {
     glm::mat4 Projection;
     glm::mat4 View;
 };
+
+static_assert(sizeof(RendererUniformData) == 256);
 
 class Renderer {
 public:
@@ -68,8 +70,8 @@ private:
     vk::DescriptorSetLayout m_rendererDescriptorSetLayout;
 
     RendererUniformData m_rendererUniformData{};
+    VulkanBuffer m_rendererUniformBuffer;
     struct BufferingObjects {
-        VulkanBuffer RendererUniformBuffer;
         vk::DescriptorSet RendererDescriptorSet;
     };
     std::vector<BufferingObjects> m_bufferingObjects;

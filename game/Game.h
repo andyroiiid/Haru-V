@@ -19,4 +19,6 @@ public:
 private:
     std::unique_ptr<Renderer> m_renderer;
     VulkanMesh m_mesh;
+
+    float m_time = 0.0f;
 };
