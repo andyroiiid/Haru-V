@@ -28,14 +28,23 @@ static vk::Extent2D CalcSwapchainExtent(const vk::SurfaceCapabilitiesKHR &capabi
 VulkanBase::VulkanBase(GLFWwindow *window)
         : m_window(window) {
     CreateImmediateContext();
+    CreateBufferingObjects();
     CreateSurfaceSwapchainAndImageViews();
     CreatePrimaryRenderPassAndFramebuffers();
-    CreateBufferingObjects();
 }
 
 void VulkanBase::CreateImmediateContext() {
     m_immediateFence = CreateFence();
     m_immediateCommandBuffer = AllocateCommandBuffer();
+}
+
+void VulkanBase::CreateBufferingObjects() {
+    for (BufferingObjects &bufferingObject: m_bufferingObjects) {
+        bufferingObject.RenderFence = CreateFence(vk::FenceCreateFlagBits::eSignaled);
+        bufferingObject.PresentSemaphore = CreateSemaphore();
+        bufferingObject.RenderSemaphore = CreateSemaphore();
+        bufferingObject.CommandBuffer = AllocateCommandBuffer();
+    }
 }
 
 void VulkanBase::CreateSurfaceSwapchainAndImageViews() {
@@ -121,13 +130,49 @@ void VulkanBase::CreatePrimaryRenderPassAndFramebuffers() {
     }
 }
 
-void VulkanBase::CreateBufferingObjects() {
-    for (BufferingObjects &bufferingObject: m_bufferingObjects) {
-        bufferingObject.RenderFence = CreateFence(vk::FenceCreateFlagBits::eSignaled);
-        bufferingObject.PresentSemaphore = CreateSemaphore();
-        bufferingObject.RenderSemaphore = CreateSemaphore();
-        bufferingObject.CommandBuffer = AllocateCommandBuffer();
+void VulkanBase::CleanupSurfaceSwapchainAndImageViews() {
+    for (const vk::ImageView &imageView: m_depthImageViews) {
+        m_device.destroy(imageView);
     }
+    m_depthImageViews.clear();
+    m_depthImages.clear();
+    for (const vk::ImageView &imageView: m_swapchainImageViews) {
+        m_device.destroy(imageView);
+    }
+    m_swapchainImageViews.clear();
+    m_device.destroy(m_swapchain);
+    m_swapchain = VK_NULL_HANDLE;
+    m_instance.destroy(m_surface);
+    m_surface = VK_NULL_HANDLE;
+}
+
+void VulkanBase::CleanupPrimaryRenderPassAndFramebuffers() {
+    m_primaryRenderPassBeginInfos.clear();
+    for (const vk::Framebuffer &framebuffer: m_primaryFramebuffers) {
+        DestroyFramebuffer(framebuffer);
+    }
+    m_primaryFramebuffers.clear();
+    DestroyRenderPass(m_primaryRenderPass);
+    m_primaryRenderPass = VK_NULL_HANDLE;
+}
+
+void VulkanBase::RecreateSwapchain() {
+    // block when minimized
+    while (true) {
+        int width, height;
+        glfwGetFramebufferSize(m_window, &width, &height);
+        if (width != 0 && height != 0) {
+            break;
+        }
+        glfwWaitEvents();
+    }
+
+    WaitIdle();
+
+    CleanupPrimaryRenderPassAndFramebuffers();
+    CleanupSurfaceSwapchainAndImageViews();
+    CreateSurfaceSwapchainAndImageViews();
+    CreatePrimaryRenderPassAndFramebuffers();
 }
 
 VulkanBase::~VulkanBase() {
@@ -140,23 +185,39 @@ VulkanBase::~VulkanBase() {
         m_device.free(m_commandPool, bufferingObject.CommandBuffer);
     }
 
-    for (const vk::Framebuffer &framebuffer: m_primaryFramebuffers) {
-        DestroyFramebuffer(framebuffer);
-    }
-    DestroyRenderPass(m_primaryRenderPass);
-
-    for (const vk::ImageView &imageView: m_depthImageViews) {
-        m_device.destroy(imageView);
-    }
-    m_depthImages.clear();
-    for (const vk::ImageView &imageView: m_swapchainImageViews) {
-        m_device.destroy(imageView);
-    }
-    m_device.destroy(m_swapchain);
-    m_instance.destroy(m_surface);
+    CleanupPrimaryRenderPassAndFramebuffers();
+    CleanupSurfaceSwapchainAndImageViews();
 
     m_device.free(m_commandPool, m_immediateCommandBuffer);
     m_device.destroy(m_immediateFence);
+}
+
+vk::Result VulkanBase::TryAcquiringNextSwapchainImage() {
+    const BufferingObjects &bufferingObjects = m_bufferingObjects[m_currentBufferingIndex];
+
+    return m_device.acquireNextImageKHR(
+            m_swapchain,
+            100'000'000,
+            bufferingObjects.PresentSemaphore,
+            nullptr,
+            &m_currentSwapchainImageIndex
+    );
+}
+
+void VulkanBase::AcquireNextSwapchainImage() {
+    vk::Result result = TryAcquiringNextSwapchainImage();
+    if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR) {
+        if (result == vk::Result::eErrorOutOfDateKHR) {
+            // recreate swapchain and try acquiring again
+            RecreateSwapchain();
+            result = TryAcquiringNextSwapchainImage();
+        }
+
+        DebugCheckCriticalVk(
+                result,
+                "Failed to acquire next Vulkan swapchain image."
+        );
+    }
 }
 
 VulkanBase::BeginFrameInfo VulkanBase::BeginFrame() {
@@ -164,10 +225,7 @@ VulkanBase::BeginFrameInfo VulkanBase::BeginFrame() {
 
     WaitAndResetFence(bufferingObjects.RenderFence);
 
-    DebugCheckCriticalVk(
-            m_device.acquireNextImageKHR(m_swapchain, 100'000'000, bufferingObjects.PresentSemaphore, nullptr, &m_currentSwapchainImageIndex),
-            "Failed to acquire next Vulkan swapchain image."
-    );
+    AcquireNextSwapchainImage();
 
     bufferingObjects.CommandBuffer.reset();
     BeginCommandBuffer(bufferingObjects.CommandBuffer, vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
@@ -198,10 +256,15 @@ void VulkanBase::EndFrame() {
             m_swapchain,
             m_currentSwapchainImageIndex
     );
-    DebugCheckCriticalVk(
-            m_graphicsQueue.presentKHR(presentInfo),
-            "Failed to present Vulkan swapchain image."
-    );
+    const vk::Result result = m_graphicsQueue.presentKHR(presentInfo);
+    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) {
+        RecreateSwapchain();
+    } else {
+        DebugCheckCriticalVk(
+                result,
+                "Failed to present Vulkan swapchain image."
+        );
+    }
 
     m_currentBufferingIndex = (m_currentBufferingIndex + 1) % m_bufferingObjects.size();
 }

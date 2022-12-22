@@ -67,19 +67,36 @@ public:
 private:
     void CreateImmediateContext();
 
+    void CreateBufferingObjects();
+
     void CreateSurfaceSwapchainAndImageViews();
 
     void CreatePrimaryRenderPassAndFramebuffers();
 
-    void CreateBufferingObjects();
+    void CleanupSurfaceSwapchainAndImageViews();
+
+    void CleanupPrimaryRenderPassAndFramebuffers();
+
+    void RecreateSwapchain();
+
+    vk::Result TryAcquiringNextSwapchainImage();
+
+    void AcquireNextSwapchainImage();
 
     GLFWwindow *m_window = nullptr;
 
     vk::Fence m_immediateFence;
     vk::CommandBuffer m_immediateCommandBuffer;
 
-    vk::SurfaceKHR m_surface;
+    struct BufferingObjects {
+        vk::Fence RenderFence;
+        vk::Semaphore PresentSemaphore;
+        vk::Semaphore RenderSemaphore;
+        vk::CommandBuffer CommandBuffer;
+    };
+    std::array<BufferingObjects, 3> m_bufferingObjects;
 
+    vk::SurfaceKHR m_surface;
     vk::Extent2D m_swapchainExtent;
     vk::SwapchainKHR m_swapchain;
     std::vector<vk::ImageView> m_swapchainImageViews;
@@ -89,14 +106,6 @@ private:
     vk::RenderPass m_primaryRenderPass;
     std::vector<vk::Framebuffer> m_primaryFramebuffers;
     std::vector<vk::RenderPassBeginInfo> m_primaryRenderPassBeginInfos;
-
-    struct BufferingObjects {
-        vk::Fence RenderFence;
-        vk::Semaphore PresentSemaphore;
-        vk::Semaphore RenderSemaphore;
-        vk::CommandBuffer CommandBuffer;
-    };
-    std::array<BufferingObjects, 3> m_bufferingObjects;
 
     uint32_t m_currentSwapchainImageIndex = 0;
     uint32_t m_currentBufferingIndex = 0;
