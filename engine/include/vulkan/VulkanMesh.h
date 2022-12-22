@@ -12,7 +12,7 @@ class VulkanMesh {
 public:
     VulkanMesh() = default;
 
-    VulkanMesh(VulkanBase *device, size_t vertexCount, size_t vertexSize, const void *data);
+    VulkanMesh(VulkanBase &device, size_t vertexCount, size_t vertexSize, const void *data);
 
     ~VulkanMesh() {
         Release();
@@ -38,7 +38,7 @@ public:
 
     void Swap(VulkanMesh &other) noexcept;
 
-    void BindAndDraw(vk::CommandBuffer commandBuffer);
+    void BindAndDraw(vk::CommandBuffer commandBuffer) const;
 
 private:
     VulkanBuffer m_vertexBuffer;
