@@ -44,7 +44,9 @@ VulkanImage::VulkanImage(
 }
 
 void VulkanImage::Release() {
-    vmaDestroyImage(m_allocator, m_image, m_allocation);
+    if (m_allocator) {
+        vmaDestroyImage(m_allocator, m_image, m_allocation);
+    }
 
     m_allocator = VK_NULL_HANDLE;
     m_image = VK_NULL_HANDLE;

@@ -37,7 +37,9 @@ VulkanBuffer::VulkanBuffer(
 }
 
 void VulkanBuffer::Release() {
-    vmaDestroyBuffer(m_allocator, m_buffer, m_allocation);
+    if (m_allocator) {
+        vmaDestroyBuffer(m_allocator, m_buffer, m_allocation);
+    }
 
     m_allocator = VK_NULL_HANDLE;
     m_buffer = VK_NULL_HANDLE;
