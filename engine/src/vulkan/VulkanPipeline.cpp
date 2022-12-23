@@ -4,16 +4,16 @@
 
 #include "vulkan/VulkanPipeline.h"
 
-#include "file/JsonFile.h"
 #include "vulkan/ShaderCompiler.h"
 #include "vulkan/VulkanDevice.h"
+#include "vulkan/VulkanPipelineConfig.h"
 
 VulkanPipeline::VulkanPipeline(
         VulkanDevice &device,
         const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
         const std::initializer_list<vk::PushConstantRange> &pushConstantRanges,
         const vk::PipelineVertexInputStateCreateInfo *vertexInput,
-        const std::string &shaderConfigFile,
+        const std::string &pipelineConfigFile,
         const std::initializer_list<vk::PipelineColorBlendAttachmentState> &attachmentColorBlends,
         vk::RenderPass renderPass,
         uint32_t subpass
@@ -23,17 +23,15 @@ VulkanPipeline::VulkanPipeline(
             pushConstantRanges
     );
 
-    JsonFile shaderJson(shaderConfigFile);
+    const VulkanPipelineConfig pipelineConfig(pipelineConfigFile);
     ShaderCompiler shaderCompiler;
-    const std::string vertexShader = shaderJson.GetField<std::string>("vertex");
-    const std::vector<uint32_t> vertexSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eVertex, vertexShader);
+    const std::vector<uint32_t> vertexSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eVertex, pipelineConfig.VertexShader);
+    const std::vector<uint32_t> fragmentSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, pipelineConfig.FragmentShader);
     m_vertexShaderModule = m_device->CreateShaderModule(vertexSpirv);
-    const std::string fragmentShader = shaderJson.GetField<std::string>("fragment");
-    const std::vector<uint32_t> fragmentSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, fragmentShader);
     m_fragmentShaderModule = m_device->CreateShaderModule(fragmentSpirv);
 
     std::vector<vk::PipelineShaderStageCreateInfo> shaderStages{
-            {{}, vk::ShaderStageFlagBits::eVertex, m_vertexShaderModule, "main"},
+            {{}, vk::ShaderStageFlagBits::eVertex,   m_vertexShaderModule,   "main"},
             {{}, vk::ShaderStageFlagBits::eFragment, m_fragmentShaderModule, "main"}
     };
 
@@ -41,7 +39,7 @@ VulkanPipeline::VulkanPipeline(
             m_pipelineLayout,
             vertexInput,
             shaderStages,
-            {},
+            pipelineConfig.Options,
             attachmentColorBlends,
             renderPass,
             subpass

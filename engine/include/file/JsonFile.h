@@ -6,32 +6,9 @@
 
 #include <simdjson.h>
 
-#include "core/Debug.h"
-#include "file/FileSystem.h"
-
-template<class T>
-T UnpackJsonValue(simdjson::ondemand::value &value, const std::string &name) {
-    T result;
-    const simdjson::error_code error = value.get(result);
-    DebugCheckCritical(
-            error == simdjson::SUCCESS,
-            "Failed to unpack JSON value '{}': {}",
-            name.c_str(),
-            simdjson::error_message(error)
-    );
-    return result;
-}
-
 class JsonFile {
 public:
-    explicit JsonFile(const std::string &filename) : m_json(FileSystem::Read(filename)) {
-        const simdjson::error_code error = m_parser.iterate(m_json).get(m_document);
-        DebugCheckCritical(
-                error == simdjson::SUCCESS,
-                "Failed to load json document: {}",
-                simdjson::error_message(error)
-        );
-    }
+    explicit JsonFile(const std::string &filename);
 
     ~JsonFile() = default;
 
@@ -43,34 +20,26 @@ public:
 
     JsonFile &operator=(JsonFile &&) = delete;
 
-    template<class T>
-    T GetField(const std::string &key) {
-        simdjson::ondemand::value value;
-        const simdjson::error_code error = m_document.find_field(key).get(value);
-        DebugCheckCritical(
-                error == simdjson::SUCCESS,
-                "Failed to find key '{}': {}",
-                key,
-                simdjson::error_message(error)
-        );
-        return UnpackJsonValue<T>(value, key);
-    }
+    std::string GetString(const std::string &key);
 
-    template<>
-    std::string GetField(const std::string &key) {
-        return std::string(GetField<std::string_view>(key));
-    }
+    std::string GetString(const std::string &key, const std::string &fallback);
 
-    template<>
-    int GetField(const std::string &key) {
-        return static_cast<int>(GetField<double>(key));
-    }
+    int GetInteger(const std::string &key);
+
+    int GetInteger(const std::string &key, int fallback);
+
+    bool GetBoolean(const std::string &key);
+
+    bool GetBoolean(const std::string &key, bool fallback);
 
 private:
-    simdjson::padded_string m_json;
+    template<class T>
+    T GetCriticalField(const std::string &key);
 
-    // Try to reuse this: https://github.com/simdjson/simdjson/blob/master/doc/basics.md#parser-document-and-json-scope
-    simdjson::ondemand::parser m_parser;
+    template<class T>
+    T GetField(const std::string &key, const T &fallback);
 
-    simdjson::ondemand::document m_document;
+    simdjson::dom::parser m_parser;
+
+    simdjson::dom::element m_document;
 };

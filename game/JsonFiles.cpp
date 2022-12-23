@@ -8,7 +8,7 @@
 
 GameConfig::GameConfig(const std::string &jsonFilename) {
     JsonFile gameJson(jsonFilename);
-    Name = gameJson.GetField<std::string>("name");
-    Width = gameJson.GetField<int>("width");
-    Height = gameJson.GetField<int>("height");
+    Name = gameJson.GetString("name");
+    Width = gameJson.GetInteger("width");
+    Height = gameJson.GetInteger("height");
 }

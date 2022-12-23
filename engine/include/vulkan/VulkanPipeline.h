@@ -19,7 +19,7 @@ public:
             const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
             const std::initializer_list<vk::PushConstantRange> &pushConstantRanges,
             const vk::PipelineVertexInputStateCreateInfo *vertexInput,
-            const std::string &shaderConfigFile,
+            const std::string &pipelineConfigFile,
             const std::initializer_list<vk::PipelineColorBlendAttachmentState> &attachmentColorBlends,
             vk::RenderPass renderPass,
             uint32_t subpass
