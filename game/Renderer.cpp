@@ -6,6 +6,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include "vulkan/ShaderCompiler.h"
 #include "file/ImageFile.h"
 
 Renderer::Renderer(GLFWwindow *window)
@@ -105,8 +106,11 @@ void Renderer::CreateTextureSet() {
 }
 
 void Renderer::CreatePipelines() {
+    ShaderCompiler compiler;
+
     m_deferredPipeline = VulkanPipeline(
             m_device,
+            compiler,
             {
                     m_uniformBufferSet.GetDescriptorSetLayout(),
                     m_textureSetLayout
@@ -115,7 +119,7 @@ void Renderer::CreatePipelines() {
                     {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
             },
             VertexBase::GetPipelineVertexInputStateCreateInfo(),
-            "shaders/test.json",
+            "shaders/base.json",
             {
                     {
                             VK_FALSE,
@@ -133,6 +137,7 @@ void Renderer::CreatePipelines() {
 
     m_finalPipeline = VulkanPipeline(
             m_device,
+            compiler,
             {
                     m_uniformBufferSet.GetDescriptorSetLayout(),
                     m_textureSetLayout

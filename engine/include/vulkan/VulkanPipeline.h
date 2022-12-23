@@ -8,6 +8,8 @@
 
 class VulkanDevice;
 
+class ShaderCompiler;
+
 struct VulkanPipelineOptions;
 
 class VulkanPipeline {
@@ -16,6 +18,7 @@ public:
 
     VulkanPipeline(
             VulkanDevice &device,
+            ShaderCompiler &compiler,
             const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
             const std::initializer_list<vk::PushConstantRange> &pushConstantRanges,
             const vk::PipelineVertexInputStateCreateInfo *vertexInput,

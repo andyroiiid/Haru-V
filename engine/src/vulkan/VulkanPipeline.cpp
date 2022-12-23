@@ -10,6 +10,7 @@
 
 VulkanPipeline::VulkanPipeline(
         VulkanDevice &device,
+        ShaderCompiler &compiler,
         const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
         const std::initializer_list<vk::PushConstantRange> &pushConstantRanges,
         const vk::PipelineVertexInputStateCreateInfo *vertexInput,
@@ -24,9 +25,8 @@ VulkanPipeline::VulkanPipeline(
     );
 
     const VulkanPipelineConfig pipelineConfig(pipelineConfigFile);
-    ShaderCompiler shaderCompiler;
-    const std::vector<uint32_t> vertexSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eVertex, pipelineConfig.VertexShader);
-    const std::vector<uint32_t> fragmentSpirv = shaderCompiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, pipelineConfig.FragmentShader);
+    const std::vector<uint32_t> vertexSpirv = compiler.CompileFromFile(vk::ShaderStageFlagBits::eVertex, pipelineConfig.VertexShader);
+    const std::vector<uint32_t> fragmentSpirv = compiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, pipelineConfig.FragmentShader);
     m_vertexShaderModule = m_device->CreateShaderModule(vertexSpirv);
     m_fragmentShaderModule = m_device->CreateShaderModule(fragmentSpirv);
 
