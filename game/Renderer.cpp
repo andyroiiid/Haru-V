@@ -21,7 +21,9 @@ Renderer::Renderer(GLFWwindow *window)
 void Renderer::CreateDeferredRenderPass() {
     m_deferredPass = m_device.CreateRenderPass(
             {
-                    vk::Format::eR8G8B8A8Unorm,
+                    vk::Format::eR32G32B32A32Sfloat,
+                    vk::Format::eR32G32B32A32Sfloat,
+                    vk::Format::eR8G8B8A8Unorm
             },
             vk::Format::eD32Sfloat
     );
@@ -32,7 +34,23 @@ void Renderer::CreateDeferredFramebuffers() {
     const size_t numBuffering = m_device.GetNumBuffering();
     for (int i = 0; i < numBuffering; i++) {
         DeferredObjects &deferredObjects = m_deferredObjects.emplace_back();
-        deferredObjects.ColorAttachment = m_device.CreateImage(
+
+        // attachments
+        deferredObjects.WorldPositionAttachment = m_device.CreateImage(
+                vk::Format::eR32G32B32A32Sfloat,
+                m_deferredExtent,
+                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+                0,
+                VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
+        );
+        deferredObjects.WorldNormalAttachment = m_device.CreateImage(
+                vk::Format::eR32G32B32A32Sfloat,
+                m_deferredExtent,
+                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+                0,
+                VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
+        );
+        deferredObjects.DiffuseAttachment = m_device.CreateImage(
                 vk::Format::eR8G8B8A8Unorm,
                 m_deferredExtent,
                 vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
@@ -46,8 +64,20 @@ void Renderer::CreateDeferredFramebuffers() {
                 0,
                 VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
         );
-        deferredObjects.ColorAttachmentView = m_device.CreateImageView(
-                deferredObjects.ColorAttachment.Get(),
+
+        // attachment views
+        deferredObjects.WorldPositionAttachmentView = m_device.CreateImageView(
+                deferredObjects.WorldPositionAttachment.Get(),
+                vk::Format::eR32G32B32A32Sfloat,
+                vk::ImageAspectFlagBits::eColor
+        );
+        deferredObjects.WorldNormalAttachmentView = m_device.CreateImageView(
+                deferredObjects.WorldNormalAttachment.Get(),
+                vk::Format::eR32G32B32A32Sfloat,
+                vk::ImageAspectFlagBits::eColor
+        );
+        deferredObjects.DiffuseAttachmentView = m_device.CreateImageView(
+                deferredObjects.DiffuseAttachment.Get(),
                 vk::Format::eR8G8B8A8Unorm,
                 vk::ImageAspectFlagBits::eColor
         );
@@ -56,10 +86,14 @@ void Renderer::CreateDeferredFramebuffers() {
                 vk::Format::eD32Sfloat,
                 vk::ImageAspectFlagBits::eDepth
         );
+
+        // framebuffer
         deferredObjects.Framebuffer = m_device.CreateFramebuffer(
                 m_deferredPass,
                 {
-                        deferredObjects.ColorAttachmentView,
+                        deferredObjects.WorldPositionAttachmentView,
+                        deferredObjects.WorldNormalAttachmentView,
+                        deferredObjects.DiffuseAttachmentView,
                         deferredObjects.DepthAttachmentView
                 },
                 m_deferredExtent
@@ -71,7 +105,9 @@ void Renderer::CleanupDeferredFramebuffers() {
     for (const DeferredObjects &deferredObjects: m_deferredObjects) {
         m_device.DestroyFramebuffer(deferredObjects.Framebuffer);
         m_device.DestroyImageView(deferredObjects.DepthAttachmentView);
-        m_device.DestroyImageView(deferredObjects.ColorAttachmentView);
+        m_device.DestroyImageView(deferredObjects.DiffuseAttachmentView);
+        m_device.DestroyImageView(deferredObjects.WorldNormalAttachmentView);
+        m_device.DestroyImageView(deferredObjects.WorldPositionAttachmentView);
     }
     m_deferredObjects.clear();
 }
@@ -106,6 +142,16 @@ void Renderer::CreateTextureSet() {
 }
 
 void Renderer::CreatePipelines() {
+    const vk::PipelineColorBlendAttachmentState NO_BLEND(
+            VK_FALSE,
+            vk::BlendFactor::eZero, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
+            vk::BlendFactor::eZero, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
+            vk::ColorComponentFlagBits::eR |
+            vk::ColorComponentFlagBits::eG |
+            vk::ColorComponentFlagBits::eB |
+            vk::ColorComponentFlagBits::eA
+    );
+
     ShaderCompiler compiler;
 
     m_deferredPipeline = VulkanPipeline(
@@ -121,15 +167,9 @@ void Renderer::CreatePipelines() {
             VertexBase::GetPipelineVertexInputStateCreateInfo(),
             "shaders/base.json",
             {
-                    {
-                            VK_FALSE,
-                            vk::BlendFactor::eZero, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
-                            vk::BlendFactor::eZero, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
-                            vk::ColorComponentFlagBits::eR |
-                            vk::ColorComponentFlagBits::eG |
-                            vk::ColorComponentFlagBits::eB |
-                            vk::ColorComponentFlagBits::eA
-                    }
+                    NO_BLEND,
+                    NO_BLEND,
+                    NO_BLEND
             },
             m_deferredPass,
             0
@@ -148,15 +188,7 @@ void Renderer::CreatePipelines() {
             VertexBase::GetPipelineVertexInputStateCreateInfo(),
             "shaders/test.json",
             {
-                    {
-                            VK_FALSE,
-                            vk::BlendFactor::eZero, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
-                            vk::BlendFactor::eZero, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
-                            vk::ColorComponentFlagBits::eR |
-                            vk::ColorComponentFlagBits::eG |
-                            vk::ColorComponentFlagBits::eB |
-                            vk::ColorComponentFlagBits::eA
-                    }
+                    NO_BLEND
             },
             m_device.GetPrimaryRenderPass(),
             0
@@ -190,7 +222,9 @@ void Renderer::DrawToScreen() {
 
     {
         static vk::ClearValue clearValues[]{
-                {vk::ClearColorValue{std::array<float, 4>{0.4f, 0.8f, 1.0f, 1.0f}}},
+                {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+                {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+                {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
                 {vk::ClearDepthStencilValue{1.0f, 0}}
         };
         const vk::RenderPassBeginInfo beginInfo(

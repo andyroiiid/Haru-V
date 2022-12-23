@@ -92,9 +92,13 @@ private:
     vk::RenderPass m_deferredPass;
     vk::Extent2D m_deferredExtent;
     struct DeferredObjects {
-        VulkanImage ColorAttachment;
+        VulkanImage WorldPositionAttachment;
+        VulkanImage WorldNormalAttachment;
+        VulkanImage DiffuseAttachment;
         VulkanImage DepthAttachment;
-        vk::ImageView ColorAttachmentView;
+        vk::ImageView WorldPositionAttachmentView;
+        vk::ImageView WorldNormalAttachmentView;
+        vk::ImageView DiffuseAttachmentView;
         vk::ImageView DepthAttachmentView;
         vk::Framebuffer Framebuffer;
     };
