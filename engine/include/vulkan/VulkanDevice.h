@@ -56,6 +56,14 @@ public:
         return {m_allocator, format, extent, imageUsage, flags, memoryUsage};
     }
 
+    vk::ImageView CreateImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectMask);
+
+    void DestroyImageView(vk::ImageView imageView);
+
+    vk::Sampler CreateSampler(vk::Filter filter, vk::SamplerAddressMode addressMode);
+
+    void DestroySampler(vk::Sampler sampler);
+
     vk::RenderPass CreateRenderPass(
             const std::initializer_list<vk::Format> &colorAttachmentFormats,
             vk::Format depthStencilAttachmentFormat = vk::Format::eUndefined,
@@ -142,8 +150,6 @@ protected:
             vk::PresentModeKHR presentMode,
             vk::SwapchainKHR oldSwapchain
     );
-
-    vk::ImageView CreateImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectMask);
 
     vk::Instance m_instance;
     vk::DebugUtilsMessengerEXT m_debugMessenger;

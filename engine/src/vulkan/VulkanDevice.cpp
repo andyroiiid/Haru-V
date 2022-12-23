@@ -339,6 +339,29 @@ vk::ImageView VulkanDevice::CreateImageView(vk::Image image, vk::Format format, 
     return imageView;
 }
 
+void VulkanDevice::DestroyImageView(vk::ImageView imageView) {
+    m_device.destroyImageView(imageView);
+}
+
+vk::Sampler VulkanDevice::CreateSampler(vk::Filter filter, vk::SamplerAddressMode addressMode) {
+    const vk::SamplerCreateInfo createInfo(
+            {},
+            filter,
+            filter,
+            {},
+            addressMode,
+            addressMode,
+            addressMode
+    );
+    const auto [result, sampler] = m_device.createSampler(createInfo);
+    DebugCheckCriticalVk(result, "Failed to create Vulkan sampler");
+    return sampler;
+}
+
+void VulkanDevice::DestroySampler(vk::Sampler sampler) {
+    m_device.destroySampler(sampler);
+}
+
 vk::RenderPass VulkanDevice::CreateRenderPass(
         const std::initializer_list<vk::Format> &colorAttachmentFormats,
         vk::Format depthStencilAttachmentFormat,

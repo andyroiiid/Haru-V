@@ -10,6 +10,7 @@
 #include "vulkan/VulkanUniformBufferSet.h"
 #include "vulkan/VulkanPipeline.h"
 #include "vulkan/VulkanMesh.h"
+#include "vulkan/VulkanTexture.h"
 
 #include "VertexFormats.h"
 
@@ -76,6 +77,8 @@ public:
 private:
     void CreateUniformBuffers();
 
+    void CreateTextureSet();
+
     void CreatePipeline();
 
     VulkanBase m_device;
@@ -83,6 +86,10 @@ private:
     RendererUniformData m_rendererUniformData{};
     LightingUniformData m_lightingUniformData{};
     VulkanUniformBufferSet m_uniformBufferSet;
+
+    vk::DescriptorSetLayout m_textureSetLayout;
+    VulkanTexture m_texture;
+    vk::DescriptorSet m_textureSet;
 
     VulkanPipeline m_pipeline;
 

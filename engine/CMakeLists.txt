@@ -6,6 +6,7 @@ add_library(engine
         include/core/Debug.h
         include/file/FileSystem.h
         include/file/JsonFile.h
+        include/file/ImageFile.h
         include/window/Window.h
         include/vulkan/DebugVk.h
         include/vulkan/ShaderCompiler.h
@@ -17,9 +18,11 @@ add_library(engine
         include/vulkan/VulkanPipelineConfig.h
         include/vulkan/VulkanPipeline.h
         include/vulkan/VulkanMesh.h
+        include/vulkan/VulkanTexture.h
 
         src/file/FileSystem.cpp
         src/file/JsonFile.cpp
+        src/file/ImageFile.cpp
         src/window/Window.cpp
         src/vulkan/ShaderCompiler.cpp
         src/vulkan/vk_mem_alloc.cpp
@@ -30,7 +33,8 @@ add_library(engine
         src/vulkan/VulkanUniformBufferSet.cpp
         src/vulkan/VulkanPipelineConfig.cpp
         src/vulkan/VulkanPipeline.cpp
-        src/vulkan/VulkanMesh.cpp)
+        src/vulkan/VulkanMesh.cpp
+        src/vulkan/VulkanTexture.cpp)
 
 target_include_directories(engine PUBLIC include)
 
