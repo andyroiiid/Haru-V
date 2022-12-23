@@ -75,13 +75,30 @@ public:
     void DrawToScreen();
 
 private:
+    void CreateDeferredRenderPass();
+
+    void CreateDeferredFramebuffers();
+
+    void CleanupDeferredFramebuffers();
+
     void CreateUniformBuffers();
 
     void CreateTextureSet();
 
-    void CreatePipeline();
+    void CreatePipelines();
 
     VulkanBase m_device;
+
+    vk::RenderPass m_deferredPass;
+    vk::Extent2D m_deferredExtent;
+    struct DeferredObjects {
+        VulkanImage ColorAttachment;
+        VulkanImage DepthAttachment;
+        vk::ImageView ColorAttachmentView;
+        vk::ImageView DepthAttachmentView;
+        vk::Framebuffer Framebuffer;
+    };
+    std::vector<DeferredObjects> m_deferredObjects;
 
     RendererUniformData m_rendererUniformData{};
     LightingUniformData m_lightingUniformData{};
@@ -91,7 +108,8 @@ private:
     VulkanTexture m_texture;
     vk::DescriptorSet m_textureSet;
 
-    VulkanPipeline m_pipeline;
+    VulkanPipeline m_deferredPipeline;
+    VulkanPipeline m_finalPipeline;
 
     struct DrawCall {
         const VulkanMesh *Mesh;
