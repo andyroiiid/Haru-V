@@ -14,8 +14,6 @@ void DeferredContext::CreateRenderPass() {
     m_renderPass = m_device->CreateRenderPass(
             {
                     vk::Format::eR32G32B32A32Sfloat,
-                    vk::Format::eR32G32B32A32Sfloat,
-                    vk::Format::eR8G8B8A8Unorm,
                     vk::Format::eR32G32B32A32Sfloat
             },
             vk::Format::eD32Sfloat
@@ -23,9 +21,7 @@ void DeferredContext::CreateRenderPass() {
 
     vk::DescriptorSetLayoutBinding bindings[]{
             {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {3, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
+            {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
     };
     m_textureSetLayout = m_device->CreateDescriptorSetLayout(bindings);
 
@@ -34,18 +30,14 @@ void DeferredContext::CreateRenderPass() {
 
 void DeferredContext::CreateFramebuffers() {
     static vk::ClearValue const clearValues[]{
-            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}},
+            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}},
             {vk::ClearDepthStencilValue{1.0f, 0}}
     };
     m_extent = m_device->GetSwapchainExtent();
     const size_t numBuffering = m_device->GetNumBuffering();
     static vk::Format colorFormats[] = {
             vk::Format::eR32G32B32A32Sfloat,
-            vk::Format::eR32G32B32A32Sfloat,
-            vk::Format::eR8G8B8A8Unorm,
             vk::Format::eR32G32B32A32Sfloat
     };
     vk::RenderPassBeginInfo beginInfo(

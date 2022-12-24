@@ -54,10 +54,7 @@ void Renderer::CreatePipelines() {
             VK_FALSE,
             vk::BlendFactor::eZero, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
             vk::BlendFactor::eZero, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
-            vk::ColorComponentFlagBits::eR |
-            vk::ColorComponentFlagBits::eG |
-            vk::ColorComponentFlagBits::eB |
-            vk::ColorComponentFlagBits::eA
+            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
     );
 
     ShaderCompiler compiler;
@@ -75,8 +72,6 @@ void Renderer::CreatePipelines() {
             VertexBase::GetPipelineVertexInputStateCreateInfo(),
             "shaders/base.json",
             {
-                    NO_BLEND,
-                    NO_BLEND,
                     NO_BLEND,
                     NO_BLEND
             },
