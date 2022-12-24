@@ -13,6 +13,7 @@
 #include "vulkan/VulkanTexture.h"
 
 #include "VertexFormats.h"
+#include "DeferredContext.h"
 
 struct GLFWwindow;
 
@@ -75,12 +76,6 @@ public:
     void FinishDrawing();
 
 private:
-    void CreateDeferredRenderPass();
-
-    void CreateDeferredFramebuffers();
-
-    void CleanupDeferredFramebuffers();
-
     void CreateUniformBuffers();
 
     void CreateTextureSet();
@@ -95,23 +90,7 @@ private:
 
     VulkanBase m_device;
 
-    vk::RenderPass m_deferredPass;
-    vk::DescriptorSetLayout m_deferredTextureSetLayout;
-    vk::Sampler m_deferredTextureSampler;
-    vk::Extent2D m_deferredExtent;
-    struct DeferredObjects {
-        VulkanImage WorldPositionAttachment;
-        VulkanImage WorldNormalAttachment;
-        VulkanImage DiffuseAttachment;
-        VulkanImage DepthAttachment;
-        vk::ImageView WorldPositionAttachmentView;
-        vk::ImageView WorldNormalAttachmentView;
-        vk::ImageView DiffuseAttachmentView;
-        vk::ImageView DepthAttachmentView;
-        vk::Framebuffer Framebuffer;
-        vk::DescriptorSet DeferredTextureSet;
-    };
-    std::vector<DeferredObjects> m_deferredObjects;
+    DeferredContext m_deferredContext;
 
     RendererUniformData m_rendererUniformData{};
     LightingUniformData m_lightingUniformData{};

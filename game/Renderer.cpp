@@ -13,142 +13,11 @@
 
 Renderer::Renderer(GLFWwindow *window)
         : m_device(window) {
-    CreateDeferredRenderPass();
-    CreateDeferredFramebuffers();
+    m_deferredContext = DeferredContext(m_device);
     CreateUniformBuffers();
     CreateTextureSet();
     CreatePipelines();
     CreateFullScreenQuad();
-}
-
-void Renderer::CreateDeferredRenderPass() {
-    m_deferredPass = m_device.CreateRenderPass(
-            {
-                    vk::Format::eR32G32B32A32Sfloat,
-                    vk::Format::eR32G32B32A32Sfloat,
-                    vk::Format::eR8G8B8A8Unorm
-            },
-            vk::Format::eD32Sfloat
-    );
-
-    vk::DescriptorSetLayoutBinding bindings[]{
-            {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
-    };
-    m_deferredTextureSetLayout = m_device.CreateDescriptorSetLayout(bindings);
-
-    m_deferredTextureSampler = m_device.CreateSampler(vk::Filter::eNearest, vk::SamplerAddressMode::eClampToEdge);
-}
-
-void Renderer::CreateDeferredFramebuffers() {
-    m_deferredExtent = m_device.GetSwapchainExtent();
-    const size_t numBuffering = m_device.GetNumBuffering();
-    for (int i = 0; i < numBuffering; i++) {
-        DeferredObjects &deferredObjects = m_deferredObjects.emplace_back();
-
-        // attachments
-        deferredObjects.WorldPositionAttachment = m_device.CreateImage(
-                vk::Format::eR32G32B32A32Sfloat,
-                m_deferredExtent,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                0,
-                VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
-        );
-        deferredObjects.WorldNormalAttachment = m_device.CreateImage(
-                vk::Format::eR32G32B32A32Sfloat,
-                m_deferredExtent,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                0,
-                VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
-        );
-        deferredObjects.DiffuseAttachment = m_device.CreateImage(
-                vk::Format::eR8G8B8A8Unorm,
-                m_deferredExtent,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                0,
-                VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
-        );
-        deferredObjects.DepthAttachment = m_device.CreateImage(
-                vk::Format::eD32Sfloat,
-                m_deferredExtent,
-                vk::ImageUsageFlagBits::eDepthStencilAttachment,
-                0,
-                VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
-        );
-
-        // attachment views
-        deferredObjects.WorldPositionAttachmentView = m_device.CreateImageView(
-                deferredObjects.WorldPositionAttachment.Get(),
-                vk::Format::eR32G32B32A32Sfloat,
-                vk::ImageAspectFlagBits::eColor
-        );
-        deferredObjects.WorldNormalAttachmentView = m_device.CreateImageView(
-                deferredObjects.WorldNormalAttachment.Get(),
-                vk::Format::eR32G32B32A32Sfloat,
-                vk::ImageAspectFlagBits::eColor
-        );
-        deferredObjects.DiffuseAttachmentView = m_device.CreateImageView(
-                deferredObjects.DiffuseAttachment.Get(),
-                vk::Format::eR8G8B8A8Unorm,
-                vk::ImageAspectFlagBits::eColor
-        );
-        deferredObjects.DepthAttachmentView = m_device.CreateImageView(
-                deferredObjects.DepthAttachment.Get(),
-                vk::Format::eD32Sfloat,
-                vk::ImageAspectFlagBits::eDepth
-        );
-
-        // framebuffer
-        deferredObjects.Framebuffer = m_device.CreateFramebuffer(
-                m_deferredPass,
-                {
-                        deferredObjects.WorldPositionAttachmentView,
-                        deferredObjects.WorldNormalAttachmentView,
-                        deferredObjects.DiffuseAttachmentView,
-                        deferredObjects.DepthAttachmentView
-                },
-                m_deferredExtent
-        );
-
-        // deferred texture descriptor set
-        deferredObjects.DeferredTextureSet = m_device.AllocateDescriptorSet(m_deferredTextureSetLayout);
-
-        // bind textures to deferred texture descriptor set
-        vk::DescriptorImageInfo imageInfo(
-                m_deferredTextureSampler,
-                {},
-                vk::ImageLayout::eShaderReadOnlyOptimal
-        );
-        vk::WriteDescriptorSet writeDescriptorSet(
-                deferredObjects.DeferredTextureSet,
-                {},
-                0,
-                vk::DescriptorType::eCombinedImageSampler,
-                imageInfo
-        );
-        imageInfo.imageView = deferredObjects.WorldPositionAttachmentView;
-        writeDescriptorSet.dstBinding = 0;
-        m_device.WriteDescriptorSet(writeDescriptorSet);
-        imageInfo.imageView = deferredObjects.WorldNormalAttachmentView;
-        writeDescriptorSet.dstBinding = 1;
-        m_device.WriteDescriptorSet(writeDescriptorSet);
-        imageInfo.imageView = deferredObjects.DiffuseAttachmentView;
-        writeDescriptorSet.dstBinding = 2;
-        m_device.WriteDescriptorSet(writeDescriptorSet);
-    }
-}
-
-void Renderer::CleanupDeferredFramebuffers() {
-    for (const DeferredObjects &deferredObjects: m_deferredObjects) {
-        m_device.FreeDescriptorSet(deferredObjects.DeferredTextureSet);
-        m_device.DestroyFramebuffer(deferredObjects.Framebuffer);
-        m_device.DestroyImageView(deferredObjects.DepthAttachmentView);
-        m_device.DestroyImageView(deferredObjects.DiffuseAttachmentView);
-        m_device.DestroyImageView(deferredObjects.WorldNormalAttachmentView);
-        m_device.DestroyImageView(deferredObjects.WorldPositionAttachmentView);
-    }
-    m_deferredObjects.clear();
 }
 
 void Renderer::CreateUniformBuffers() {
@@ -210,7 +79,7 @@ void Renderer::CreatePipelines() {
                     NO_BLEND,
                     NO_BLEND
             },
-            m_deferredPass,
+            m_deferredContext.GetRenderPass(),
             0
     );
 
@@ -219,7 +88,7 @@ void Renderer::CreatePipelines() {
             compiler,
             {
                     m_uniformBufferSet.GetDescriptorSetLayout(),
-                    m_deferredTextureSetLayout
+                    m_deferredContext.GetTextureSetLayout()
             },
             {},
             VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
@@ -252,20 +121,13 @@ Renderer::~Renderer() {
     m_texture = {};
     m_device.DestroyDescriptorSetLayout(m_textureSetLayout);
     m_uniformBufferSet = {};
-    CleanupDeferredFramebuffers();
-    m_device.DestroySampler(m_deferredTextureSampler);
-    m_device.DestroyDescriptorSetLayout(m_deferredTextureSetLayout);
-    m_device.DestroyRenderPass(m_deferredPass);
+    m_deferredContext = {};
 }
 
 void Renderer::FinishDrawing() {
     const VulkanFrameInfo frameInfo = m_device.BeginFrame();
 
-    if (m_device.GetSwapchainExtent() != m_deferredExtent) {
-        m_device.WaitIdle();
-        CleanupDeferredFramebuffers();
-        CreateDeferredFramebuffers();
-    }
+    m_deferredContext.CheckFramebuffersOutOfDate();
 
     m_uniformBufferSet.UpdateAllBuffers(frameInfo.BufferingIndex, {
             &m_rendererUniformData,
@@ -288,16 +150,16 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
             {vk::ClearDepthStencilValue{1.0f, 0}}
     };
     const vk::RenderPassBeginInfo beginInfo(
-            m_deferredPass,
-            m_deferredObjects[bufferingIndex].Framebuffer,
-            {{0, 0}, m_deferredExtent},
+            m_deferredContext.GetRenderPass(),
+            m_deferredContext.GetFramebuffer(bufferingIndex),
+            {{0, 0}, m_deferredContext.GetExtent()},
             clearValues
     );
     cmd.beginRenderPass(beginInfo, vk::SubpassContents::eInline);
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_deferredPipeline.Get());
 
-    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredExtent);
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
     cmd.setViewport(0, viewport);
     cmd.setScissor(0, scissor);
 
@@ -341,7 +203,7 @@ void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBegi
             0,
             {
                     m_uniformBufferSet.GetDescriptorSet(),
-                    m_deferredObjects[bufferingIndex].DeferredTextureSet
+                    m_deferredContext.GetTextureSet(bufferingIndex)
             },
             m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
