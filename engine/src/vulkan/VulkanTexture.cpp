@@ -119,17 +119,10 @@ void VulkanTexture::Swap(VulkanTexture &other) noexcept {
 }
 
 void VulkanTexture::BindToDescriptorSet(vk::DescriptorSet descriptorSet, uint32_t binding) {
-    const vk::DescriptorImageInfo imageInfo(
+    m_device->WriteCombinedImageSamplerToDescriptorSet(
             m_sampler,
             m_imageView,
-            vk::ImageLayout::eShaderReadOnlyOptimal
-    );
-    const vk::WriteDescriptorSet writeDescriptorSet(
             descriptorSet,
-            binding,
-            0,
-            vk::DescriptorType::eCombinedImageSampler,
-            imageInfo
+            binding
     );
-    m_device->WriteDescriptorSet(writeDescriptorSet);
 }

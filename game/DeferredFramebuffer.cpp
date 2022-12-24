@@ -30,27 +30,9 @@ DeferredFramebuffer::DeferredFramebuffer(
     m_textureSet = m_device->AllocateDescriptorSet(textureSetLayout);
 
     // bind textures to deferred texture descriptor set
-    vk::DescriptorImageInfo imageInfo(
-            sampler,
-            {},
-            vk::ImageLayout::eShaderReadOnlyOptimal
-    );
-    vk::WriteDescriptorSet writeDescriptorSet(
-            m_textureSet,
-            {},
-            0,
-            vk::DescriptorType::eCombinedImageSampler,
-            imageInfo
-    );
-    imageInfo.imageView = m_worldPositionAttachmentView;
-    writeDescriptorSet.dstBinding = 0;
-    m_device->WriteDescriptorSet(writeDescriptorSet);
-    imageInfo.imageView = m_worldNormalAttachmentView;
-    writeDescriptorSet.dstBinding = 1;
-    m_device->WriteDescriptorSet(writeDescriptorSet);
-    imageInfo.imageView = m_diffuseAttachmentView;
-    writeDescriptorSet.dstBinding = 2;
-    m_device->WriteDescriptorSet(writeDescriptorSet);
+    m_device->WriteCombinedImageSamplerToDescriptorSet(sampler, m_worldPositionAttachmentView, m_textureSet, 0);
+    m_device->WriteCombinedImageSamplerToDescriptorSet(sampler, m_worldNormalAttachmentView, m_textureSet, 1);
+    m_device->WriteCombinedImageSamplerToDescriptorSet(sampler, m_diffuseAttachmentView, m_textureSet, 2);
 }
 
 void DeferredFramebuffer::CreateAttachments(const vk::Extent2D &extent) {

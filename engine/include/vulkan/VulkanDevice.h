@@ -88,7 +88,9 @@ public:
 
     void FreeDescriptorSet(vk::DescriptorSet descriptorSet);
 
-    void WriteDescriptorSet(const vk::WriteDescriptorSet &writeDescriptorSet);
+    void WriteCombinedImageSamplerToDescriptorSet(vk::Sampler sampler, vk::ImageView imageView, vk::DescriptorSet descriptorSet, uint32_t binding);
+
+    void WriteDynamicUniformBufferToDescriptorSet(vk::Buffer buffer, vk::DeviceSize size, vk::DescriptorSet descriptorSet, uint32_t binding);
 
     vk::PipelineLayout CreatePipelineLayout(
             const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
@@ -127,6 +129,8 @@ protected:
     void CreateCommandPool();
 
     void CreateDescriptorPool();
+
+    void WriteDescriptorSet(const vk::WriteDescriptorSet &writeDescriptorSet);
 
     void CreateAllocator();
 

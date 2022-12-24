@@ -215,6 +215,10 @@ void VulkanDevice::CreateDescriptorPool() {
     m_descriptorPool = descriptorPool;
 }
 
+void VulkanDevice::WriteDescriptorSet(const vk::WriteDescriptorSet &writeDescriptorSet) {
+    m_device.updateDescriptorSets(writeDescriptorSet, {});
+}
+
 void VulkanDevice::CreateAllocator() {
     VmaAllocatorCreateInfo createInfo{};
     createInfo.physicalDevice = m_physicalDevice;
@@ -485,8 +489,47 @@ void VulkanDevice::FreeDescriptorSet(vk::DescriptorSet descriptorSet) {
     m_device.freeDescriptorSets(m_descriptorPool, descriptorSet);
 }
 
-void VulkanDevice::WriteDescriptorSet(const vk::WriteDescriptorSet &writeDescriptorSet) {
-    m_device.updateDescriptorSets(writeDescriptorSet, {});
+void VulkanDevice::WriteCombinedImageSamplerToDescriptorSet(
+        vk::Sampler sampler,
+        vk::ImageView imageView,
+        vk::DescriptorSet descriptorSet,
+        uint32_t binding
+) {
+    const vk::DescriptorImageInfo imageInfo(
+            sampler,
+            imageView,
+            vk::ImageLayout::eShaderReadOnlyOptimal
+    );
+    const vk::WriteDescriptorSet writeDescriptorSet(
+            descriptorSet,
+            binding,
+            0,
+            vk::DescriptorType::eCombinedImageSampler,
+            imageInfo
+    );
+    WriteDescriptorSet(writeDescriptorSet);
+}
+
+void VulkanDevice::WriteDynamicUniformBufferToDescriptorSet(
+        vk::Buffer buffer,
+        vk::DeviceSize size,
+        vk::DescriptorSet descriptorSet,
+        uint32_t binding
+) {
+    const vk::DescriptorBufferInfo bufferInfo(
+            buffer,
+            0,
+            size
+    );
+    const vk::WriteDescriptorSet writeDescriptorSet(
+            descriptorSet,
+            binding,
+            0,
+            vk::DescriptorType::eUniformBufferDynamic,
+            {},
+            bufferInfo
+    );
+    WriteDescriptorSet(writeDescriptorSet);
 }
 
 vk::PipelineLayout VulkanDevice::CreatePipelineLayout(

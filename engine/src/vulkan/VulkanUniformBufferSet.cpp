@@ -36,20 +36,12 @@ VulkanUniformBufferSet::VulkanUniformBufferSet(VulkanBase &device, const std::in
                 VMA_MEMORY_USAGE_AUTO_PREFER_HOST
         );
 
-        const vk::DescriptorBufferInfo bufferInfo(
+        m_device->WriteDynamicUniformBufferToDescriptorSet(
                 uniformBuffer.Get(),
-                0,
-                uniformBufferInfo.Size
-        );
-        const vk::WriteDescriptorSet writeDescriptorSet(
+                uniformBufferInfo.Size,
                 m_descriptorSet,
-                uniformBufferInfo.Binding,
-                0,
-                vk::DescriptorType::eUniformBufferDynamic,
-                {},
-                bufferInfo
+                uniformBufferInfo.Binding
         );
-        m_device->WriteDescriptorSet(writeDescriptorSet);
 
         m_uniformBuffers.push_back(std::move(uniformBuffer));
     }
