@@ -107,12 +107,13 @@ void VulkanBase::CreatePrimaryRenderPass() {
 void VulkanBase::CreatePrimaryFramebuffers() {
     const size_t numSwapchainImages = m_swapchainImageViews.size();
     for (int i = 0; i < numSwapchainImages; i++) {
+        vk::ImageView attachmentViews[]{
+                m_swapchainImageViews[i],
+                m_depthImageViews[i]
+        };
         m_primaryFramebuffers.push_back(CreateFramebuffer(
                 m_primaryRenderPass,
-                {
-                        m_swapchainImageViews[i],
-                        m_depthImageViews[i]
-                },
+                attachmentViews,
                 m_swapchainExtent
         ));
     }

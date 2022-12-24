@@ -15,7 +15,8 @@ public:
             vk::RenderPass renderPass,
             vk::DescriptorSetLayout textureSetLayout,
             vk::Sampler sampler,
-            const vk::Extent2D &extent
+            const vk::Extent2D &extent,
+            const vk::ArrayProxyNoTemporaries<vk::Format> &colorFormats
     );
 
     ~DeferredFramebuffer() {
@@ -47,19 +48,15 @@ public:
     [[nodiscard]] const vk::DescriptorSet &GetTextureSet() const { return m_textureSet; }
 
 private:
-    void CreateAttachments(const vk::Extent2D &extent);
+    void CreateAttachments(const vk::Extent2D &extent, const vk::ArrayProxyNoTemporaries<vk::Format> &colorFormats);
 
-    void CreateAttachmentViews();
+    void CreateAttachmentViews(const vk::ArrayProxyNoTemporaries<vk::Format> &colorFormats);
 
     VulkanBase *m_device = nullptr;
 
-    VulkanImage m_worldPositionAttachment;
-    VulkanImage m_worldNormalAttachment;
-    VulkanImage m_diffuseAttachment;
+    std::vector<VulkanImage> m_colorAttachments;
+    std::vector<vk::ImageView> m_colorAttachmentViews;
     VulkanImage m_depthAttachment;
-    vk::ImageView m_worldPositionAttachmentView;
-    vk::ImageView m_worldNormalAttachmentView;
-    vk::ImageView m_diffuseAttachmentView;
     vk::ImageView m_depthAttachmentView;
     vk::Framebuffer m_framebuffer;
     vk::DescriptorSet m_textureSet;

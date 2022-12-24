@@ -44,9 +44,13 @@ public:
 
     [[nodiscard]] const vk::Extent2D &GetExtent() const { return m_extent; }
 
-    [[nodiscard]] const vk::Framebuffer &GetFramebuffer(uint32_t bufferingIndex) { return m_framebuffers[bufferingIndex].GetFramebuffer(); }
+    [[nodiscard]] const vk::DescriptorSet &GetTextureSet(uint32_t bufferingIndex) const {
+        return m_framebuffers[bufferingIndex].GetTextureSet();
+    }
 
-    [[nodiscard]] const vk::DescriptorSet &GetTextureSet(uint32_t bufferingIndex) { return m_framebuffers[bufferingIndex].GetTextureSet(); }
+    [[nodiscard]] const vk::RenderPassBeginInfo *GetRenderPassBeginInfo(uint32_t bufferingIndex) const {
+        return &m_renderPassBeginInfos[bufferingIndex];
+    }
 
     void CheckFramebuffersOutOfDate();
 
@@ -54,6 +58,8 @@ private:
     void CreateRenderPass();
 
     void CreateFramebuffers();
+
+    void CleanupFramebuffers();
 
     VulkanBase *m_device = nullptr;
 
@@ -63,4 +69,5 @@ private:
 
     vk::Extent2D m_extent;
     std::vector<DeferredFramebuffer> m_framebuffers;
+    std::vector<vk::RenderPassBeginInfo> m_renderPassBeginInfos;
 };

@@ -15,7 +15,8 @@ void DeferredContext::CreateRenderPass() {
             {
                     vk::Format::eR32G32B32A32Sfloat,
                     vk::Format::eR32G32B32A32Sfloat,
-                    vk::Format::eR8G8B8A8Unorm
+                    vk::Format::eR8G8B8A8Unorm,
+                    vk::Format::eR32G32B32A32Sfloat
             },
             vk::Format::eD32Sfloat
     );
@@ -23,7 +24,8 @@ void DeferredContext::CreateRenderPass() {
     vk::DescriptorSetLayoutBinding bindings[]{
             {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
             {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
+            {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+            {3, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
     };
     m_textureSetLayout = m_device->CreateDescriptorSetLayout(bindings);
 
@@ -31,17 +33,45 @@ void DeferredContext::CreateRenderPass() {
 }
 
 void DeferredContext::CreateFramebuffers() {
+    static vk::ClearValue const clearValues[]{
+            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+            {vk::ClearDepthStencilValue{1.0f, 0}}
+    };
     m_extent = m_device->GetSwapchainExtent();
     const size_t numBuffering = m_device->GetNumBuffering();
+    static vk::Format colorFormats[] = {
+            vk::Format::eR32G32B32A32Sfloat,
+            vk::Format::eR32G32B32A32Sfloat,
+            vk::Format::eR8G8B8A8Unorm,
+            vk::Format::eR32G32B32A32Sfloat
+    };
+    vk::RenderPassBeginInfo beginInfo(
+            m_renderPass,
+            {},
+            {{0, 0}, m_extent},
+            clearValues
+    );
     for (int i = 0; i < numBuffering; i++) {
-        m_framebuffers.emplace_back(
+        const DeferredFramebuffer &framebuffer = m_framebuffers.emplace_back(
                 m_device,
                 m_renderPass,
                 m_textureSetLayout,
                 m_sampler,
-                m_extent
+                m_extent,
+                colorFormats
         );
+        beginInfo.framebuffer = framebuffer.GetFramebuffer();
+        m_renderPassBeginInfos.push_back(beginInfo);
     }
+}
+
+void DeferredContext::CleanupFramebuffers() {
+    m_extent = vk::Extent2D{};
+    m_framebuffers.clear();
+    m_renderPassBeginInfos.clear();
 }
 
 void DeferredContext::Release() {
@@ -55,8 +85,7 @@ void DeferredContext::Release() {
     m_renderPass = VK_NULL_HANDLE;
     m_textureSetLayout = VK_NULL_HANDLE;
     m_sampler = VK_NULL_HANDLE;
-    m_extent = vk::Extent2D{};
-    m_framebuffers.clear();
+    CleanupFramebuffers();
 }
 
 void DeferredContext::Swap(DeferredContext &other) noexcept {
@@ -66,6 +95,7 @@ void DeferredContext::Swap(DeferredContext &other) noexcept {
     std::swap(m_sampler, other.m_sampler);
     std::swap(m_extent, other.m_extent);
     std::swap(m_framebuffers, other.m_framebuffers);
+    std::swap(m_renderPassBeginInfos, other.m_renderPassBeginInfos);
 }
 
 void DeferredContext::CheckFramebuffersOutOfDate() {
@@ -74,6 +104,6 @@ void DeferredContext::CheckFramebuffersOutOfDate() {
     }
 
     m_device->WaitIdle();
-    m_framebuffers.clear();
+    CleanupFramebuffers();
     CreateFramebuffers();
 }

@@ -9,54 +9,35 @@ DeferredFramebuffer::DeferredFramebuffer(
         vk::RenderPass renderPass,
         vk::DescriptorSetLayout textureSetLayout,
         vk::Sampler sampler,
-        const vk::Extent2D &extent
+        const vk::Extent2D &extent,
+        const vk::ArrayProxyNoTemporaries<vk::Format> &colorFormats
 ) : m_device(device) {
-    CreateAttachments(extent);
-    CreateAttachmentViews();
+    CreateAttachments(extent, colorFormats);
+    CreateAttachmentViews(colorFormats);
 
-    // framebuffer
-    m_framebuffer = m_device->CreateFramebuffer(
-            renderPass,
-            {
-                    m_worldPositionAttachmentView,
-                    m_worldNormalAttachmentView,
-                    m_diffuseAttachmentView,
-                    m_depthAttachmentView
-            },
-            extent
-    );
+    std::vector<vk::ImageView> attachmentViews = m_colorAttachmentViews;
+    attachmentViews.push_back(m_depthAttachmentView);
 
-    // deferred texture descriptor set
+    m_framebuffer = m_device->CreateFramebuffer(renderPass, attachmentViews, extent);
+
     m_textureSet = m_device->AllocateDescriptorSet(textureSetLayout);
 
-    // bind textures to deferred texture descriptor set
-    m_device->WriteCombinedImageSamplerToDescriptorSet(sampler, m_worldPositionAttachmentView, m_textureSet, 0);
-    m_device->WriteCombinedImageSamplerToDescriptorSet(sampler, m_worldNormalAttachmentView, m_textureSet, 1);
-    m_device->WriteCombinedImageSamplerToDescriptorSet(sampler, m_diffuseAttachmentView, m_textureSet, 2);
+    for (int i = 0; i < m_colorAttachmentViews.size(); i++) {
+        m_device->WriteCombinedImageSamplerToDescriptorSet(sampler, m_colorAttachmentViews[i], m_textureSet, i);
+    }
 }
 
-void DeferredFramebuffer::CreateAttachments(const vk::Extent2D &extent) {
-    m_worldPositionAttachment = m_device->CreateImage(
-            vk::Format::eR32G32B32A32Sfloat,
-            extent,
-            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-            0,
-            VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
-    );
-    m_worldNormalAttachment = m_device->CreateImage(
-            vk::Format::eR32G32B32A32Sfloat,
-            extent,
-            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-            0,
-            VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
-    );
-    m_diffuseAttachment = m_device->CreateImage(
-            vk::Format::eR8G8B8A8Unorm,
-            extent,
-            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-            0,
-            VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
-    );
+void DeferredFramebuffer::CreateAttachments(const vk::Extent2D &extent, const vk::ArrayProxyNoTemporaries<vk::Format> &colorFormats) {
+    for (const vk::Format &colorFormat: colorFormats) {
+        VulkanImage attachment = m_device->CreateImage(
+                colorFormat,
+                extent,
+                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+                0,
+                VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
+        );
+        m_colorAttachments.push_back(std::move(attachment));
+    }
     m_depthAttachment = m_device->CreateImage(
             vk::Format::eD32Sfloat,
             extent,
@@ -66,22 +47,16 @@ void DeferredFramebuffer::CreateAttachments(const vk::Extent2D &extent) {
     );
 }
 
-void DeferredFramebuffer::CreateAttachmentViews() {
-    m_worldPositionAttachmentView = m_device->CreateImageView(
-            m_worldPositionAttachment.Get(),
-            vk::Format::eR32G32B32A32Sfloat,
-            vk::ImageAspectFlagBits::eColor
-    );
-    m_worldNormalAttachmentView = m_device->CreateImageView(
-            m_worldNormalAttachment.Get(),
-            vk::Format::eR32G32B32A32Sfloat,
-            vk::ImageAspectFlagBits::eColor
-    );
-    m_diffuseAttachmentView = m_device->CreateImageView(
-            m_diffuseAttachment.Get(),
-            vk::Format::eR8G8B8A8Unorm,
-            vk::ImageAspectFlagBits::eColor
-    );
+void DeferredFramebuffer::CreateAttachmentViews(const vk::ArrayProxyNoTemporaries<vk::Format> &colorFormats) {
+    uint32_t i = 0;
+    for (const vk::Format &colorFormat: colorFormats) {
+        const vk::ImageView colorAttachmentView = m_device->CreateImageView(
+                m_colorAttachments[i++].Get(),
+                colorFormat,
+                vk::ImageAspectFlagBits::eColor
+        );
+        m_colorAttachmentViews.push_back(colorAttachmentView);
+    }
     m_depthAttachmentView = m_device->CreateImageView(
             m_depthAttachment.Get(),
             vk::Format::eD32Sfloat,
@@ -94,19 +69,15 @@ void DeferredFramebuffer::Release() {
         m_device->FreeDescriptorSet(m_textureSet);
         m_device->DestroyFramebuffer(m_framebuffer);
         m_device->DestroyImageView(m_depthAttachmentView);
-        m_device->DestroyImageView(m_diffuseAttachmentView);
-        m_device->DestroyImageView(m_worldNormalAttachmentView);
-        m_device->DestroyImageView(m_worldPositionAttachmentView);
+        for (const vk::ImageView &imageView: m_colorAttachmentViews) {
+            m_device->DestroyImageView(imageView);
+        }
     }
 
     m_device = nullptr;
-    m_worldPositionAttachment = {};
-    m_worldNormalAttachment = {};
-    m_diffuseAttachment = {};
+    m_colorAttachments.clear();
     m_depthAttachment = {};
-    m_worldPositionAttachmentView = VK_NULL_HANDLE;
-    m_worldNormalAttachmentView = VK_NULL_HANDLE;
-    m_diffuseAttachmentView = VK_NULL_HANDLE;
+    m_colorAttachmentViews.clear();
     m_depthAttachmentView = VK_NULL_HANDLE;
     m_framebuffer = VK_NULL_HANDLE;
     m_textureSet = VK_NULL_HANDLE;
@@ -114,13 +85,9 @@ void DeferredFramebuffer::Release() {
 
 void DeferredFramebuffer::Swap(DeferredFramebuffer &other) noexcept {
     std::swap(m_device, other.m_device);
-    std::swap(m_worldPositionAttachment, other.m_worldPositionAttachment);
-    std::swap(m_worldNormalAttachment, other.m_worldNormalAttachment);
-    std::swap(m_diffuseAttachment, other.m_diffuseAttachment);
+    std::swap(m_colorAttachments, other.m_colorAttachments);
     std::swap(m_depthAttachment, other.m_depthAttachment);
-    std::swap(m_worldPositionAttachmentView, other.m_worldPositionAttachmentView);
-    std::swap(m_worldNormalAttachmentView, other.m_worldNormalAttachmentView);
-    std::swap(m_diffuseAttachmentView, other.m_diffuseAttachmentView);
+    std::swap(m_colorAttachmentViews, other.m_colorAttachmentViews);
     std::swap(m_depthAttachmentView, other.m_depthAttachmentView);
     std::swap(m_framebuffer, other.m_framebuffer);
     std::swap(m_textureSet, other.m_textureSet);

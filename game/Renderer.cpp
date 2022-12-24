@@ -77,6 +77,7 @@ void Renderer::CreatePipelines() {
             {
                     NO_BLEND,
                     NO_BLEND,
+                    NO_BLEND,
                     NO_BLEND
             },
             m_deferredContext.GetRenderPass(),
@@ -143,19 +144,7 @@ void Renderer::FinishDrawing() {
 }
 
 void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
-    static vk::ClearValue const clearValues[]{
-            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-            {vk::ClearDepthStencilValue{1.0f, 0}}
-    };
-    const vk::RenderPassBeginInfo beginInfo(
-            m_deferredContext.GetRenderPass(),
-            m_deferredContext.GetFramebuffer(bufferingIndex),
-            {{0, 0}, m_deferredContext.GetExtent()},
-            clearValues
-    );
-    cmd.beginRenderPass(beginInfo, vk::SubpassContents::eInline);
+    cmd.beginRenderPass(m_deferredContext.GetRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_deferredPipeline.Get());
 

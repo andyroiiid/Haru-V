@@ -441,7 +441,7 @@ void VulkanDevice::DestroyRenderPass(vk::RenderPass renderPass) {
 
 vk::Framebuffer VulkanDevice::CreateFramebuffer(
         vk::RenderPass renderPass,
-        const std::initializer_list<vk::ImageView> &attachments,
+        const vk::ArrayProxyNoTemporaries<vk::ImageView> &attachments,
         const vk::Extent2D &extent
 ) {
     const vk::FramebufferCreateInfo createInfo(
