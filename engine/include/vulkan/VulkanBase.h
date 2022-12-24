@@ -71,11 +71,13 @@ private:
 
     void CreateSurfaceSwapchainAndImageViews();
 
-    void CreatePrimaryRenderPassAndFramebuffers();
+    void CreatePrimaryRenderPass();
+
+    void CreatePrimaryFramebuffers();
 
     void CleanupSurfaceSwapchainAndImageViews();
 
-    void CleanupPrimaryRenderPassAndFramebuffers();
+    void CleanupPrimaryFramebuffers();
 
     void RecreateSwapchain();
 
@@ -104,6 +106,7 @@ private:
     std::vector<vk::ImageView> m_depthImageViews;
 
     vk::RenderPass m_primaryRenderPass;
+
     std::vector<vk::Framebuffer> m_primaryFramebuffers;
     std::vector<vk::RenderPassBeginInfo> m_primaryRenderPassBeginInfos;
 

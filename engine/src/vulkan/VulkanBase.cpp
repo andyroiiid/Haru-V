@@ -30,7 +30,8 @@ VulkanBase::VulkanBase(GLFWwindow *window)
     CreateImmediateContext();
     CreateBufferingObjects();
     CreateSurfaceSwapchainAndImageViews();
-    CreatePrimaryRenderPassAndFramebuffers();
+    CreatePrimaryRenderPass();
+    CreatePrimaryFramebuffers();
 }
 
 void VulkanBase::CreateImmediateContext() {
@@ -93,7 +94,7 @@ void VulkanBase::CreateSurfaceSwapchainAndImageViews() {
     }
 }
 
-void VulkanBase::CreatePrimaryRenderPassAndFramebuffers() {
+void VulkanBase::CreatePrimaryRenderPass() {
     m_primaryRenderPass = CreateRenderPass(
             {
                     SURFACE_FORMAT
@@ -101,7 +102,9 @@ void VulkanBase::CreatePrimaryRenderPassAndFramebuffers() {
             DEPTH_FORMAT,
             true
     );
+}
 
+void VulkanBase::CreatePrimaryFramebuffers() {
     const size_t numSwapchainImages = m_swapchainImageViews.size();
     for (int i = 0; i < numSwapchainImages; i++) {
         m_primaryFramebuffers.push_back(CreateFramebuffer(
@@ -146,14 +149,12 @@ void VulkanBase::CleanupSurfaceSwapchainAndImageViews() {
     m_surface = VK_NULL_HANDLE;
 }
 
-void VulkanBase::CleanupPrimaryRenderPassAndFramebuffers() {
+void VulkanBase::CleanupPrimaryFramebuffers() {
     m_primaryRenderPassBeginInfos.clear();
     for (const vk::Framebuffer &framebuffer: m_primaryFramebuffers) {
         DestroyFramebuffer(framebuffer);
     }
     m_primaryFramebuffers.clear();
-    DestroyRenderPass(m_primaryRenderPass);
-    m_primaryRenderPass = VK_NULL_HANDLE;
 }
 
 void VulkanBase::RecreateSwapchain() {
@@ -169,10 +170,10 @@ void VulkanBase::RecreateSwapchain() {
 
     WaitIdle();
 
-    CleanupPrimaryRenderPassAndFramebuffers();
+    CleanupPrimaryFramebuffers();
     CleanupSurfaceSwapchainAndImageViews();
     CreateSurfaceSwapchainAndImageViews();
-    CreatePrimaryRenderPassAndFramebuffers();
+    CreatePrimaryFramebuffers();
 }
 
 VulkanBase::~VulkanBase() {
@@ -185,7 +186,8 @@ VulkanBase::~VulkanBase() {
         m_device.free(m_commandPool, bufferingObject.CommandBuffer);
     }
 
-    CleanupPrimaryRenderPassAndFramebuffers();
+    CleanupPrimaryFramebuffers();
+    DestroyRenderPass(m_primaryRenderPass);
     CleanupSurfaceSwapchainAndImageViews();
 
     m_device.free(m_commandPool, m_immediateCommandBuffer);
