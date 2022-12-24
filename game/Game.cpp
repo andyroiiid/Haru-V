@@ -64,5 +64,5 @@ void Game::Frame(float deltaTime) {
     model = glm::rotate(glm::translate(IDENTITY, {0.0f, 0.0f, 2.0f}), glm::radians(m_time * 120.0f), {0.0f, 0.0f, 1.0f});
     m_renderer->Draw(m_mesh, model);
 
-    m_renderer->DrawToScreen();
+    m_renderer->FinishDrawing();
 }

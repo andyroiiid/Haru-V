@@ -11,6 +11,18 @@ namespace vk {
     struct PipelineVertexInputStateCreateInfo;
 }
 
+struct VertexCanvas {
+    glm::vec2 Position;
+    glm::vec2 TexCoord;
+
+    VertexCanvas() = default;
+
+    VertexCanvas(const glm::vec2 &position, const glm::vec2 &texCoord)
+            : Position(position), TexCoord(texCoord) {}
+
+    static const vk::PipelineVertexInputStateCreateInfo *GetPipelineVertexInputStateCreateInfo();
+};
+
 struct VertexBase {
     glm::vec3 Position;
     glm::vec3 Normal;

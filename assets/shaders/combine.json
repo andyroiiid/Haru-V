@@ -1,0 +1,5 @@
+{
+  "vertex": "shaders/combine.vert",
+  "fragment": "shaders/combine.frag",
+  "topology": "triangle_strip"
+}

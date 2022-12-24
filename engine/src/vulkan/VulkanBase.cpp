@@ -220,7 +220,7 @@ void VulkanBase::AcquireNextSwapchainImage() {
     }
 }
 
-VulkanBase::BeginFrameInfo VulkanBase::BeginFrame() {
+VulkanFrameInfo VulkanBase::BeginFrame() {
     const BufferingObjects &bufferingObjects = m_bufferingObjects[m_currentBufferingIndex];
 
     WaitAndResetFence(bufferingObjects.RenderFence);

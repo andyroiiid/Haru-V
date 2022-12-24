@@ -9,6 +9,8 @@
 #include "vulkan/ShaderCompiler.h"
 #include "file/ImageFile.h"
 
+#include "VertexFormats.h"
+
 Renderer::Renderer(GLFWwindow *window)
         : m_device(window) {
     CreateDeferredRenderPass();
@@ -16,6 +18,7 @@ Renderer::Renderer(GLFWwindow *window)
     CreateUniformBuffers();
     CreateTextureSet();
     CreatePipelines();
+    CreateFullScreenQuad();
 }
 
 void Renderer::CreateDeferredRenderPass() {
@@ -27,6 +30,15 @@ void Renderer::CreateDeferredRenderPass() {
             },
             vk::Format::eD32Sfloat
     );
+
+    vk::DescriptorSetLayoutBinding bindings[]{
+            {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+            {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+            {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
+    };
+    m_deferredTextureSetLayout = m_device.CreateDescriptorSetLayout(bindings);
+
+    m_deferredTextureSampler = m_device.CreateSampler(vk::Filter::eNearest, vk::SamplerAddressMode::eClampToEdge);
 }
 
 void Renderer::CreateDeferredFramebuffers() {
@@ -98,11 +110,38 @@ void Renderer::CreateDeferredFramebuffers() {
                 },
                 m_deferredExtent
         );
+
+        // deferred texture descriptor set
+        deferredObjects.DeferredTextureSet = m_device.AllocateDescriptorSet(m_deferredTextureSetLayout);
+
+        // bind textures to deferred texture descriptor set
+        vk::DescriptorImageInfo imageInfo(
+                m_deferredTextureSampler,
+                {},
+                vk::ImageLayout::eShaderReadOnlyOptimal
+        );
+        vk::WriteDescriptorSet writeDescriptorSet(
+                deferredObjects.DeferredTextureSet,
+                {},
+                0,
+                vk::DescriptorType::eCombinedImageSampler,
+                imageInfo
+        );
+        imageInfo.imageView = deferredObjects.WorldPositionAttachmentView;
+        writeDescriptorSet.dstBinding = 0;
+        m_device.WriteDescriptorSet(writeDescriptorSet);
+        imageInfo.imageView = deferredObjects.WorldNormalAttachmentView;
+        writeDescriptorSet.dstBinding = 1;
+        m_device.WriteDescriptorSet(writeDescriptorSet);
+        imageInfo.imageView = deferredObjects.DiffuseAttachmentView;
+        writeDescriptorSet.dstBinding = 2;
+        m_device.WriteDescriptorSet(writeDescriptorSet);
     }
 }
 
 void Renderer::CleanupDeferredFramebuffers() {
     for (const DeferredObjects &deferredObjects: m_deferredObjects) {
+        m_device.FreeDescriptorSet(deferredObjects.DeferredTextureSet);
         m_device.DestroyFramebuffer(deferredObjects.Framebuffer);
         m_device.DestroyImageView(deferredObjects.DepthAttachmentView);
         m_device.DestroyImageView(deferredObjects.DiffuseAttachmentView);
@@ -175,18 +214,16 @@ void Renderer::CreatePipelines() {
             0
     );
 
-    m_finalPipeline = VulkanPipeline(
+    m_combinePipeline = VulkanPipeline(
             m_device,
             compiler,
             {
                     m_uniformBufferSet.GetDescriptorSetLayout(),
-                    m_textureSetLayout
+                    m_deferredTextureSetLayout
             },
-            {
-                    {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
-            },
-            VertexBase::GetPipelineVertexInputStateCreateInfo(),
-            "shaders/test.json",
+            {},
+            VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
+            "shaders/combine.json",
             {
                     NO_BLEND
             },
@@ -195,19 +232,34 @@ void Renderer::CreatePipelines() {
     );
 }
 
+void Renderer::CreateFullScreenQuad() {
+    const std::vector<VertexCanvas> vertices{
+            {{-1.0f, -1.0f}, {0.0f, 0.0f}},
+            {{1.0f,  -1.0f}, {1.0f, 0.0f}},
+            {{-1.0f, 1.0f},  {0.0f, 1.0f}},
+            {{1.0f,  1.0f},  {1.0f, 1.0f}}
+    };
+    m_fullScreenQuad = VulkanMesh(m_device, vertices.size(), sizeof(VertexCanvas), vertices.data());
+}
+
 Renderer::~Renderer() {
+    m_device.WaitIdle();
+
+    m_fullScreenQuad = {};
     m_deferredPipeline = {};
-    m_finalPipeline = {};
+    m_combinePipeline = {};
     m_device.FreeDescriptorSet(m_textureSet);
     m_texture = {};
     m_device.DestroyDescriptorSetLayout(m_textureSetLayout);
     m_uniformBufferSet = {};
     CleanupDeferredFramebuffers();
+    m_device.DestroySampler(m_deferredTextureSampler);
+    m_device.DestroyDescriptorSetLayout(m_deferredTextureSetLayout);
     m_device.DestroyRenderPass(m_deferredPass);
 }
 
-void Renderer::DrawToScreen() {
-    const auto [primaryRenderPassBeginInfo, bufferingIndex, cmd] = m_device.BeginFrame();
+void Renderer::FinishDrawing() {
+    const VulkanFrameInfo frameInfo = m_device.BeginFrame();
 
     if (m_device.GetSwapchainExtent() != m_deferredExtent) {
         m_device.WaitIdle();
@@ -215,93 +267,86 @@ void Renderer::DrawToScreen() {
         CreateDeferredFramebuffers();
     }
 
-    m_uniformBufferSet.UpdateAllBuffers(bufferingIndex, {
+    m_uniformBufferSet.UpdateAllBuffers(frameInfo.BufferingIndex, {
             &m_rendererUniformData,
             &m_lightingUniformData
     });
 
-    {
-        static vk::ClearValue clearValues[]{
-                {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-                {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-                {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-                {vk::ClearDepthStencilValue{1.0f, 0}}
-        };
-        const vk::RenderPassBeginInfo beginInfo(
-                m_deferredPass,
-                m_deferredObjects[bufferingIndex].Framebuffer,
-                {{0, 0}, m_deferredExtent},
-                clearValues
-        );
-        cmd.beginRenderPass(beginInfo, vk::SubpassContents::eInline);
-
-        cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_deferredPipeline.Get());
-
-        const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredExtent);
-        cmd.setViewport(0, viewport);
-        cmd.setScissor(0, scissor);
-
-        cmd.bindDescriptorSets(
-                vk::PipelineBindPoint::eGraphics,
-                m_deferredPipeline.GetLayout(),
-                0,
-                {
-                        m_uniformBufferSet.GetDescriptorSet(),
-                        m_textureSet
-                },
-                m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
-        );
-
-        for (const DrawCall &drawCall: m_drawCalls) {
-            cmd.pushConstants(
-                    m_deferredPipeline.GetLayout(),
-                    vk::ShaderStageFlagBits::eVertex,
-                    0,
-                    sizeof(glm::mat4),
-                    glm::value_ptr(drawCall.ModelMatrix)
-            );
-            drawCall.Mesh->BindAndDraw(cmd);
-        }
-
-        cmd.endRenderPass();
-    }
-
-    {
-        cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
-
-        cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_finalPipeline.Get());
-
-        const vk::Extent2D &extent = m_device.GetSwapchainExtent();
-        const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(extent);
-        cmd.setViewport(0, viewport);
-        cmd.setScissor(0, scissor);
-
-        cmd.bindDescriptorSets(
-                vk::PipelineBindPoint::eGraphics,
-                m_finalPipeline.GetLayout(),
-                0,
-                {
-                        m_uniformBufferSet.GetDescriptorSet(),
-                        m_textureSet
-                },
-                m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
-        );
-
-        for (const DrawCall &drawCall: m_drawCalls) {
-            cmd.pushConstants(
-                    m_finalPipeline.GetLayout(),
-                    vk::ShaderStageFlagBits::eVertex,
-                    0,
-                    sizeof(glm::mat4),
-                    glm::value_ptr(drawCall.ModelMatrix)
-            );
-            drawCall.Mesh->BindAndDraw(cmd);
-        }
-
-        cmd.endRenderPass();
-    }
+    DrawToDeferredTextures(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
+    DrawToScreen(frameInfo.PrimaryRenderPassBeginInfo, frameInfo.CommandBuffer, frameInfo.BufferingIndex);
 
     m_drawCalls.clear();
 
     m_device.EndFrame();
+}
+
+void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+    static vk::ClearValue const clearValues[]{
+            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+            {vk::ClearDepthStencilValue{1.0f, 0}}
+    };
+    const vk::RenderPassBeginInfo beginInfo(
+            m_deferredPass,
+            m_deferredObjects[bufferingIndex].Framebuffer,
+            {{0, 0}, m_deferredExtent},
+            clearValues
+    );
+    cmd.beginRenderPass(beginInfo, vk::SubpassContents::eInline);
+
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_deferredPipeline.Get());
+
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredExtent);
+    cmd.setViewport(0, viewport);
+    cmd.setScissor(0, scissor);
+
+    cmd.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            m_deferredPipeline.GetLayout(),
+            0,
+            {
+                    m_uniformBufferSet.GetDescriptorSet(),
+                    m_textureSet
+            },
+            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+    );
+
+    for (const DrawCall &drawCall: m_drawCalls) {
+        cmd.pushConstants(
+                m_deferredPipeline.GetLayout(),
+                vk::ShaderStageFlagBits::eVertex,
+                0,
+                sizeof(glm::mat4),
+                glm::value_ptr(drawCall.ModelMatrix)
+        );
+        drawCall.Mesh->BindAndDraw(cmd);
+    }
+
+    cmd.endRenderPass();
+}
+
+void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+    cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
+
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_combinePipeline.Get());
+
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_device.GetSwapchainExtent());
+    cmd.setViewport(0, viewport);
+    cmd.setScissor(0, scissor);
+
+    cmd.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            m_combinePipeline.GetLayout(),
+            0,
+            {
+                    m_uniformBufferSet.GetDescriptorSet(),
+                    m_deferredObjects[bufferingIndex].DeferredTextureSet
+            },
+            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+    );
+
+    m_fullScreenQuad.BindAndDraw(cmd);
+
+    cmd.endRenderPass();
 }

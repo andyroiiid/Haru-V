@@ -72,7 +72,7 @@ public:
         m_drawCalls.emplace_back(mesh, modelMatrix);
     }
 
-    void DrawToScreen();
+    void FinishDrawing();
 
 private:
     void CreateDeferredRenderPass();
@@ -87,9 +87,17 @@ private:
 
     void CreatePipelines();
 
+    void CreateFullScreenQuad();
+
+    void DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingIndex);
+
+    void DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex);
+
     VulkanBase m_device;
 
     vk::RenderPass m_deferredPass;
+    vk::DescriptorSetLayout m_deferredTextureSetLayout;
+    vk::Sampler m_deferredTextureSampler;
     vk::Extent2D m_deferredExtent;
     struct DeferredObjects {
         VulkanImage WorldPositionAttachment;
@@ -101,6 +109,7 @@ private:
         vk::ImageView DiffuseAttachmentView;
         vk::ImageView DepthAttachmentView;
         vk::Framebuffer Framebuffer;
+        vk::DescriptorSet DeferredTextureSet;
     };
     std::vector<DeferredObjects> m_deferredObjects;
 
@@ -113,7 +122,9 @@ private:
     vk::DescriptorSet m_textureSet;
 
     VulkanPipeline m_deferredPipeline;
-    VulkanPipeline m_finalPipeline;
+    VulkanPipeline m_combinePipeline;
+
+    VulkanMesh m_fullScreenQuad;
 
     struct DrawCall {
         const VulkanMesh *Mesh;

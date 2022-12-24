@@ -17,6 +17,12 @@ static inline std::pair<vk::Viewport, vk::Rect2D> CalcViewportAndScissorFromExte
     };
 }
 
+struct VulkanFrameInfo {
+    const vk::RenderPassBeginInfo *PrimaryRenderPassBeginInfo = nullptr;
+    uint32_t BufferingIndex = 0;
+    vk::CommandBuffer CommandBuffer;
+};
+
 class VulkanBase : public VulkanDevice {
 public:
     static constexpr vk::Format SURFACE_FORMAT = vk::Format::eB8G8R8A8Unorm;
@@ -42,13 +48,7 @@ public:
 
     [[nodiscard]] size_t GetNumBuffering() const { return m_bufferingObjects.size(); }
 
-    struct BeginFrameInfo {
-        [[maybe_unused]] const vk::RenderPassBeginInfo *PrimaryRenderPassBeginInfo = nullptr;
-        [[maybe_unused]] uint32_t BufferingIndex = 0;
-        [[maybe_unused]] vk::CommandBuffer CommandBuffer;
-    };
-
-    BeginFrameInfo BeginFrame();
+    VulkanFrameInfo BeginFrame();
 
     void EndFrame();
 
