@@ -5,6 +5,8 @@
 #pragma once
 
 #include "window/Window.h"
+#include "window/Mouse.h"
+#include "math/Transform.h"
 
 #include "gfx/Renderer.h"
 
@@ -17,8 +19,18 @@ public:
     void Frame(float deltaTime) override;
 
 private:
+    void Update(float deltaTime);
+
+    void Draw();
+
+    GLFWwindow *m_window = nullptr;
+
     std::unique_ptr<Renderer> m_renderer;
+    std::unique_ptr<Mouse> m_mouse;
+
     VulkanMesh m_mesh;
+
+    Transform m_cameraTransform;
 
     float m_time = 0.0f;
 };

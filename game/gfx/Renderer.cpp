@@ -133,8 +133,6 @@ void Renderer::FinishDrawing() {
     DrawToDeferredTextures(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
     DrawToScreen(frameInfo.PrimaryRenderPassBeginInfo, frameInfo.CommandBuffer, frameInfo.BufferingIndex);
 
-    m_drawCalls.clear();
-
     m_device.EndFrame();
 }
 
@@ -168,6 +166,7 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
         );
         drawCall.Mesh->BindAndDraw(cmd);
     }
+    m_drawCalls.clear();
 
     cmd.endRenderPass();
 }

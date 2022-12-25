@@ -8,6 +8,7 @@ add_library(engine
         include/file/JsonFile.h
         include/file/ImageFile.h
         include/window/Window.h
+        include/window/Mouse.h
         include/vulkan/DebugVk.h
         include/vulkan/ShaderCompiler.h
         include/vulkan/VulkanBuffer.h
@@ -19,11 +20,13 @@ add_library(engine
         include/vulkan/VulkanPipeline.h
         include/vulkan/VulkanMesh.h
         include/vulkan/VulkanTexture.h
+        include/math/Transform.h
 
         src/file/FileSystem.cpp
         src/file/JsonFile.cpp
         src/file/ImageFile.cpp
         src/window/Window.cpp
+        src/window/Mouse.cpp
         src/vulkan/ShaderCompiler.cpp
         src/vulkan/vk_mem_alloc.cpp
         src/vulkan/VulkanBuffer.cpp
