@@ -8,9 +8,10 @@ layout (location = 0) in vec2 vTexCoord;
 
 layout (location = 0) out vec4 fColor;
 
-layout (set = 1, binding = 0) uniform sampler2D uWorldPositionAlbedo;
-layout (set = 1, binding = 1) uniform sampler2D uWorldNormalMRA;
-layout (set = 1, binding = 2) uniform sampler2D uEmissive;
+layout (set = 1, binding = 0) uniform sampler2D uWorldPositionMetallic;
+layout (set = 1, binding = 1) uniform sampler2D uWorldNormalRoughness;
+layout (set = 1, binding = 2) uniform sampler2D uAlbedoAmbientOcclusion;
+layout (set = 1, binding = 3) uniform sampler2D uEmissive;
 
 // PBR functions from https://learnopengl.com/PBR/Lighting
 
@@ -64,18 +65,18 @@ vec3 ToneMapping(vec3 color) {
 }
 
 void main() {
-    const vec4 worldPositionAlbedo = texture(uWorldPositionAlbedo, vTexCoord);
-    const vec4 worldNormalMRA = texture(uWorldNormalMRA, vTexCoord);
+    const vec4 worldPositionMetallic = texture(uWorldPositionMetallic, vTexCoord);
+    const vec4 worldNormalRoughness = texture(uWorldNormalRoughness, vTexCoord);
+    const vec4 albedoAmbientOcclusion = texture(uAlbedoAmbientOcclusion, vTexCoord);
     const vec3 emissive = texture(uEmissive, vTexCoord).rgb;
 
-    const vec3 worldPosition = worldPositionAlbedo.xyz;
-    const vec3 albedo = unpack(worldPositionAlbedo.w).rgb;
+    const vec3 worldPosition = worldPositionMetallic.xyz;
+    const vec3 worldNormal = worldNormalRoughness.xyz;
+    const vec3 albedo = albedoAmbientOcclusion.rgb;
 
-    const vec3 worldNormal = normalize(worldNormalMRA.xyz);
-    const vec4 mra = unpack(worldNormalMRA.w);
-    const float metallic = mra.x;
-    const float roughness = mra.y;
-    const float ambientOcclusion = mra.z;
+    const float metallic = worldPositionMetallic.w;
+    const float roughness = worldNormalRoughness.w;
+    const float ambientOcclusion = albedoAmbientOcclusion.w;
 
     const vec3 N = worldNormal;
     const vec3 V = normalize(uCameraPosition - worldPosition);

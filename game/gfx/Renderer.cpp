@@ -82,6 +82,7 @@ void Renderer::CreatePipelines() {
             {
                     NO_BLEND,
                     NO_BLEND,
+                    NO_BLEND,
                     NO_BLEND
             },
             m_deferredContext.GetRenderPass(),
