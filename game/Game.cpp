@@ -20,13 +20,13 @@ void Game::Init(GLFWwindow *window) {
     m_mesh = m_renderer->CreateMesh(vertices);
 
     m_cameraTransform.SetPosition({0.0f, 0.0f, -5.0f});
+    m_lightTransform.SetEulerAngles({glm::radians(-45.0f), glm::radians(150.0f), glm::radians(0.0f)});
 }
 
 void Game::Shutdown() {
     m_renderer->WaitDeviceIdle();
 
-    m_time = 0.0f;
-
+    m_lightTransform = {};
     m_cameraTransform = {};
 
     m_mesh = {};
@@ -69,7 +69,10 @@ void Game::Update(float deltaTime) {
             .RotateY(0.001f * deltaMousePos.x)
             .ClampPitch();
 
-    m_time += deltaTime;
+    m_lightTransform
+            .RotateX(GetKeyAxis(m_window, GLFW_KEY_DOWN, GLFW_KEY_UP) * deltaTime * glm::pi<float>())
+            .RotateY(GetKeyAxis(m_window, GLFW_KEY_LEFT, GLFW_KEY_RIGHT) * deltaTime * glm::two_pi<float>())
+            .ClampPitch();
 }
 
 void Game::Draw() {
@@ -81,30 +84,14 @@ void Game::Draw() {
     );
     m_renderer->SetCameraMatrices(projection, m_cameraTransform.GetInverseMatrix());
 
-    const glm::vec3 lightDirection{
-            glm::cos(glm::radians(m_time * 90.0f)),
-            1.0f,
-            glm::sin(glm::radians(m_time * 90.0f))
-    };
     m_renderer->SetLightingData(
-            lightDirection,
+            m_lightTransform.GetForwardVector(),
             {1.0f, 1.0f, 1.0f},
             {0.2f, 0.2f, 0.2f}
     );
 
     const glm::mat4 IDENTITY{1.0f};
-
-    glm::mat4 model = glm::rotate(IDENTITY, glm::radians(m_time * 30.0f), {1.0f, 1.0f, 1.0f});
-    m_renderer->Draw(m_mesh, model);
-
-    model = glm::rotate(glm::translate(IDENTITY, {2.0f, 0.0f, 0.0f}), glm::radians(m_time * 60.0f), {1.0f, 0.0f, 0.0f});
-    m_renderer->Draw(m_mesh, model);
-
-    model = glm::rotate(glm::translate(IDENTITY, {0.0f, 2.0f, 0.0f}), glm::radians(m_time * 90.0f), {0.0f, 1.0f, 0.0f});
-    m_renderer->Draw(m_mesh, model);
-
-    model = glm::rotate(glm::translate(IDENTITY, {0.0f, 0.0f, 2.0f}), glm::radians(m_time * 120.0f), {0.0f, 0.0f, 1.0f});
-    m_renderer->Draw(m_mesh, model);
+    m_renderer->Draw(m_mesh, IDENTITY);
 
     m_renderer->FinishDrawing();
 }

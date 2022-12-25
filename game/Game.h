@@ -31,6 +31,5 @@ private:
     VulkanMesh m_mesh;
 
     Transform m_cameraTransform;
-
-    float m_time = 0.0f;
+    Transform m_lightTransform;
 };
