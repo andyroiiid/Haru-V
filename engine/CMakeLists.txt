@@ -59,4 +59,5 @@ target_link_libraries(engine PUBLIC
         glslang-default-resource-limits
         VulkanMemoryAllocator
         glm
-        stb)
+        stb
+        tinyobjloader)

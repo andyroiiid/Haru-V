@@ -16,7 +16,7 @@ void Game::Init(GLFWwindow *window) {
     m_mouse->SetEnabled(false);
 
     std::vector<VertexBase> vertices;
-    AppendBoxVertices(vertices, {-0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, 0.5f});
+    AppendObjVertices(vertices, "models/suzanne.obj");
     m_mesh = m_renderer->CreateMesh(vertices);
 
     m_cameraTransform.SetPosition({0.0f, 0.0f, -5.0f});

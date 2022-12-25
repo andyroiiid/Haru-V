@@ -4,6 +4,11 @@
 
 #include "MeshUtilities.h"
 
+#include <tiny_obj_loader.h>
+
+#include "core/Debug.h"
+#include "file/FileSystem.h"
+
 void AppendBoxVertices(std::vector<VertexBase> &vertices, const glm::vec3 &min, const glm::vec3 &max) {
     const glm::vec3 P000{min.x, min.y, min.z};
     const glm::vec3 P001{min.x, min.y, max.z};
@@ -83,4 +88,63 @@ void AppendBoxVertices(std::vector<VertexBase> &vertices, const glm::vec3 &min, 
     vertices.emplace_back(P010, NNZ, UVZ01);
     vertices.emplace_back(P100, NNZ, UVZ10);
     vertices.emplace_back(P110, NNZ, UVZ11);
+}
+
+void AppendObjVertices(std::vector<VertexBase> &vertices, const std::string &objFilename) {
+    DebugInfo("Loading OBJ file {}.", objFilename);
+
+    tinyobj::ObjReader reader;
+
+    DebugCheckCritical(
+            reader.ParseFromString(FileSystem::Read(objFilename), ""),
+            "Failed to load OBJ file {}: {}",
+            objFilename,
+            reader.Error()
+    );
+
+    DebugCheck(
+            reader.Warning().empty(), "Warning when loading OBJ file {}: {}",
+            objFilename,
+            reader.Warning()
+    );
+
+    const tinyobj::attrib_t &attrib = reader.GetAttrib();
+    const std::vector<tinyobj::real_t> &positions = attrib.vertices;
+    const std::vector<tinyobj::real_t> &normals = attrib.normals;
+    const std::vector<tinyobj::real_t> &texCoords = attrib.texcoords;
+
+    for (const tinyobj::shape_t &shape: reader.GetShapes()) {
+        const tinyobj::mesh_t &mesh = shape.mesh;
+        DebugInfo("Loading OBJ shape {}.", shape.name);
+
+        int i = 0;
+        for (const int f: mesh.num_face_vertices) {
+            DebugCheckCritical(f == 3, "All polygons must be triangle.");
+
+            // iterate backwards to fix the winding order
+            for (int v = f - 1; v >= 0; v--) {
+                const tinyobj::index_t &index = mesh.indices[i + v];
+                DebugCheckCritical(index.normal_index >= 0, "Missing normal data on vertex {}/{}.", f, v);
+                DebugCheckCritical(index.texcoord_index >= 0, "Missing texture coordinates data on vertex {}/{}.", f, v);
+
+                vertices.emplace_back(
+                        glm::vec3{
+                                positions[3 * index.vertex_index + 0],
+                                positions[3 * index.vertex_index + 1],
+                                positions[3 * index.vertex_index + 2]
+                        },
+                        glm::vec3{
+                                normals[3 * index.normal_index + 0],
+                                normals[3 * index.normal_index + 1],
+                                normals[3 * index.normal_index + 2]
+                        },
+                        glm::vec2{
+                                texCoords[2 * index.texcoord_index + 0],
+                                texCoords[2 * index.texcoord_index + 1]
+                        }
+                );
+            }
+            i += f;
+        }
+    }
 }

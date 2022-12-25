@@ -31,3 +31,5 @@ add_subdirectory(VulkanMemoryAllocator EXCLUDE_FROM_ALL)
 add_subdirectory(glm EXCLUDE_FROM_ALL)
 
 add_subdirectory(stb EXCLUDE_FROM_ALL)
+
+add_subdirectory(tinyobjloader EXCLUDE_FROM_ALL)

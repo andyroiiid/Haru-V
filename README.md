@@ -33,3 +33,5 @@ Currently working on migrating the rendering system.
     - Mathematics
 - [stb](https://github.com/nothings/stb)
     - stb_image.h for image loading
+- [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
+    - OBJ model loading
