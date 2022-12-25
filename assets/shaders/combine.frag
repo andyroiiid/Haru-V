@@ -10,6 +10,7 @@ layout (location = 0) out vec4 fColor;
 
 layout (set = 1, binding = 0) uniform sampler2D uWorldPositionAlbedo;
 layout (set = 1, binding = 1) uniform sampler2D uWorldNormalMRA;
+layout (set = 1, binding = 2) uniform sampler2D uEmissive;
 
 // PBR functions from https://learnopengl.com/PBR/Lighting
 
@@ -65,6 +66,7 @@ vec3 ToneMapping(vec3 color) {
 void main() {
     const vec4 worldPositionAlbedo = texture(uWorldPositionAlbedo, vTexCoord);
     const vec4 worldNormalMRA = texture(uWorldNormalMRA, vTexCoord);
+    const vec3 emissive = texture(uEmissive, vTexCoord).rgb;
 
     const vec3 worldPosition = worldPositionAlbedo.xyz;
     const vec3 albedo = unpack(worldPositionAlbedo.w).rgb;
@@ -102,7 +104,7 @@ void main() {
 
     const vec3 ambient = uAmbientColor * albedo * ambientOcclusion;
 
-    const vec3 color = ToneMapping(ambient + Lo);
+    const vec3 color = ToneMapping(ambient + Lo + emissive);
 
     fColor = vec4(color, 1);
 }

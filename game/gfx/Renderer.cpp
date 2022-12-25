@@ -24,29 +24,37 @@ void Renderer::CreateUniformBuffers() {
     m_uniformBufferSet = VulkanUniformBufferSet(
             m_device,
             {
-                    {0, vk::ShaderStageFlagBits::eAllGraphics,   sizeof(RendererUniformData)},
-                    {1, vk::ShaderStageFlagBits::eFragment, sizeof(LightingUniformData)}
+                    {0, vk::ShaderStageFlagBits::eAllGraphics, sizeof(RendererUniformData)},
+                    {1, vk::ShaderStageFlagBits::eFragment,    sizeof(LightingUniformData)}
             }
     );
 }
 
+static VulkanTexture LoadTexture(VulkanBase &device, const std::string &filename) {
+    const ImageFile image(filename);
+    return {device, image.GetWidth(), image.GetHeight(), image.GetData()};
+}
+
 void Renderer::CreateTextureSet() {
     vk::DescriptorSetLayoutBinding bindings[]{
-            {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
+            {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+            {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+            {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+            {3, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
     };
     m_textureSetLayout = m_device.CreateDescriptorSetLayout(bindings);
 
-    const ImageFile imageFile("textures/dev_2.png");
-    m_texture = VulkanTexture(
-            m_device,
-            imageFile.GetWidth(),
-            imageFile.GetHeight(),
-            imageFile.GetData()
-    );
+    m_albedoTexture = LoadTexture(m_device, "textures/boom_box_albedo.jpg");
+    m_normalTexture = LoadTexture(m_device, "textures/boom_box_normal.jpg");
+    m_mraTexture = LoadTexture(m_device, "textures/boom_box_mra.jpg");
+    m_emissiveTexture = LoadTexture(m_device, "textures/boom_box_emissive.jpg");
 
     m_textureSet = m_device.AllocateDescriptorSet(m_textureSetLayout);
 
-    m_texture.BindToDescriptorSet(m_textureSet, 0);
+    m_albedoTexture.BindToDescriptorSet(m_textureSet, 0);
+    m_normalTexture.BindToDescriptorSet(m_textureSet, 1);
+    m_mraTexture.BindToDescriptorSet(m_textureSet, 2);
+    m_emissiveTexture.BindToDescriptorSet(m_textureSet, 3);
 }
 
 void Renderer::CreatePipelines() {
@@ -72,6 +80,7 @@ void Renderer::CreatePipelines() {
             VertexBase::GetPipelineVertexInputStateCreateInfo(),
             "shaders/base.json",
             {
+                    NO_BLEND,
                     NO_BLEND,
                     NO_BLEND
             },
@@ -114,7 +123,10 @@ Renderer::~Renderer() {
     m_deferredPipeline = {};
     m_combinePipeline = {};
     m_device.FreeDescriptorSet(m_textureSet);
-    m_texture = {};
+    m_albedoTexture = {};
+    m_normalTexture = {};
+    m_mraTexture = {};
+    m_emissiveTexture = {};
     m_device.DestroyDescriptorSetLayout(m_textureSetLayout);
     m_uniformBufferSet = {};
     m_deferredContext = {};

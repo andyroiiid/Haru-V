@@ -117,24 +117,24 @@ void AppendObjVertices(std::vector<VertexBase> &vertices, const std::string &obj
         const tinyobj::mesh_t &mesh = shape.mesh;
         DebugInfo("Loading OBJ shape {}.", shape.name);
 
-        int i = 0;
-        for (const int f: mesh.num_face_vertices) {
+        size_t i = 0;
+        for (const size_t f: mesh.num_face_vertices) {
             DebugCheckCritical(f == 3, "All polygons must be triangle.");
 
-            // iterate backwards to fix the winding order
-            for (int v = f - 1; v >= 0; v--) {
+            for (size_t v = 0; v < f; v++) {
                 const tinyobj::index_t &index = mesh.indices[i + v];
                 DebugCheckCritical(index.normal_index >= 0, "Missing normal data on vertex {}/{}.", f, v);
                 DebugCheckCritical(index.texcoord_index >= 0, "Missing texture coordinates data on vertex {}/{}.", f, v);
 
+                // X axis is flipped because Blender uses right-handed coordinates
                 vertices.emplace_back(
                         glm::vec3{
-                                positions[3 * index.vertex_index + 0],
+                                -positions[3 * index.vertex_index + 0],
                                 positions[3 * index.vertex_index + 1],
                                 positions[3 * index.vertex_index + 2]
                         },
                         glm::vec3{
-                                normals[3 * index.normal_index + 0],
+                                -normals[3 * index.normal_index + 0],
                                 normals[3 * index.normal_index + 1],
                                 normals[3 * index.normal_index + 2]
                         },

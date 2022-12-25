@@ -99,7 +99,10 @@ private:
     VulkanUniformBufferSet m_uniformBufferSet;
 
     vk::DescriptorSetLayout m_textureSetLayout;
-    VulkanTexture m_texture;
+    VulkanTexture m_albedoTexture;
+    VulkanTexture m_normalTexture;
+    VulkanTexture m_mraTexture;
+    VulkanTexture m_emissiveTexture;
     vk::DescriptorSet m_textureSet;
 
     VulkanPipeline m_deferredPipeline;

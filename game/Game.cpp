@@ -16,7 +16,7 @@ void Game::Init(GLFWwindow *window) {
     m_mouse->SetEnabled(false);
 
     std::vector<VertexBase> vertices;
-    AppendObjVertices(vertices, "models/suzanne.obj");
+    AppendObjVertices(vertices, "models/boom_box.obj");
     m_mesh = m_renderer->CreateMesh(vertices);
 
     m_cameraTransform.SetPosition({0.0f, 0.0f, -5.0f});
@@ -60,7 +60,7 @@ void Game::Update(float deltaTime) {
             glm::vec3(0.0f, 1.0f, 0.0f) * GetKeyAxis(m_window, GLFW_KEY_E, GLFW_KEY_Q) +
             m_cameraTransform.GetHorizontalForwardVector() * GetKeyAxis(m_window, GLFW_KEY_W, GLFW_KEY_S);
     if (inputDirection.x != 0.0f || inputDirection.y != 0.0f || inputDirection.z != 0.0f) {
-        m_cameraTransform.Translate(glm::normalize(inputDirection) * (10.0f * deltaTime));
+        m_cameraTransform.Translate(glm::normalize(inputDirection) * (5.0f * deltaTime));
     }
 
     const glm::vec2 &deltaMousePos = m_mouse->GetDeltaPosition();
