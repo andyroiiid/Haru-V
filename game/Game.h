@@ -6,7 +6,7 @@
 
 #include "window/Window.h"
 
-#include "Renderer.h"
+#include "gfx/Renderer.h"
 
 class Game : public App {
 public:

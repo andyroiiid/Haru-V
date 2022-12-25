@@ -1,10 +1,11 @@
 add_executable(game
+        gfx/VertexFormats.cpp gfx/VertexFormats.h
+        gfx/DeferredFramebuffer.cpp gfx/DeferredFramebuffer.h
+        gfx/DeferredContext.cpp gfx/DeferredContext.h
+        gfx/Renderer.cpp gfx/Renderer.h
+        gfx/MeshUtilities.cpp gfx/MeshUtilities.h
+
         JsonFiles.cpp JsonFiles.h
-        VertexFormats.cpp VertexFormats.h
-        DeferredFramebuffer.cpp DeferredFramebuffer.h
-        DeferredContext.cpp DeferredContext.h
-        Renderer.cpp Renderer.h
-        MeshUtilities.cpp MeshUtilities.h
         Game.cpp Game.h
         main.cpp)
 

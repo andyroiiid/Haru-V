@@ -6,7 +6,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "MeshUtilities.h"
+#include "gfx/MeshUtilities.h"
 
 void Game::Init(GLFWwindow *window) {
     m_renderer = std::make_unique<Renderer>(window);
