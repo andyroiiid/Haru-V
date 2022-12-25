@@ -8,7 +8,7 @@
 
 #include "core/Debug.h"
 
-Window::Window(const std::string &name, int width, int height) {
+Window::Window(const std::string &name, int width, int height, bool maximized) {
     glfwSetErrorCallback([](int errorCode, const char *description) {
         DebugError("GLFW error {}: {}", errorCode, description);
     });
@@ -16,6 +16,7 @@ Window::Window(const std::string &name, int width, int height) {
     DebugCheckCritical(glfwInit() == GLFW_TRUE, "Failed to init GLFW.");
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_MAXIMIZED, maximized ? GLFW_TRUE : GLFW_FALSE);
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     m_window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     DebugCheckCritical(m_window != nullptr, "Failed to create GLFW window.");

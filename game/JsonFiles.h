@@ -10,6 +10,7 @@ struct GameConfig {
     std::string Name;
     int Width;
     int Height;
+    bool Maximized;
 
     explicit GameConfig(const std::string &jsonFilename);
 };

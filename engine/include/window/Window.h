@@ -30,7 +30,7 @@ struct App {
 
 class Window {
 public:
-    Window(const std::string &name, int width, int height);
+    Window(const std::string &name, int width, int height, bool maximized);
 
     ~Window();
 

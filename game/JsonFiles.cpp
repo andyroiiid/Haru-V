@@ -11,4 +11,5 @@ GameConfig::GameConfig(const std::string &jsonFilename) {
     Name = gameJson.GetString("name");
     Width = gameJson.GetInteger("width");
     Height = gameJson.GetInteger("height");
+    Maximized = gameJson.GetBoolean("maximized");
 }

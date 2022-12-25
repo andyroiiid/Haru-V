@@ -9,7 +9,7 @@ int main() {
     FileSystem::Mount("assets", "/");
     {
         const GameConfig gameConfig("game.json");
-        Window window(gameConfig.Name, gameConfig.Width, gameConfig.Height);
+        Window window(gameConfig.Name, gameConfig.Width, gameConfig.Height, gameConfig.Maximized);
         Game game;
         window.MainLoop(&game);
     }
