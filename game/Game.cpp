@@ -82,7 +82,7 @@ void Game::Draw() {
             0.01f,
             100.0f
     );
-    m_renderer->SetCameraMatrices(projection, m_cameraTransform.GetInverseMatrix());
+    m_renderer->SetCameraData(projection, m_cameraTransform.GetInverseMatrix(), m_cameraTransform.GetPosition());
 
     m_renderer->SetLightingData(
             m_lightTransform.GetForwardVector(),

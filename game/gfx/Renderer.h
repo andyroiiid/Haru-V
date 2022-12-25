@@ -20,6 +20,7 @@ struct GLFWwindow;
 struct alignas(256) RendererUniformData {
     glm::mat4 Projection;
     glm::mat4 View;
+    glm::vec3 CameraPosition;
 };
 
 struct alignas(256) LightingUniformData {
@@ -58,9 +59,10 @@ public:
         return {m_device, vertices.size(), sizeof(VertexBase), vertices.data()};
     }
 
-    void SetCameraMatrices(const glm::mat4 &projection, const glm::mat4 &view) {
+    void SetCameraData(const glm::mat4 &projection, const glm::mat4 &view, const glm::vec3 &cameraPosition) {
         m_rendererUniformData.Projection = projection;
         m_rendererUniformData.View = view;
+        m_rendererUniformData.CameraPosition = cameraPosition;
     }
 
     void SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor, const glm::vec3 &ambientColor) {

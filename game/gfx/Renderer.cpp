@@ -24,7 +24,7 @@ void Renderer::CreateUniformBuffers() {
     m_uniformBufferSet = VulkanUniformBufferSet(
             m_device,
             {
-                    {0, vk::ShaderStageFlagBits::eVertex,   sizeof(RendererUniformData)},
+                    {0, vk::ShaderStageFlagBits::eAllGraphics,   sizeof(RendererUniformData)},
                     {1, vk::ShaderStageFlagBits::eFragment, sizeof(LightingUniformData)}
             }
     );

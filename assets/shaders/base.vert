@@ -15,9 +15,9 @@ layout (push_constant) uniform PushConstantData {
 };
 
 void main() {
-    vec4 worldPosition = uModel * vec4(aPosition, 1);
+    vec4 worldPosition = uModel * vec4(aPosition, 1.0);
     gl_Position = uProjection * uView * worldPosition;
     vWorldPosition = worldPosition.xyz;
-    vWorldNormal = (uModel * vec4(aNormal, 0)).xyz;
+    vWorldNormal = (uModel * vec4(aNormal, 0.0)).xyz;
     vTexCoord = aTexCoord;
 }
