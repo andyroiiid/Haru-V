@@ -96,7 +96,7 @@ void VulkanTexture::CreateImageView() {
 }
 
 void VulkanTexture::CreateSampler() {
-    m_sampler = m_device->CreateSampler(vk::Filter::eNearest, vk::SamplerAddressMode::eRepeat);
+    m_sampler = m_device->CreateSampler(vk::Filter::eLinear, vk::SamplerAddressMode::eRepeat);
 }
 
 void VulkanTexture::Release() {
