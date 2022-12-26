@@ -19,6 +19,7 @@ Renderer::Renderer(GLFWwindow *window)
     CreateIblTextureSet();
     CreateTextureSet();
     CreatePipelines();
+    CreateSkyboxCube();
     CreateFullScreenQuad();
 }
 
@@ -118,6 +119,27 @@ void Renderer::CreatePipelines() {
             0
     );
 
+    m_skyboxPipeline = VulkanPipeline(
+            m_device,
+            compiler,
+            {
+                    m_uniformBufferSet.GetDescriptorSetLayout(),
+                    m_iblTextureSetLayout
+            },
+            {
+            },
+            VertexPositionOnly::GetPipelineVertexInputStateCreateInfo(),
+            "shaders/skybox.json",
+            {
+                    NO_BLEND,
+                    NO_BLEND,
+                    NO_BLEND,
+                    NO_BLEND
+            },
+            m_deferredContext.GetRenderPass(),
+            0
+    );
+
     m_combinePipeline = VulkanPipeline(
             m_device,
             compiler,
@@ -137,6 +159,26 @@ void Renderer::CreatePipelines() {
     );
 }
 
+void Renderer::CreateSkyboxCube() {
+    const std::vector<VertexPositionOnly> vertices{
+            VertexPositionOnly{{-1.0f, 1.0f, 1.0f}},
+            VertexPositionOnly{{1.0f, 1.0f, 1.0f}},
+            VertexPositionOnly{{-1.0f, -1.0f, 1.0f}},
+            VertexPositionOnly{{1.0f, -1.0f, 1.0f}},
+            VertexPositionOnly{{1.0f, -1.0f, -1.0f}},
+            VertexPositionOnly{{1.0f, 1.0f, 1.0f}},
+            VertexPositionOnly{{1.0f, 1.0f, -1.0f}},
+            VertexPositionOnly{{-1.0f, 1.0f, 1.0f}},
+            VertexPositionOnly{{-1.0f, 1.0f, -1.0f}},
+            VertexPositionOnly{{-1.0f, -1.0f, 1.0f}},
+            VertexPositionOnly{{-1.0f, -1.0f, -1.0f}},
+            VertexPositionOnly{{1.0f, -1.0f, -1.0f}},
+            VertexPositionOnly{{-1.0f, 1.0f, -1.0f}},
+            VertexPositionOnly{{1.0f, 1.0f, -1.0}}
+    };
+    m_skyboxCube = VulkanMesh(m_device, vertices.size(), sizeof(VertexPositionOnly), vertices.data());
+}
+
 void Renderer::CreateFullScreenQuad() {
     const std::vector<VertexCanvas> vertices{
             {{-1.0f, -1.0f}, {0.0f, 0.0f}},
@@ -151,7 +193,9 @@ Renderer::~Renderer() {
     m_device.WaitIdle();
 
     m_fullScreenQuad = {};
+    m_skyboxCube = {};
     m_deferredPipeline = {};
+    m_skyboxPipeline = {};
     m_combinePipeline = {};
     m_device.FreeDescriptorSet(m_textureSet);
     m_albedoTexture = {};
@@ -189,9 +233,11 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_deferredPipeline.Get());
 
-    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
-    cmd.setViewport(0, viewport);
-    cmd.setScissor(0, scissor);
+    {
+        const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
+        cmd.setViewport(0, viewport);
+        cmd.setScissor(0, scissor);
+    }
 
     cmd.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
@@ -215,6 +261,26 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
         drawCall.Mesh->BindAndDraw(cmd);
     }
     m_drawCalls.clear();
+
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_skyboxPipeline.Get());
+
+    {
+        const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
+        cmd.setViewport(0, viewport);
+        cmd.setScissor(0, scissor);
+    }
+
+    cmd.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            m_skyboxPipeline.GetLayout(),
+            0,
+            {
+                    m_uniformBufferSet.GetDescriptorSet(),
+                    m_iblTextureSet
+            },
+            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+    );
+    m_skyboxCube.BindAndDraw(cmd);
 
     cmd.endRenderPass();
 }

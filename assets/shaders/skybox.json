@@ -1,0 +1,7 @@
+{
+  "vertex": "shaders/skybox.vert",
+  "fragment": "shaders/skybox.frag",
+  "topology": "triangle_strip",
+  "cull_mode": "none",
+  "compare_op": "less_or_equal"
+}

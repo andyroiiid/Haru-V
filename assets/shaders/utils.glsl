@@ -3,6 +3,7 @@ const float TWO_PI          = 6.283185307179586;
 const float ONE_OVER_PI     = 0.3183098861837907;
 const float ONE_OVER_TWO_PI = 0.15915494309189535;
 const float LN2             = 0.6931471805599453;
+const float INF             = 1.0 / 0.0;
 
 float Pack(vec4 v) {
     return uintBitsToFloat(packUnorm4x8(v));

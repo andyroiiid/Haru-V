@@ -11,6 +11,17 @@ namespace vk {
     struct PipelineVertexInputStateCreateInfo;
 }
 
+struct VertexPositionOnly {
+    glm::vec3 Position;
+
+    VertexPositionOnly() = default;
+
+    explicit VertexPositionOnly(const glm::vec3 &position)
+            : Position(position) {}
+
+    static const vk::PipelineVertexInputStateCreateInfo *GetPipelineVertexInputStateCreateInfo();
+};
+
 struct VertexCanvas {
     glm::vec2 Position;
     glm::vec2 TexCoord;

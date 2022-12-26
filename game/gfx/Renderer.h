@@ -83,6 +83,8 @@ private:
 
     void CreatePipelines();
 
+    void CreateSkyboxCube();
+
     void CreateFullScreenQuad();
 
     void DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingIndex);
@@ -112,8 +114,10 @@ private:
     vk::DescriptorSet m_textureSet;
 
     VulkanPipeline m_deferredPipeline;
+    VulkanPipeline m_skyboxPipeline;
     VulkanPipeline m_combinePipeline;
 
+    VulkanMesh m_skyboxCube;
     VulkanMesh m_fullScreenQuad;
 
     struct DrawCall {

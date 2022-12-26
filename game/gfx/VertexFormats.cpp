@@ -7,6 +7,20 @@
 #include <vector>
 #include <vulkan/vulkan.hpp>
 
+const vk::PipelineVertexInputStateCreateInfo *VertexPositionOnly::GetPipelineVertexInputStateCreateInfo() {
+    static const std::vector<vk::VertexInputBindingDescription> bindings{
+            {0, sizeof(VertexPositionOnly), vk::VertexInputRate::eVertex}
+    };
+
+    static const std::vector<vk::VertexInputAttributeDescription> attributes{
+            {0, 0, vk::Format::eR32G32B32Sfloat, static_cast<uint32_t>(offsetof(VertexPositionOnly, Position))},
+    };
+
+    static const vk::PipelineVertexInputStateCreateInfo vertexInput{{}, bindings, attributes};
+
+    return &vertexInput;
+}
+
 const vk::PipelineVertexInputStateCreateInfo *VertexCanvas::GetPipelineVertexInputStateCreateInfo() {
     static const std::vector<vk::VertexInputBindingDescription> bindings{
             {0, sizeof(VertexCanvas), vk::VertexInputRate::eVertex}
