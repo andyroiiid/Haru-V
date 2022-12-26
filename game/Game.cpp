@@ -86,8 +86,7 @@ void Game::Draw() {
 
     m_renderer->SetLightingData(
             m_lightTransform.GetForwardVector(),
-            {1.0f, 1.0f, 1.0f},
-            {0.2f, 0.2f, 0.2f}
+            {1.0f, 1.0f, 1.0f}
     );
 
     const glm::mat4 IDENTITY{1.0f};

@@ -5,16 +5,23 @@
 
 #include "vulkan/VulkanBase.h"
 
-VulkanTexture::VulkanTexture(VulkanBase &device, uint32_t width, uint32_t height, const void *data)
+VulkanTexture::VulkanTexture(VulkanBase &device, uint32_t width, uint32_t height, const unsigned char *data)
         : m_device(&device) {
-    CreateImage(width, height, data);
-    CreateImageView();
+    constexpr size_t PIXEL_SIZE = sizeof(unsigned char) * 4;
+    CreateImage(width, height, width * height * PIXEL_SIZE, data, vk::Format::eR8G8B8A8Unorm);
+    CreateImageView(vk::Format::eR8G8B8A8Unorm);
     CreateSampler();
 }
 
-void VulkanTexture::CreateImage(uint32_t width, uint32_t height, const void *data) {
-    const vk::DeviceSize size = width * height * 4;
+VulkanTexture::VulkanTexture(VulkanBase &device, uint32_t width, uint32_t height, const float *data)
+        : m_device(&device) {
+    constexpr size_t PIXEL_SIZE = sizeof(float) * 4;
+    CreateImage(width, height, width * height * PIXEL_SIZE, data, vk::Format::eR32G32B32A32Sfloat);
+    CreateImageView(vk::Format::eR32G32B32A32Sfloat);
+    CreateSampler();
+}
 
+void VulkanTexture::CreateImage(uint32_t width, uint32_t height, vk::DeviceSize size, const void *data, vk::Format format) {
     VulkanBuffer uploadBuffer = m_device->CreateBuffer(
             size,
             vk::BufferUsageFlagBits::eTransferSrc,
@@ -24,7 +31,7 @@ void VulkanTexture::CreateImage(uint32_t width, uint32_t height, const void *dat
     uploadBuffer.Upload(size, data);
 
     VulkanImage image = m_device->CreateImage(
-            vk::Format::eR8G8B8A8Unorm,
+            format,
             VkExtent2D{width, height},
             vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
             0,
@@ -91,8 +98,8 @@ void VulkanTexture::CreateImage(uint32_t width, uint32_t height, const void *dat
     m_image = std::move(image);
 }
 
-void VulkanTexture::CreateImageView() {
-    m_imageView = m_device->CreateImageView(m_image.Get(), vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
+void VulkanTexture::CreateImageView(vk::Format format) {
+    m_imageView = m_device->CreateImageView(m_image.Get(), format, vk::ImageAspectFlagBits::eColor);
 }
 
 void VulkanTexture::CreateSampler() {

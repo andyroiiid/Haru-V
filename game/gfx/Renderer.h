@@ -28,8 +28,6 @@ struct alignas(256) LightingUniformData {
     [[maybe_unused]] float Padding0;
     glm::vec3 LightColor;
     [[maybe_unused]] float Padding1;
-    glm::vec3 AmbientColor;
-    [[maybe_unused]] float Padding2;
 };
 
 class Renderer {
@@ -65,10 +63,9 @@ public:
         m_rendererUniformData.CameraPosition = cameraPosition;
     }
 
-    void SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor, const glm::vec3 &ambientColor) {
+    void SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor) {
         m_lightingUniformData.LightDirection = lightDirection;
         m_lightingUniformData.LightColor = lightColor;
-        m_lightingUniformData.AmbientColor = ambientColor;
     }
 
     void Draw(const VulkanMesh &mesh, const glm::mat4 &modelMatrix) {
@@ -79,6 +76,8 @@ public:
 
 private:
     void CreateUniformBuffers();
+
+    void CreateIblTextureSet();
 
     void CreateTextureSet();
 
@@ -97,6 +96,11 @@ private:
     RendererUniformData m_rendererUniformData{};
     LightingUniformData m_lightingUniformData{};
     VulkanUniformBufferSet m_uniformBufferSet;
+
+    vk::DescriptorSetLayout m_iblTextureSetLayout;
+    VulkanTexture m_skyboxTexture;
+    VulkanTexture m_skyboxIrradianceTexture;
+    vk::DescriptorSet m_iblTextureSet;
 
     vk::DescriptorSetLayout m_textureSetLayout;
     VulkanTexture m_albedoTexture;

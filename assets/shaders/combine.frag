@@ -13,6 +13,9 @@ layout (set = 1, binding = 1) uniform sampler2D uWorldNormalRoughness;
 layout (set = 1, binding = 2) uniform sampler2D uAlbedoAmbientOcclusion;
 layout (set = 1, binding = 3) uniform sampler2D uEmissive;
 
+layout (set = 2, binding = 0) uniform sampler2D uSkybox;
+layout (set = 2, binding = 1) uniform sampler2D uSkyboxIrradiance;
+
 // PBR functions from https://learnopengl.com/PBR/Lighting
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -53,6 +56,18 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+vec3 GetAmbient(vec3 N, vec3 V, vec3 F0, float metallic, float roughness, vec3 albedo, float ambientOcclusion) {
+    const vec3 kS = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+    const vec3 kD = vec3(1.0) - kS; // probably should take metallic into account here?
+    const vec3 irradiance = texture(uSkyboxIrradiance, SampleSphericalMap(N)).rgb;
+    return kD * irradiance * albedo * ambientOcclusion;
 }
 
 vec3 ToneMapping(vec3 color) {
@@ -103,7 +118,7 @@ void main() {
 
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 
-    const vec3 ambient = uAmbientColor * albedo * ambientOcclusion;
+    const vec3 ambient = GetAmbient(N, V, F0, metallic, roughness, albedo, ambientOcclusion);
 
     const vec3 color = ToneMapping(ambient + Lo + emissive);
 

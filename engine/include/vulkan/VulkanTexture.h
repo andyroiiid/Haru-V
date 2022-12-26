@@ -12,7 +12,11 @@ class VulkanTexture {
 public:
     VulkanTexture() = default;
 
-    VulkanTexture(VulkanBase &device, uint32_t width, uint32_t height, const void *data);
+    // R8G8B8A8Unorm
+    VulkanTexture(VulkanBase &device, uint32_t width, uint32_t height, const unsigned char *data);
+
+    // R32G32B32A32Sfloat
+    VulkanTexture(VulkanBase &device, uint32_t width, uint32_t height, const float *data);
 
     ~VulkanTexture() {
         Release();
@@ -41,9 +45,9 @@ public:
     void BindToDescriptorSet(vk::DescriptorSet descriptorSet, uint32_t binding);
 
 private:
-    void CreateImage(uint32_t width, uint32_t height, const void *data);
+    void CreateImage(uint32_t width, uint32_t height, vk::DeviceSize size, const void *data, vk::Format format);
 
-    void CreateImageView();
+    void CreateImageView(vk::Format format);
 
     void CreateSampler();
 

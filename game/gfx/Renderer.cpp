@@ -8,6 +8,7 @@
 
 #include "vulkan/ShaderCompiler.h"
 #include "file/ImageFile.h"
+#include "file/HdrImageFile.h"
 
 #include "VertexFormats.h"
 
@@ -15,6 +16,7 @@ Renderer::Renderer(GLFWwindow *window)
         : m_device(window) {
     m_deferredContext = DeferredContext(m_device);
     CreateUniformBuffers();
+    CreateIblTextureSet();
     CreateTextureSet();
     CreatePipelines();
     CreateFullScreenQuad();
@@ -33,6 +35,27 @@ void Renderer::CreateUniformBuffers() {
 static VulkanTexture LoadTexture(VulkanBase &device, const std::string &filename) {
     const ImageFile image(filename);
     return {device, image.GetWidth(), image.GetHeight(), image.GetData()};
+}
+
+static VulkanTexture LoadHdrTexture(VulkanBase &device, const std::string &filename) {
+    const HdrImageFile image(filename);
+    return {device, image.GetWidth(), image.GetHeight(), image.GetData()};
+}
+
+void Renderer::CreateIblTextureSet() {
+    vk::DescriptorSetLayoutBinding bindings[]{
+            {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+            {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+    };
+    m_iblTextureSetLayout = m_device.CreateDescriptorSetLayout(bindings);
+
+    m_skyboxTexture = LoadHdrTexture(m_device, "textures/skybox.hdr");
+    m_skyboxIrradianceTexture = LoadTexture(m_device, "textures/skybox_irradiance.png");
+
+    m_iblTextureSet = m_device.AllocateDescriptorSet(m_iblTextureSetLayout);
+
+    m_skyboxTexture.BindToDescriptorSet(m_iblTextureSet, 0);
+    m_skyboxIrradianceTexture.BindToDescriptorSet(m_iblTextureSet, 1);
 }
 
 void Renderer::CreateTextureSet() {
@@ -94,7 +117,8 @@ void Renderer::CreatePipelines() {
             compiler,
             {
                     m_uniformBufferSet.GetDescriptorSetLayout(),
-                    m_deferredContext.GetTextureSetLayout()
+                    m_deferredContext.GetTextureSetLayout(),
+                    m_iblTextureSetLayout
             },
             {},
             VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
@@ -129,6 +153,10 @@ Renderer::~Renderer() {
     m_mraTexture = {};
     m_emissiveTexture = {};
     m_device.DestroyDescriptorSetLayout(m_textureSetLayout);
+    m_device.FreeDescriptorSet(m_iblTextureSet);
+    m_skyboxTexture = {};
+    m_skyboxIrradianceTexture = {};
+    m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
     m_uniformBufferSet = {};
     m_deferredContext = {};
 }
@@ -199,7 +227,8 @@ void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBegi
             0,
             {
                     m_uniformBufferSet.GetDescriptorSet(),
-                    m_deferredContext.GetTextureSet(bufferingIndex)
+                    m_deferredContext.GetTextureSet(bufferingIndex),
+                    m_iblTextureSet
             },
             m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
