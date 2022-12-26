@@ -46,16 +46,22 @@ void Renderer::CreateIblTextureSet() {
     vk::DescriptorSetLayoutBinding bindings[]{
             {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
             {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+            {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+            {3, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
     };
     m_iblTextureSetLayout = m_device.CreateDescriptorSetLayout(bindings);
 
+    m_brdfLutTexture = LoadTexture(m_device, "textures/brdf_lut.png");
     m_skyboxTexture = LoadHdrTexture(m_device, "textures/skybox.hdr");
+    m_skyboxSpecularTexture = LoadTexture(m_device, "textures/skybox_specular.png");
     m_skyboxIrradianceTexture = LoadTexture(m_device, "textures/skybox_irradiance.png");
 
     m_iblTextureSet = m_device.AllocateDescriptorSet(m_iblTextureSetLayout);
 
-    m_skyboxTexture.BindToDescriptorSet(m_iblTextureSet, 0);
-    m_skyboxIrradianceTexture.BindToDescriptorSet(m_iblTextureSet, 1);
+    m_brdfLutTexture.BindToDescriptorSet(m_iblTextureSet, 0);
+    m_skyboxTexture.BindToDescriptorSet(m_iblTextureSet, 1);
+    m_skyboxSpecularTexture.BindToDescriptorSet(m_iblTextureSet, 2);
+    m_skyboxIrradianceTexture.BindToDescriptorSet(m_iblTextureSet, 3);
 }
 
 void Renderer::CreateTextureSet() {
@@ -156,6 +162,7 @@ Renderer::~Renderer() {
     m_device.FreeDescriptorSet(m_iblTextureSet);
     m_skyboxTexture = {};
     m_skyboxIrradianceTexture = {};
+    m_brdfLutTexture = {};
     m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
     m_uniformBufferSet = {};
     m_deferredContext = {};

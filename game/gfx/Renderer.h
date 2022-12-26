@@ -98,7 +98,9 @@ private:
     VulkanUniformBufferSet m_uniformBufferSet;
 
     vk::DescriptorSetLayout m_iblTextureSetLayout;
+    VulkanTexture m_brdfLutTexture;
     VulkanTexture m_skyboxTexture;
+    VulkanTexture m_skyboxSpecularTexture;
     VulkanTexture m_skyboxIrradianceTexture;
     vk::DescriptorSet m_iblTextureSet;
 
