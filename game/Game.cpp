@@ -86,7 +86,7 @@ void Game::Update(float deltaTime) {
 
 void Game::Draw() {
     const glm::mat4 projection = glm::perspective(
-            glm::radians(75.0f),
+            glm::radians(60.0f),
             m_renderer->GetAspectRatio(),
             0.01f,
             100.0f

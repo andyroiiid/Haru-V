@@ -43,9 +43,9 @@ void Renderer::CreateIblTextureSet() {
 
     m_iblTextureSet = m_device.AllocateDescriptorSet(m_iblTextureSetLayout);
     m_textureCache.LoadTexture("textures/brdf_lut.png")->BindToDescriptorSet(m_iblTextureSet, 0);
-    m_textureCache.LoadHdrTexture("textures/skybox.hdr")->BindToDescriptorSet(m_iblTextureSet, 1);
-    m_textureCache.LoadTexture("textures/skybox_specular.png")->BindToDescriptorSet(m_iblTextureSet, 2);
-    m_textureCache.LoadTexture("textures/skybox_irradiance.png")->BindToDescriptorSet(m_iblTextureSet, 3);
+    m_textureCache.LoadHdrTexture("textures/ibl/kloppenheim06.hdr")->BindToDescriptorSet(m_iblTextureSet, 1);
+    m_textureCache.LoadTexture("textures/ibl/kloppenheim06_specular.png")->BindToDescriptorSet(m_iblTextureSet, 2);
+    m_textureCache.LoadTexture("textures/ibl/kloppenheim06_irradiance.png")->BindToDescriptorSet(m_iblTextureSet, 3);
 }
 
 void Renderer::CreatePipelines() {
