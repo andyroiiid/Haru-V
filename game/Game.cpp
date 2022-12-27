@@ -15,11 +15,21 @@ void Game::Init(GLFWwindow *window) {
 
     m_mouse->SetEnabled(false);
 
-    std::vector<VertexBase> vertices;
-    AppendObjVertices(vertices, "models/boom_box.obj");
-    m_mesh = m_renderer->CreateMesh(vertices);
+    {
+        std::vector<VertexBase> vertices;
+        AppendObjVertices(vertices, "models/boom_box.obj");
+        m_boomBoxMesh = m_renderer->CreateMesh(vertices);
+    }
 
-    m_material = m_renderer->LoadPbrMaterial("materials/boom_box.json");
+    m_boomBoxMaterial = m_renderer->LoadPbrMaterial("materials/boom_box.json");
+
+    {
+        std::vector<VertexBase> vertices;
+        AppendObjVertices(vertices, "models/damaged_helmet.obj");
+        m_helmetMesh = m_renderer->CreateMesh(vertices);
+    }
+
+    m_helmetMaterial = m_renderer->LoadPbrMaterial("materials/damaged_helmet.json");
 
     m_cameraTransform.SetPosition({0.0f, 0.0f, -5.0f});
     m_lightTransform.SetEulerAngles({glm::radians(-45.0f), glm::radians(150.0f), glm::radians(0.0f)});
@@ -31,8 +41,11 @@ void Game::Shutdown() {
     m_lightTransform = {};
     m_cameraTransform = {};
 
-    m_mesh = {};
-    m_material = nullptr;
+    m_boomBoxMesh = {};
+    m_boomBoxMaterial = nullptr;
+
+    m_helmetMesh = {};
+    m_helmetMaterial = nullptr;
 
     m_mouse.reset();
     m_renderer.reset();
@@ -93,7 +106,8 @@ void Game::Draw() {
     );
 
     const glm::mat4 IDENTITY{1.0f};
-    m_renderer->Draw(m_mesh, IDENTITY, m_material);
+    m_renderer->Draw(m_boomBoxMesh, glm::translate(IDENTITY, {0.0f, 0.0f, 0.0f}), m_boomBoxMaterial);
+    m_renderer->Draw(m_helmetMesh, glm::translate(IDENTITY, {2.0f, 0.0f, 0.0f}), m_helmetMaterial);
 
     m_renderer->FinishDrawing();
 }

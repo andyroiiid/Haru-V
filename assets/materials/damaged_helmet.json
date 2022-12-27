@@ -1,0 +1,6 @@
+{
+  "albedo": "textures/damaged_helmet/albedo.jpg",
+  "normal": "textures/damaged_helmet/normal.jpg",
+  "mra": "textures/damaged_helmet/mra.jpg",
+  "emissive": "textures/damaged_helmet/emissive.jpg"
+}

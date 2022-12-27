@@ -28,8 +28,11 @@ private:
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Mouse> m_mouse;
 
-    VulkanMesh m_mesh;
-    PbrMaterial *m_material = nullptr;
+    VulkanMesh m_boomBoxMesh;
+    PbrMaterial *m_boomBoxMaterial = nullptr;
+
+    VulkanMesh m_helmetMesh;
+    PbrMaterial *m_helmetMaterial = nullptr;
 
     Transform m_cameraTransform;
     Transform m_lightTransform;

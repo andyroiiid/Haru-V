@@ -103,7 +103,7 @@ vec3 SampleIBLReflection(vec3 R, float roughness) {
 vec3 IBL(vec3 N, float NdotV, vec3 R, vec3 F0, float metallic, float roughness, vec3 albedo, float ambientOcclusion) {
     const vec3 F = FresnelSchlickRoughness(NdotV, F0, roughness);
     const vec3 kS = F;
-    const vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);// probably should take metallic into account here?
+    const vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
     const vec3 irradiance = texture(uSkyboxIrradiance, SampleSphericalMap(N)).rgb;
     const vec3 reflection = SampleIBLReflection(R, roughness);
     const vec2 brdf = texture(uBrdfLut, vec2(NdotV, roughness)).rg;
