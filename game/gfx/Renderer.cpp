@@ -7,17 +7,16 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "vulkan/ShaderCompiler.h"
-#include "file/ImageFile.h"
-#include "file/HdrImageFile.h"
 
 #include "VertexFormats.h"
 
 Renderer::Renderer(GLFWwindow *window)
-        : m_device(window) {
+        : m_device(window),
+          m_textureCache(m_device) {
     m_deferredContext = DeferredContext(m_device);
     CreateUniformBuffers();
     CreateIblTextureSet();
-    CreateTextureSet();
+    CreatePbrTextureSet();
     CreatePipelines();
     CreateSkyboxCube();
     CreateFullScreenQuad();
@@ -33,16 +32,6 @@ void Renderer::CreateUniformBuffers() {
     );
 }
 
-static VulkanTexture LoadTexture(VulkanBase &device, const std::string &filename) {
-    const ImageFile image(filename);
-    return {device, image.GetWidth(), image.GetHeight(), image.GetData()};
-}
-
-static VulkanTexture LoadHdrTexture(VulkanBase &device, const std::string &filename) {
-    const HdrImageFile image(filename);
-    return {device, image.GetWidth(), image.GetHeight(), image.GetData()};
-}
-
 void Renderer::CreateIblTextureSet() {
     vk::DescriptorSetLayoutBinding bindings[]{
             {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
@@ -52,39 +41,39 @@ void Renderer::CreateIblTextureSet() {
     };
     m_iblTextureSetLayout = m_device.CreateDescriptorSetLayout(bindings);
 
-    m_brdfLutTexture = LoadTexture(m_device, "textures/brdf_lut.png");
-    m_skyboxTexture = LoadHdrTexture(m_device, "textures/skybox.hdr");
-    m_skyboxSpecularTexture = LoadTexture(m_device, "textures/skybox_specular.png");
-    m_skyboxIrradianceTexture = LoadTexture(m_device, "textures/skybox_irradiance.png");
+    VulkanTexture *brdfLutTexture = m_textureCache.LoadTexture("textures/brdf_lut.png");
+    VulkanTexture *skyboxTexture = m_textureCache.LoadHdrTexture("textures/skybox.hdr");
+    VulkanTexture *skyboxSpecularTexture = m_textureCache.LoadTexture("textures/skybox_specular.png");
+    VulkanTexture *skyboxIrradianceTexture = m_textureCache.LoadTexture("textures/skybox_irradiance.png");
 
     m_iblTextureSet = m_device.AllocateDescriptorSet(m_iblTextureSetLayout);
 
-    m_brdfLutTexture.BindToDescriptorSet(m_iblTextureSet, 0);
-    m_skyboxTexture.BindToDescriptorSet(m_iblTextureSet, 1);
-    m_skyboxSpecularTexture.BindToDescriptorSet(m_iblTextureSet, 2);
-    m_skyboxIrradianceTexture.BindToDescriptorSet(m_iblTextureSet, 3);
+    brdfLutTexture->BindToDescriptorSet(m_iblTextureSet, 0);
+    skyboxTexture->BindToDescriptorSet(m_iblTextureSet, 1);
+    skyboxSpecularTexture->BindToDescriptorSet(m_iblTextureSet, 2);
+    skyboxIrradianceTexture->BindToDescriptorSet(m_iblTextureSet, 3);
 }
 
-void Renderer::CreateTextureSet() {
+void Renderer::CreatePbrTextureSet() {
     vk::DescriptorSetLayoutBinding bindings[]{
             {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
             {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
             {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
             {3, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
     };
-    m_textureSetLayout = m_device.CreateDescriptorSetLayout(bindings);
+    m_pbrTextureSetLayout = m_device.CreateDescriptorSetLayout(bindings);
 
-    m_albedoTexture = LoadTexture(m_device, "textures/boom_box_albedo.jpg");
-    m_normalTexture = LoadTexture(m_device, "textures/boom_box_normal.jpg");
-    m_mraTexture = LoadTexture(m_device, "textures/boom_box_mra.jpg");
-    m_emissiveTexture = LoadTexture(m_device, "textures/boom_box_emissive.jpg");
+    VulkanTexture *albedoTexture = m_textureCache.LoadTexture("textures/boom_box_albedo.jpg");
+    VulkanTexture *normalTexture = m_textureCache.LoadTexture("textures/boom_box_normal.jpg");
+    VulkanTexture *mraTexture = m_textureCache.LoadTexture("textures/boom_box_mra.jpg");
+    VulkanTexture *emissiveTexture = m_textureCache.LoadTexture("textures/boom_box_emissive.jpg");
 
-    m_textureSet = m_device.AllocateDescriptorSet(m_textureSetLayout);
+    m_pbrTextureSet = m_device.AllocateDescriptorSet(m_pbrTextureSetLayout);
 
-    m_albedoTexture.BindToDescriptorSet(m_textureSet, 0);
-    m_normalTexture.BindToDescriptorSet(m_textureSet, 1);
-    m_mraTexture.BindToDescriptorSet(m_textureSet, 2);
-    m_emissiveTexture.BindToDescriptorSet(m_textureSet, 3);
+    albedoTexture->BindToDescriptorSet(m_pbrTextureSet, 0);
+    normalTexture->BindToDescriptorSet(m_pbrTextureSet, 1);
+    mraTexture->BindToDescriptorSet(m_pbrTextureSet, 2);
+    emissiveTexture->BindToDescriptorSet(m_pbrTextureSet, 3);
 }
 
 void Renderer::CreatePipelines() {
@@ -102,7 +91,7 @@ void Renderer::CreatePipelines() {
             compiler,
             {
                     m_uniformBufferSet.GetDescriptorSetLayout(),
-                    m_textureSetLayout
+                    m_pbrTextureSetLayout
             },
             {
                     {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
@@ -197,16 +186,9 @@ Renderer::~Renderer() {
     m_deferredPipeline = {};
     m_skyboxPipeline = {};
     m_combinePipeline = {};
-    m_device.FreeDescriptorSet(m_textureSet);
-    m_albedoTexture = {};
-    m_normalTexture = {};
-    m_mraTexture = {};
-    m_emissiveTexture = {};
-    m_device.DestroyDescriptorSetLayout(m_textureSetLayout);
+    m_device.FreeDescriptorSet(m_pbrTextureSet);
+    m_device.DestroyDescriptorSetLayout(m_pbrTextureSetLayout);
     m_device.FreeDescriptorSet(m_iblTextureSet);
-    m_skyboxTexture = {};
-    m_skyboxIrradianceTexture = {};
-    m_brdfLutTexture = {};
     m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
     m_uniformBufferSet = {};
     m_deferredContext = {};
@@ -245,7 +227,7 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
             0,
             {
                     m_uniformBufferSet.GetDescriptorSet(),
-                    m_textureSet
+                    m_pbrTextureSet
             },
             m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );

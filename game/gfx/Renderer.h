@@ -7,10 +7,10 @@
 #include <glm/mat4x4.hpp>
 
 #include "vulkan/VulkanBase.h"
+#include "vulkan/TextureCache.h"
 #include "vulkan/VulkanUniformBufferSet.h"
 #include "vulkan/VulkanPipeline.h"
 #include "vulkan/VulkanMesh.h"
-#include "vulkan/VulkanTexture.h"
 
 #include "VertexFormats.h"
 #include "DeferredContext.h"
@@ -79,7 +79,7 @@ private:
 
     void CreateIblTextureSet();
 
-    void CreateTextureSet();
+    void CreatePbrTextureSet();
 
     void CreatePipelines();
 
@@ -92,6 +92,7 @@ private:
     void DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
     VulkanBase m_device;
+    TextureCache m_textureCache;
 
     DeferredContext m_deferredContext;
 
@@ -100,18 +101,10 @@ private:
     VulkanUniformBufferSet m_uniformBufferSet;
 
     vk::DescriptorSetLayout m_iblTextureSetLayout;
-    VulkanTexture m_brdfLutTexture;
-    VulkanTexture m_skyboxTexture;
-    VulkanTexture m_skyboxSpecularTexture;
-    VulkanTexture m_skyboxIrradianceTexture;
     vk::DescriptorSet m_iblTextureSet;
 
-    vk::DescriptorSetLayout m_textureSetLayout;
-    VulkanTexture m_albedoTexture;
-    VulkanTexture m_normalTexture;
-    VulkanTexture m_mraTexture;
-    VulkanTexture m_emissiveTexture;
-    vk::DescriptorSet m_textureSet;
+    vk::DescriptorSetLayout m_pbrTextureSetLayout;
+    vk::DescriptorSet m_pbrTextureSet;
 
     VulkanPipeline m_deferredPipeline;
     VulkanPipeline m_skyboxPipeline;
