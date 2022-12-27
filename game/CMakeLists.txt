@@ -2,6 +2,7 @@ add_executable(game
         gfx/VertexFormats.cpp gfx/VertexFormats.h
         gfx/DeferredFramebuffer.cpp gfx/DeferredFramebuffer.h
         gfx/DeferredContext.cpp gfx/DeferredContext.h
+        gfx/PbrMaterialCache.cpp gfx/PbrMaterialCache.h
         gfx/Renderer.cpp gfx/Renderer.h
         gfx/MeshUtilities.cpp gfx/MeshUtilities.h
 

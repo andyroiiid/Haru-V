@@ -29,6 +29,7 @@ private:
     std::unique_ptr<Mouse> m_mouse;
 
     VulkanMesh m_mesh;
+    PbrMaterial *m_material = nullptr;
 
     Transform m_cameraTransform;
     Transform m_lightTransform;

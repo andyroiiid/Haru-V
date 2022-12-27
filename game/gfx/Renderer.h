@@ -12,8 +12,9 @@
 #include "vulkan/VulkanPipeline.h"
 #include "vulkan/VulkanMesh.h"
 
-#include "VertexFormats.h"
-#include "DeferredContext.h"
+#include "gfx/VertexFormats.h"
+#include "gfx/DeferredContext.h"
+#include "gfx/PbrMaterialCache.h"
 
 struct GLFWwindow;
 
@@ -57,6 +58,10 @@ public:
         return {m_device, vertices.size(), sizeof(VertexBase), vertices.data()};
     }
 
+    PbrMaterial *LoadPbrMaterial(const std::string &materialFilename) {
+        return m_pbrMaterialCache.LoadMaterial(materialFilename);
+    }
+
     void SetCameraData(const glm::mat4 &projection, const glm::mat4 &view, const glm::vec3 &cameraPosition) {
         m_rendererUniformData.Projection = projection;
         m_rendererUniformData.View = view;
@@ -68,8 +73,8 @@ public:
         m_lightingUniformData.LightColor = lightColor;
     }
 
-    void Draw(const VulkanMesh &mesh, const glm::mat4 &modelMatrix) {
-        m_drawCalls.emplace_back(mesh, modelMatrix);
+    void Draw(const VulkanMesh &mesh, const glm::mat4 &modelMatrix, PbrMaterial *material) {
+        m_drawCalls.emplace_back(mesh, modelMatrix, material);
     }
 
     void FinishDrawing();
@@ -78,8 +83,6 @@ private:
     void CreateUniformBuffers();
 
     void CreateIblTextureSet();
-
-    void CreatePbrTextureSet();
 
     void CreatePipelines();
 
@@ -93,6 +96,7 @@ private:
 
     VulkanBase m_device;
     TextureCache m_textureCache;
+    PbrMaterialCache m_pbrMaterialCache;
 
     DeferredContext m_deferredContext;
 
@@ -102,9 +106,6 @@ private:
 
     vk::DescriptorSetLayout m_iblTextureSetLayout;
     vk::DescriptorSet m_iblTextureSet;
-
-    vk::DescriptorSetLayout m_pbrTextureSetLayout;
-    vk::DescriptorSet m_pbrTextureSet;
 
     VulkanPipeline m_deferredPipeline;
     VulkanPipeline m_skyboxPipeline;
@@ -116,10 +117,12 @@ private:
     struct DrawCall {
         const VulkanMesh *Mesh;
         glm::mat4 ModelMatrix;
+        PbrMaterial *Material;
 
-        DrawCall(const VulkanMesh &mesh, const glm::mat4 &modelMatrix)
+        DrawCall(const VulkanMesh &mesh, const glm::mat4 &modelMatrix, PbrMaterial *material)
                 : Mesh(&mesh),
-                  ModelMatrix(modelMatrix) {}
+                  ModelMatrix(modelMatrix),
+                  Material(material) {}
     };
 
     std::vector<DrawCall> m_drawCalls;

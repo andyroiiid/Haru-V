@@ -1,0 +1,6 @@
+{
+  "albedo": "textures/boom_box/albedo.jpg",
+  "normal": "textures/boom_box/normal.jpg",
+  "mra": "textures/boom_box/mra.jpg",
+  "emissive": "textures/boom_box/emissive.jpg"
+}

@@ -14,3 +14,12 @@ struct GameConfig {
 
     explicit GameConfig(const std::string &jsonFilename);
 };
+
+struct PbrMaterialConfig {
+    std::string Albedo;
+    std::string Normal;
+    std::string MRA;
+    std::string Emissive;
+
+    explicit PbrMaterialConfig(const std::string &jsonFilename);
+};

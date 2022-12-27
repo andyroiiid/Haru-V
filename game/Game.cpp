@@ -19,6 +19,8 @@ void Game::Init(GLFWwindow *window) {
     AppendObjVertices(vertices, "models/boom_box.obj");
     m_mesh = m_renderer->CreateMesh(vertices);
 
+    m_material = m_renderer->LoadPbrMaterial("materials/boom_box.json");
+
     m_cameraTransform.SetPosition({0.0f, 0.0f, -5.0f});
     m_lightTransform.SetEulerAngles({glm::radians(-45.0f), glm::radians(150.0f), glm::radians(0.0f)});
 }
@@ -30,6 +32,7 @@ void Game::Shutdown() {
     m_cameraTransform = {};
 
     m_mesh = {};
+    m_material = nullptr;
 
     m_mouse.reset();
     m_renderer.reset();
@@ -90,7 +93,7 @@ void Game::Draw() {
     );
 
     const glm::mat4 IDENTITY{1.0f};
-    m_renderer->Draw(m_mesh, IDENTITY);
+    m_renderer->Draw(m_mesh, IDENTITY, m_material);
 
     m_renderer->FinishDrawing();
 }
