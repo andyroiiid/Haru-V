@@ -8,6 +8,7 @@ Currently working on migrating the rendering system.
 
 - [x] Basic Vulkan rendering
 - [x] Deferred Rendering Pipeline
+- [x] Physically Based Lighting
 - [ ] Cascade Shadow Map
 - [ ] FXAA Integration
 
