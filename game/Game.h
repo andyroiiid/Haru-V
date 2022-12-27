@@ -35,5 +35,4 @@ private:
     PbrMaterial *m_helmetMaterial = nullptr;
 
     Transform m_cameraTransform;
-    Transform m_lightTransform;
 };

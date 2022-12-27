@@ -32,13 +32,11 @@ void Game::Init(GLFWwindow *window) {
     m_helmetMaterial = m_renderer->LoadPbrMaterial("materials/damaged_helmet.json");
 
     m_cameraTransform.SetPosition({0.0f, 0.0f, -5.0f});
-    m_lightTransform.SetEulerAngles({glm::radians(-45.0f), glm::radians(150.0f), glm::radians(0.0f)});
 }
 
 void Game::Shutdown() {
     m_renderer->WaitDeviceIdle();
 
-    m_lightTransform = {};
     m_cameraTransform = {};
 
     m_boomBoxMesh = {};
@@ -84,11 +82,6 @@ void Game::Update(float deltaTime) {
             .RotateX(0.001f * deltaMousePos.y)
             .RotateY(0.001f * deltaMousePos.x)
             .ClampPitch();
-
-    m_lightTransform
-            .RotateX(GetKeyAxis(m_window, GLFW_KEY_DOWN, GLFW_KEY_UP) * deltaTime * glm::pi<float>())
-            .RotateY(GetKeyAxis(m_window, GLFW_KEY_LEFT, GLFW_KEY_RIGHT) * deltaTime * glm::two_pi<float>())
-            .ClampPitch();
 }
 
 void Game::Draw() {
@@ -101,8 +94,8 @@ void Game::Draw() {
     m_renderer->SetCameraData(projection, m_cameraTransform.GetInverseMatrix(), m_cameraTransform.GetPosition());
 
     m_renderer->SetLightingData(
-            m_lightTransform.GetForwardVector(),
-            {1.0f, 1.0f, 1.0f}
+            {0.75f, 0.07f, 0.65f},
+            {10.0f, 5.0f, 1.0f}
     );
 
     const glm::mat4 IDENTITY{1.0f};
