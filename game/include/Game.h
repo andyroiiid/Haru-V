@@ -9,6 +9,7 @@
 #include <math/Transform.h>
 
 #include "gfx/Renderer.h"
+#include "actors/Scene.h"
 
 class Game : public App {
 public:
@@ -27,12 +28,7 @@ private:
 
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Mouse> m_mouse;
-
-    VulkanMesh *m_boomBoxMesh = nullptr;
-    PbrMaterial *m_boomBoxMaterial = nullptr;
-
-    VulkanMesh *m_helmetMesh = nullptr;
-    PbrMaterial *m_helmetMaterial = nullptr;
+    std::unique_ptr<Scene> m_scene;
 
     Transform m_cameraTransform;
 };

@@ -6,18 +6,18 @@
 
 #include <GLFW/glfw3.h>
 
+#include "actors/APropTest.h"
+
 void Game::Init(GLFWwindow *window) {
     m_window = window;
     m_renderer = std::make_unique<Renderer>(window);
     m_mouse = std::make_unique<Mouse>(window);
+    m_scene = std::make_unique<Scene>();
 
     m_mouse->SetEnabled(false);
 
-    m_boomBoxMesh = m_renderer->LoadObjMesh("models/boom_box.obj");
-    m_boomBoxMaterial = m_renderer->LoadPbrMaterial("materials/boom_box.json");
-
-    m_helmetMesh = m_renderer->LoadObjMesh("models/damaged_helmet.obj");
-    m_helmetMaterial = m_renderer->LoadPbrMaterial("materials/damaged_helmet.json");
+    m_scene->CreateActor<APropTest>(m_renderer.get(), "models/boom_box.obj", "materials/boom_box.json", glm::vec3{0.0f, 0.0f, 0.0f});
+    m_scene->CreateActor<APropTest>(m_renderer.get(), "models/damaged_helmet.obj", "materials/damaged_helmet.json", glm::vec3{2.0f, 0.0f, 0.0f});
 
     m_cameraTransform.SetPosition({0.0f, 0.0f, -5.0f});
 }
@@ -27,12 +27,7 @@ void Game::Shutdown() {
 
     m_cameraTransform = {};
 
-    m_boomBoxMesh = {};
-    m_boomBoxMaterial = nullptr;
-
-    m_helmetMesh = {};
-    m_helmetMaterial = nullptr;
-
+    m_scene.reset();
     m_mouse.reset();
     m_renderer.reset();
     m_window = nullptr;
@@ -70,6 +65,8 @@ void Game::Update(float deltaTime) {
             .RotateX(0.001f * deltaMousePos.y)
             .RotateY(0.001f * deltaMousePos.x)
             .ClampPitch();
+
+    m_scene->Update(deltaTime);
 }
 
 void Game::Draw() {
@@ -86,9 +83,7 @@ void Game::Draw() {
             {10.0f, 5.0f, 1.0f}
     );
 
-    const glm::mat4 IDENTITY{1.0f};
-    m_renderer->Draw(m_boomBoxMesh, glm::translate(IDENTITY, {0.0f, 0.0f, 0.0f}), m_boomBoxMaterial);
-    m_renderer->Draw(m_helmetMesh, glm::translate(IDENTITY, {2.0f, 0.0f, 0.0f}), m_helmetMaterial);
+    m_scene->Draw(m_renderer.get());
 
     m_renderer->FinishDrawing();
 }

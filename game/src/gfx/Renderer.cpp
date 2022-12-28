@@ -185,7 +185,7 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
                 vk::PipelineBindPoint::eGraphics,
                 m_basePipeline.GetLayout(),
                 1,
-                *drawCall.Material,
+                drawCall.Material->DescriptorSet,
                 {}
         );
         cmd.pushConstants(

@@ -21,15 +21,15 @@ PbrMaterialCache::PbrMaterialCache(VulkanBase &device, TextureCache &textureCach
 }
 
 PbrMaterialCache::~PbrMaterialCache() {
-    for (const auto &[name, textureSet]: m_textureSets) {
-        m_device.FreeDescriptorSet(textureSet);
+    for (const auto &[name, material]: m_materials) {
+        m_device.FreeDescriptorSet(material.DescriptorSet);
     }
     m_device.DestroyDescriptorSetLayout(m_textureSetLayout);
 }
 
 PbrMaterial *PbrMaterialCache::LoadMaterial(const std::string &filename) {
-    auto pair = m_textureSets.find(filename);
-    if (pair == m_textureSets.end()) {
+    auto pair = m_materials.find(filename);
+    if (pair == m_materials.end()) {
         DebugInfo("Caching material {}.", filename);
 
         const vk::DescriptorSet textureSet = m_device.AllocateDescriptorSet(m_textureSetLayout);
@@ -40,7 +40,7 @@ PbrMaterial *PbrMaterialCache::LoadMaterial(const std::string &filename) {
         m_textureCache.LoadTexture(config.MRA)->BindToDescriptorSet(textureSet, 2);
         m_textureCache.LoadTexture(config.Emissive)->BindToDescriptorSet(textureSet, 3);
 
-        pair = m_textureSets.emplace(filename, textureSet).first;
+        pair = m_materials.emplace(filename, PbrMaterial{textureSet}).first;
     }
     return &pair->second;
 }

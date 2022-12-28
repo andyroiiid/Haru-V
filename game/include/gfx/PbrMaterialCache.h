@@ -8,7 +8,9 @@
 #include <vulkan/VulkanBase.h>
 #include <vulkan/TextureCache.h>
 
-using PbrMaterial = vk::DescriptorSet;
+struct PbrMaterial {
+    vk::DescriptorSet DescriptorSet;
+};
 
 class PbrMaterialCache {
 public:
@@ -33,5 +35,5 @@ private:
     TextureCache &m_textureCache;
 
     vk::DescriptorSetLayout m_textureSetLayout;
-    std::map<std::string, vk::DescriptorSet> m_textureSets;
+    std::map<std::string, PbrMaterial> m_materials;
 };

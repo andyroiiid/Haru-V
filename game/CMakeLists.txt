@@ -11,6 +11,13 @@ add_executable(game
         src/gfx/MeshUtilities.cpp
         src/gfx/Renderer.cpp
 
+        include/actors/Actor.h
+        include/actors/Scene.h
+        include/actors/APropTest.h
+
+        src/actors/Scene.cpp
+        src/actors/APropTest.cpp
+
         include/JsonFiles.h
         include/Game.h
 
