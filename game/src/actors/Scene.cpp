@@ -33,9 +33,9 @@ void Scene::FixedUpdate(float fixedDeltaTime) {
     }
 }
 
-void Scene::Draw(Renderer *renderer) {
+void Scene::Draw() {
     for (auto &actor: m_actors) {
-        actor->Draw(renderer);
+        actor->Draw();
     }
 }
 

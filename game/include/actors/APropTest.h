@@ -16,9 +16,9 @@ class APropTest : public Actor {
 public:
     DEFINE_ACTOR_CLASS(APropTest)
 
-    APropTest(Renderer *renderer, const std::string &meshName, const std::string &materialName, const glm::vec3 &position);
+    APropTest(const std::string &meshName, const std::string &materialName, const glm::vec3 &position);
 
-    void Draw(Renderer *renderer) override;
+    void Draw() override;
 
 private:
     Transform m_transform;

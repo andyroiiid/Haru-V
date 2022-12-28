@@ -6,8 +6,6 @@
 
 #include <string>
 
-class Renderer;
-
 #define DEFINE_ACTOR_CLASS(className) \
     className(const className&) = delete; \
     className& operator=(const className&) = delete; \
@@ -46,7 +44,7 @@ public:
 
     virtual void FixedUpdate(float fixedDeltaTime) {}
 
-    virtual void Draw(Renderer *renderer) {}
+    virtual void Draw() {}
 
     [[nodiscard]] bool IsPendingDestroy() const { return m_pendingDestroy; }
 

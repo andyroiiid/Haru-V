@@ -27,7 +27,7 @@ public:
 
     void FixedUpdate(float fixedDeltaTime);
 
-    void Draw(Renderer *renderer);
+    void Draw();
 
     template<class T, class... Args, std::enable_if_t<!std::is_array_v<T>, int>  = 0>
     T *CreateActor(Args &&... args) {

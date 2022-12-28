@@ -6,7 +6,6 @@
 
 #include <window/Window.h>
 #include <window/Mouse.h>
-#include <math/Transform.h>
 
 #include "gfx/Renderer.h"
 #include "actors/Scene.h"
@@ -24,11 +23,7 @@ private:
 
     void Draw();
 
-    GLFWwindow *m_window = nullptr;
-
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Mouse> m_mouse;
     std::unique_ptr<Scene> m_scene;
-
-    Transform m_cameraTransform;
 };

@@ -13,15 +13,19 @@ add_executable(game
 
         include/actors/Actor.h
         include/actors/Scene.h
+        include/actors/APlayerNoClip.h
         include/actors/APropTest.h
 
         src/actors/Scene.cpp
+        src/actors/APlayerNoClip.cpp
         src/actors/APropTest.cpp
 
         include/JsonFiles.h
+        include/Globals.h
         include/Game.h
 
         src/JsonFiles.cpp
+        src/Globals.cpp
         src/Game.cpp
         src/main.cpp)
 
