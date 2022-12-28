@@ -4,7 +4,7 @@
 
 #include "gfx/PbrMaterialCache.h"
 
-#include "core/Debug.h"
+#include <core/Debug.h>
 
 #include "JsonFiles.h"
 

@@ -5,8 +5,7 @@
 #include "gfx/Renderer.h"
 
 #include <glm/gtc/type_ptr.hpp>
-
-#include "vulkan/ShaderCompiler.h"
+#include <vulkan/ShaderCompiler.h>
 
 #include "gfx/MeshUtilities.h"
 

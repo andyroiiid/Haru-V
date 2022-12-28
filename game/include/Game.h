@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "window/Window.h"
-#include "window/Mouse.h"
-#include "math/Transform.h"
+#include <window/Window.h>
+#include <window/Mouse.h>
+#include <math/Transform.h>
 
 #include "gfx/Renderer.h"
 

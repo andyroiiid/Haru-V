@@ -1,14 +1,23 @@
 add_executable(game
-        gfx/DeferredFramebuffer.cpp gfx/DeferredFramebuffer.h
-        gfx/DeferredContext.cpp gfx/DeferredContext.h
-        gfx/PbrMaterialCache.cpp gfx/PbrMaterialCache.h
-        gfx/Renderer.cpp gfx/Renderer.h
-        gfx/MeshUtilities.cpp gfx/MeshUtilities.h
+        include/gfx/DeferredFramebuffer.h
+        include/gfx/DeferredContext.h
+        include/gfx/PbrMaterialCache.h
+        include/gfx/MeshUtilities.h
+        include/gfx/Renderer.h
 
-        JsonFiles.cpp JsonFiles.h
-        Game.cpp Game.h
-        main.cpp)
+        src/gfx/DeferredFramebuffer.cpp
+        src/gfx/DeferredContext.cpp
+        src/gfx/PbrMaterialCache.cpp
+        src/gfx/MeshUtilities.cpp
+        src/gfx/Renderer.cpp
 
-target_include_directories(game PRIVATE .)
+        include/JsonFiles.h
+        include/Game.h
+
+        src/JsonFiles.cpp
+        src/Game.cpp
+        src/main.cpp)
+
+target_include_directories(game PRIVATE include)
 
 target_link_libraries(game PRIVATE engine)

@@ -4,7 +4,7 @@
 
 #include "JsonFiles.h"
 
-#include "file/JsonFile.h"
+#include <file/JsonFile.h>
 
 GameConfig::GameConfig(const std::string &jsonFilename) {
     JsonFile json(jsonFilename);

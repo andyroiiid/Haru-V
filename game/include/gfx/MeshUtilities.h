@@ -5,8 +5,7 @@
 #pragma once
 
 #include <vector>
-
-#include "vulkan/VertexFormats.h"
+#include <vulkan/VertexFormats.h>
 
 std::vector<VertexPositionOnly> CreateSkyboxVertices();
 

@@ -5,9 +5,8 @@
 #pragma once
 
 #include <map>
-
-#include "vulkan/VulkanBase.h"
-#include "vulkan/TextureCache.h"
+#include <vulkan/VulkanBase.h>
+#include <vulkan/TextureCache.h>
 
 using PbrMaterial = vk::DescriptorSet;
 
