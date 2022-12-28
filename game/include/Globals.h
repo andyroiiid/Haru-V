@@ -4,18 +4,14 @@
 
 #pragma once
 
-struct GLFWwindow;
+extern struct GLFWwindow *g_Window;
 
-class Renderer;
+extern class Renderer *g_Renderer;
 
-class Mouse;
+extern class Mouse *g_Mouse;
 
-class Scene;
+extern class Scene *g_Scene;
 
-extern GLFWwindow *g_Window;
+extern class PhysicsSystem *g_PhysicsSystem;
 
-extern Renderer *g_Renderer;
-
-extern Mouse *g_Mouse;
-
-extern Scene *g_Scene;
+extern class PhysicsScene *g_PhysicsScene;

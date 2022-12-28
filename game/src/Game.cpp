@@ -21,6 +21,12 @@ void Game::Init(GLFWwindow *window) {
     m_scene = std::make_unique<Scene>();
     g_Scene = m_scene.get();
 
+    m_physicsSystem = std::make_unique<PhysicsSystem>();
+    g_PhysicsSystem = m_physicsSystem.get();
+
+    m_physicsScene = std::make_unique<PhysicsScene>(m_physicsSystem.get());
+    g_PhysicsScene = m_physicsScene.get();
+
     m_scene->CreateActor<ALightWorld>(glm::vec3{0.75f, 0.07f, 0.65f}, glm::vec3{10.0f, 5.0f, 1.0f});
     m_scene->CreateActor<APlayerNoClip>(glm::vec3{0.0f, 0.0f, -5.0f});
     m_scene->CreateActor<APropTest>("models/boom_box.obj", "materials/boom_box.json", glm::vec3{0.0f, 0.0f, 0.0f});
@@ -29,6 +35,12 @@ void Game::Init(GLFWwindow *window) {
 
 void Game::Shutdown() {
     m_renderer->WaitDeviceIdle();
+
+    g_PhysicsScene = nullptr;
+    m_physicsScene.reset();
+
+    g_PhysicsSystem = nullptr;
+    m_physicsSystem.reset();
 
     g_Scene = nullptr;
     m_scene.reset();
@@ -49,6 +61,7 @@ void Game::Frame(float deltaTime) {
 
 void Game::Update(float deltaTime) {
     m_mouse->Update();
+    m_physicsScene->Update(deltaTime, 1.0f);
     m_scene->Update(deltaTime);
 }
 

@@ -25,6 +25,10 @@ add_library(engine
         include/vulkan/VulkanMesh.h
         include/vulkan/MeshCache.h
         include/math/Transform.h
+        include/physics/PhysicsErrorCallback.h
+        include/physics/PhysicsLayer.h
+        include/physics/PhysicsSystem.h
+        include/physics/PhysicsScene.h
 
         src/file/FileSystem.cpp
         src/file/JsonFile.cpp
@@ -45,7 +49,11 @@ add_library(engine
         src/vulkan/TextureCache.cpp
         src/vulkan/VertexFormats.cpp
         src/vulkan/VulkanMesh.cpp
-        src/vulkan/MeshCache.cpp)
+        src/vulkan/MeshCache.cpp
+        src/physics/PhysicsErrorCallback.cpp
+        src/physics/PhysicsLayer.cpp
+        src/physics/PhysicsSystem.cpp
+        src/physics/PhysicsScene.cpp)
 
 target_include_directories(engine PUBLIC include)
 
@@ -68,4 +76,5 @@ target_link_libraries(engine PUBLIC
         VulkanMemoryAllocator
         glm
         stb
-        tinyobjloader)
+        tinyobjloader
+        PhysX)

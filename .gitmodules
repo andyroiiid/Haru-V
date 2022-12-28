@@ -22,3 +22,6 @@
 [submodule "engine/dependencies/simdjson"]
 	path = engine/dependencies/simdjson
 	url = https://github.com/simdjson/simdjson.git
+[submodule "engine/dependencies/physx-static"]
+	path = engine/dependencies/physx-static
+	url = https://github.com/andyroiiid/physx-static.git

@@ -6,6 +6,8 @@
 
 #include <window/Window.h>
 #include <window/Mouse.h>
+#include <physics/PhysicsSystem.h>
+#include <physics/PhysicsScene.h>
 
 #include "gfx/Renderer.h"
 #include "actors/Scene.h"
@@ -26,4 +28,6 @@ private:
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Mouse> m_mouse;
     std::unique_ptr<Scene> m_scene;
+    std::unique_ptr<PhysicsSystem> m_physicsSystem;
+    std::unique_ptr<PhysicsScene> m_physicsScene;
 };
