@@ -42,10 +42,23 @@ void Renderer::CreateIblTextureSet() {
     m_iblTextureSetLayout = m_device.CreateDescriptorSetLayout(iblBindings);
 
     m_iblTextureSet = m_device.AllocateDescriptorSet(m_iblTextureSetLayout);
-    m_textureCache.LoadTexture("textures/brdf_lut.png", vk::Filter::eLinear)->BindToDescriptorSet(m_iblTextureSet, 0);
-    m_textureCache.LoadHdrTexture("textures/ibl/kloppenheim06.hdr", vk::Filter::eLinear)->BindToDescriptorSet(m_iblTextureSet, 1);
-    m_textureCache.LoadTexture("textures/ibl/kloppenheim06_specular.png", vk::Filter::eLinear)->BindToDescriptorSet(m_iblTextureSet, 2);
-    m_textureCache.LoadTexture("textures/ibl/kloppenheim06_irradiance.png", vk::Filter::eLinear)->BindToDescriptorSet(m_iblTextureSet, 3);
+    m_textureCache.LoadTexture(
+            "textures/brdf_lut.png",
+            vk::Filter::eLinear,
+            vk::SamplerAddressMode::eClampToEdge
+    )->BindToDescriptorSet(m_iblTextureSet, 0);
+    m_textureCache.LoadHdrTexture(
+            "textures/ibl/kloppenheim06.hdr",
+            vk::Filter::eLinear
+    )->BindToDescriptorSet(m_iblTextureSet, 1);
+    m_textureCache.LoadTexture(
+            "textures/ibl/kloppenheim06_specular.png",
+            vk::Filter::eLinear
+    )->BindToDescriptorSet(m_iblTextureSet, 2);
+    m_textureCache.LoadTexture(
+            "textures/ibl/kloppenheim06_irradiance.png",
+            vk::Filter::eLinear
+    )->BindToDescriptorSet(m_iblTextureSet, 3);
 }
 
 void Renderer::CreatePipelines() {
