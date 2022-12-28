@@ -15,12 +15,14 @@ add_executable(game
         include/actors/Scene.h
         include/actors/ALightWorld.h
         include/actors/APlayerNoClip.h
-        include/actors/APropTest.h
+        include/actors/APropTestModel.h
+        include/actors/APropTestBox.h
 
         src/actors/Scene.cpp
         src/actors/ALightWorld.cpp
         src/actors/APlayerNoClip.cpp
-        src/actors/APropTest.cpp
+        src/actors/APropTestModel.cpp
+        src/actors/APropTestBox.cpp
 
         include/JsonFiles.h
         include/Globals.h

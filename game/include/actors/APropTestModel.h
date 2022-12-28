@@ -12,11 +12,11 @@ class VulkanMesh;
 
 class PbrMaterial;
 
-class APropTest : public Actor {
+class APropTestModel : public Actor {
 public:
-    DEFINE_ACTOR_CLASS(APropTest)
+    DEFINE_ACTOR_CLASS(APropTestModel)
 
-    APropTest(const std::string &meshName, const std::string &materialName, const glm::vec3 &position);
+    APropTestModel(const std::string &meshName, const std::string &materialName, const glm::vec3 &position);
 
     void Draw() override;
 

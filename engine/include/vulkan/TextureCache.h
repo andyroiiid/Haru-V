@@ -22,9 +22,17 @@ public:
 
     TextureCache &operator=(TextureCache &&) = delete;
 
-    VulkanTexture *LoadTexture(const std::string &filename);
+    VulkanTexture *LoadTexture(
+            const std::string &filename,
+            vk::Filter filter = vk::Filter::eNearest,
+            vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat
+    );
 
-    VulkanTexture *LoadHdrTexture(const std::string &filename);
+    VulkanTexture *LoadHdrTexture(
+            const std::string &filename,
+            vk::Filter filter = vk::Filter::eNearest,
+            vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat
+    );
 
 private:
     VulkanBase &m_device;

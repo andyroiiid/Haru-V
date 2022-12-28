@@ -13,10 +13,24 @@ public:
     VulkanTexture() = default;
 
     // R8G8B8A8Unorm
-    VulkanTexture(VulkanBase &device, uint32_t width, uint32_t height, const unsigned char *data);
+    VulkanTexture(
+            VulkanBase &device,
+            uint32_t width,
+            uint32_t height,
+            const unsigned char *data,
+            vk::Filter filter,
+            vk::SamplerAddressMode addressMode
+    );
 
     // R32G32B32A32Sfloat
-    VulkanTexture(VulkanBase &device, uint32_t width, uint32_t height, const float *data);
+    VulkanTexture(
+            VulkanBase &device,
+            uint32_t width,
+            uint32_t height,
+            const float *data,
+            vk::Filter filter,
+            vk::SamplerAddressMode addressMode
+    );
 
     ~VulkanTexture() {
         Release();
@@ -49,7 +63,7 @@ private:
 
     void CreateImageView(vk::Format format);
 
-    void CreateSampler();
+    void CreateSampler(vk::Filter filter, vk::SamplerAddressMode addressMode);
 
     VulkanBase *m_device = nullptr;
 

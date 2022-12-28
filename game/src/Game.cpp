@@ -7,7 +7,8 @@
 #include "Globals.h"
 #include "actors/ALightWorld.h"
 #include "actors/APlayerNoClip.h"
-#include "actors/APropTest.h"
+#include "actors/APropTestBox.h"
+#include "actors/APropTestModel.h"
 
 void Game::Init(GLFWwindow *window) {
     g_Window = window;
@@ -29,8 +30,13 @@ void Game::Init(GLFWwindow *window) {
 
     m_scene->CreateActor<ALightWorld>(glm::vec3{0.75f, 0.07f, 0.65f}, glm::vec3{10.0f, 5.0f, 1.0f});
     m_scene->CreateActor<APlayerNoClip>(glm::vec3{0.0f, 0.0f, -5.0f});
-    m_scene->CreateActor<APropTest>("models/boom_box.obj", "materials/boom_box.json", glm::vec3{0.0f, 0.0f, 0.0f});
-    m_scene->CreateActor<APropTest>("models/damaged_helmet.obj", "materials/damaged_helmet.json", glm::vec3{2.0f, 0.0f, 0.0f});
+    m_scene->CreateActor<APropTestBox>("materials/dev_1.json", glm::vec3{-1.0f, -1.0f, -1.0f}, glm::vec3{0.0f, 0.0f, 0.0f});
+    m_scene->CreateActor<APropTestBox>("materials/dev_2.json", glm::vec3{0.0f, -1.0f, -1.0f}, glm::vec3{1.0f, 0.0f, 0.0f});
+    m_scene->CreateActor<APropTestBox>("materials/dev_3.json", glm::vec3{-1.0f, 0.0f, -1.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+    m_scene->CreateActor<APropTestBox>("materials/dev_4.json", glm::vec3{-1.0f, -1.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f});
+    m_scene->CreateActor<APropTestBox>("materials/dev_5.json", glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 1.0f, 1.0f});
+    m_scene->CreateActor<APropTestModel>("models/boom_box.obj", "materials/boom_box.json", glm::vec3{-2.0f, 0.0f, 0.0f});
+    m_scene->CreateActor<APropTestModel>("models/damaged_helmet.obj", "materials/damaged_helmet.json", glm::vec3{2.0f, 0.0f, 0.0f});
 }
 
 void Game::Shutdown() {

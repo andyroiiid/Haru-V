@@ -5,20 +5,32 @@
 
 #include "vulkan/VulkanBase.h"
 
-VulkanTexture::VulkanTexture(VulkanBase &device, uint32_t width, uint32_t height, const unsigned char *data)
-        : m_device(&device) {
+VulkanTexture::VulkanTexture(
+        VulkanBase &device,
+        uint32_t width,
+        uint32_t height,
+        const unsigned char *data,
+        vk::Filter filter,
+        vk::SamplerAddressMode addressMode
+) : m_device(&device) {
     constexpr size_t PIXEL_SIZE = sizeof(unsigned char) * 4;
     CreateImage(width, height, width * height * PIXEL_SIZE, data, vk::Format::eR8G8B8A8Unorm);
     CreateImageView(vk::Format::eR8G8B8A8Unorm);
-    CreateSampler();
+    CreateSampler(filter, addressMode);
 }
 
-VulkanTexture::VulkanTexture(VulkanBase &device, uint32_t width, uint32_t height, const float *data)
-        : m_device(&device) {
+VulkanTexture::VulkanTexture(
+        VulkanBase &device,
+        uint32_t width,
+        uint32_t height,
+        const float *data,
+        vk::Filter filter,
+        vk::SamplerAddressMode addressMode
+) : m_device(&device) {
     constexpr size_t PIXEL_SIZE = sizeof(float) * 4;
     CreateImage(width, height, width * height * PIXEL_SIZE, data, vk::Format::eR32G32B32A32Sfloat);
     CreateImageView(vk::Format::eR32G32B32A32Sfloat);
-    CreateSampler();
+    CreateSampler(filter, addressMode);
 }
 
 void VulkanTexture::CreateImage(uint32_t width, uint32_t height, vk::DeviceSize size, const void *data, vk::Format format) {
@@ -102,8 +114,8 @@ void VulkanTexture::CreateImageView(vk::Format format) {
     m_imageView = m_device->CreateImageView(m_image.Get(), format, vk::ImageAspectFlagBits::eColor);
 }
 
-void VulkanTexture::CreateSampler() {
-    m_sampler = m_device->CreateSampler(vk::Filter::eLinear, vk::SamplerAddressMode::eRepeat);
+void VulkanTexture::CreateSampler(vk::Filter filter, vk::SamplerAddressMode addressMode) {
+    m_sampler = m_device->CreateSampler(filter, addressMode);
 }
 
 void VulkanTexture::Release() {
