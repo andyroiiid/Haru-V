@@ -13,10 +13,12 @@ add_executable(game
 
         include/actors/Actor.h
         include/actors/Scene.h
+        include/actors/ALightWorld.h
         include/actors/APlayerNoClip.h
         include/actors/APropTest.h
 
         src/actors/Scene.cpp
+        src/actors/ALightWorld.cpp
         src/actors/APlayerNoClip.cpp
         src/actors/APropTest.cpp
 
