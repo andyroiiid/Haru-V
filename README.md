@@ -8,7 +8,7 @@ Currently working on migrating the entities.
 
 - Level Editing
     - [x] Modified TrenchBroom: https://github.com/andyroiiid/TrenchBroom-Haru
-    - [ ] Custom level format (planning on migrating to a binary format)
+    - [x] Custom level format
 - Game Entities
     - [ ] First-person controller
     - [ ] Static/kinematic/physically-simulated BSP brushes
