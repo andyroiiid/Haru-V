@@ -8,11 +8,12 @@
 
 #include "vulkan/VulkanBase.h"
 #include "vulkan/TextureCache.h"
+#include "vulkan/MeshCache.h"
 #include "vulkan/VulkanUniformBufferSet.h"
 #include "vulkan/VulkanPipeline.h"
 #include "vulkan/VulkanMesh.h"
+#include "vulkan/VertexFormats.h"
 
-#include "gfx/VertexFormats.h"
 #include "gfx/DeferredContext.h"
 #include "gfx/PbrMaterialCache.h"
 
@@ -58,6 +59,10 @@ public:
         return {m_device, vertices.size(), sizeof(VertexBase), vertices.data()};
     }
 
+    VulkanMesh *LoadObjMesh(const std::string &objFilename) {
+        return m_meshCache.LoadObjMesh(objFilename);
+    }
+
     PbrMaterial *LoadPbrMaterial(const std::string &materialFilename) {
         return m_pbrMaterialCache.LoadMaterial(materialFilename);
     }
@@ -73,7 +78,7 @@ public:
         m_lightingUniformData.LightColor = lightColor;
     }
 
-    void Draw(const VulkanMesh &mesh, const glm::mat4 &modelMatrix, PbrMaterial *material) {
+    void Draw(const VulkanMesh *mesh, const glm::mat4 &modelMatrix, const PbrMaterial *material) {
         m_drawCalls.emplace_back(mesh, modelMatrix, material);
     }
 
@@ -97,6 +102,7 @@ private:
     VulkanBase m_device;
     TextureCache m_textureCache;
     PbrMaterialCache m_pbrMaterialCache;
+    MeshCache m_meshCache;
 
     DeferredContext m_deferredContext;
 
@@ -117,10 +123,10 @@ private:
     struct DrawCall {
         const VulkanMesh *Mesh;
         glm::mat4 ModelMatrix;
-        PbrMaterial *Material;
+        const PbrMaterial *Material;
 
-        DrawCall(const VulkanMesh &mesh, const glm::mat4 &modelMatrix, PbrMaterial *material)
-                : Mesh(&mesh),
+        DrawCall(const VulkanMesh *mesh, const glm::mat4 &modelMatrix, const PbrMaterial *material)
+                : Mesh(mesh),
                   ModelMatrix(modelMatrix),
                   Material(material) {}
     };

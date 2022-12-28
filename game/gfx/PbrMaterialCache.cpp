@@ -2,7 +2,7 @@
 // Created by andyroiiid on 12/26/2022.
 //
 
-#include "PbrMaterialCache.h"
+#include "gfx/PbrMaterialCache.h"
 
 #include "core/Debug.h"
 

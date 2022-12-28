@@ -2,7 +2,7 @@
 // Created by andyroiiid on 12/21/2022.
 //
 
-#include "VertexFormats.h"
+#include "vulkan/VertexFormats.h"
 
 #include <vector>
 #include <vulkan/vulkan.hpp>

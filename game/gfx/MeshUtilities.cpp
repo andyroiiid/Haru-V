@@ -2,12 +2,48 @@
 // Created by andyroiiid on 12/21/2022.
 //
 
-#include "MeshUtilities.h"
+#include "gfx/MeshUtilities.h"
 
-#include <tiny_obj_loader.h>
+std::vector<VertexPositionOnly> CreateSkyboxVertices() {
+    return {
+            VertexPositionOnly{{-1.0f, 1.0f, 1.0f}},
+            VertexPositionOnly{{1.0f, 1.0f, 1.0f}},
+            VertexPositionOnly{{-1.0f, -1.0f, 1.0f}},
+            VertexPositionOnly{{1.0f, -1.0f, 1.0f}},
+            VertexPositionOnly{{1.0f, -1.0f, -1.0f}},
+            VertexPositionOnly{{1.0f, 1.0f, 1.0f}},
+            VertexPositionOnly{{1.0f, 1.0f, -1.0f}},
+            VertexPositionOnly{{-1.0f, 1.0f, 1.0f}},
+            VertexPositionOnly{{-1.0f, 1.0f, -1.0f}},
+            VertexPositionOnly{{-1.0f, -1.0f, 1.0f}},
+            VertexPositionOnly{{-1.0f, -1.0f, -1.0f}},
+            VertexPositionOnly{{1.0f, -1.0f, -1.0f}},
+            VertexPositionOnly{{-1.0f, 1.0f, -1.0f}},
+            VertexPositionOnly{{1.0f, 1.0f, -1.0}}
+    };
+}
 
-#include "core/Debug.h"
-#include "file/FileSystem.h"
+void AppendRectVertices(
+        std::vector<VertexCanvas> &vertices,
+        const glm::vec2 &minPosition, const glm::vec2 &maxPosition,
+        const glm::vec2 &minTexCoord, const glm::vec2 &maxTexCoord
+) {
+    const glm::vec2 P00{minPosition.x, minPosition.y};
+    const glm::vec2 P01{minPosition.x, maxPosition.y};
+    const glm::vec2 P10{maxPosition.x, minPosition.y};
+    const glm::vec2 P11{maxPosition.x, maxPosition.y};
+
+    const glm::vec2 UV00{minTexCoord.x, minTexCoord.y};
+    const glm::vec2 UV01{minTexCoord.x, maxTexCoord.y};
+    const glm::vec2 UV10{maxTexCoord.x, minTexCoord.y};
+    const glm::vec2 UV11{maxTexCoord.x, maxTexCoord.y};
+
+    vertices.reserve(vertices.size() + 4);
+    vertices.emplace_back(P00, UV00);
+    vertices.emplace_back(P10, UV10);
+    vertices.emplace_back(P01, UV01);
+    vertices.emplace_back(P11, UV11);
+}
 
 void AppendBoxVertices(std::vector<VertexBase> &vertices, const glm::vec3 &min, const glm::vec3 &max) {
     const glm::vec3 P000{min.x, min.y, min.z};
@@ -88,63 +124,4 @@ void AppendBoxVertices(std::vector<VertexBase> &vertices, const glm::vec3 &min, 
     vertices.emplace_back(P010, NNZ, UVZ01);
     vertices.emplace_back(P100, NNZ, UVZ10);
     vertices.emplace_back(P110, NNZ, UVZ11);
-}
-
-void AppendObjVertices(std::vector<VertexBase> &vertices, const std::string &objFilename) {
-    DebugInfo("Loading OBJ file {}.", objFilename);
-
-    tinyobj::ObjReader reader;
-
-    DebugCheckCritical(
-            reader.ParseFromString(FileSystem::Read(objFilename), ""),
-            "Failed to load OBJ file {}: {}",
-            objFilename,
-            reader.Error()
-    );
-
-    DebugCheck(
-            reader.Warning().empty(), "Warning when loading OBJ file {}: {}",
-            objFilename,
-            reader.Warning()
-    );
-
-    const tinyobj::attrib_t &attrib = reader.GetAttrib();
-    const std::vector<tinyobj::real_t> &positions = attrib.vertices;
-    const std::vector<tinyobj::real_t> &normals = attrib.normals;
-    const std::vector<tinyobj::real_t> &texCoords = attrib.texcoords;
-
-    for (const tinyobj::shape_t &shape: reader.GetShapes()) {
-        const tinyobj::mesh_t &mesh = shape.mesh;
-        DebugInfo("Loading OBJ shape {}.", shape.name);
-
-        size_t i = 0;
-        for (const size_t f: mesh.num_face_vertices) {
-            DebugCheckCritical(f == 3, "All polygons must be triangle.");
-
-            for (size_t v = 0; v < f; v++) {
-                const tinyobj::index_t &index = mesh.indices[i + v];
-                DebugCheckCritical(index.normal_index >= 0, "Missing normal data on vertex {}/{}.", f, v);
-                DebugCheckCritical(index.texcoord_index >= 0, "Missing texture coordinates data on vertex {}/{}.", f, v);
-
-                // X axis is flipped because Blender uses right-handed coordinates
-                vertices.emplace_back(
-                        glm::vec3{
-                                -positions[3 * index.vertex_index + 0],
-                                positions[3 * index.vertex_index + 1],
-                                positions[3 * index.vertex_index + 2]
-                        },
-                        glm::vec3{
-                                -normals[3 * index.normal_index + 0],
-                                normals[3 * index.normal_index + 1],
-                                normals[3 * index.normal_index + 2]
-                        },
-                        glm::vec2{
-                                texCoords[2 * index.texcoord_index + 0],
-                                texCoords[2 * index.texcoord_index + 1]
-                        }
-                );
-            }
-            i += f;
-        }
-    }
 }

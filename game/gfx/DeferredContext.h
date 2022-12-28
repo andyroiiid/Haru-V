@@ -6,7 +6,7 @@
 
 #include "vulkan/VulkanBase.h"
 
-#include "DeferredFramebuffer.h"
+#include "gfx/DeferredFramebuffer.h"
 
 class DeferredContext {
 public:

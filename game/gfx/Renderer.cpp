@@ -2,18 +2,19 @@
 // Created by andyroiiid on 12/21/2022.
 //
 
-#include "Renderer.h"
+#include "gfx/Renderer.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
 #include "vulkan/ShaderCompiler.h"
 
-#include "JsonFiles.h"
+#include "gfx/MeshUtilities.h"
 
 Renderer::Renderer(GLFWwindow *window)
         : m_device(window),
           m_textureCache(m_device),
-          m_pbrMaterialCache(m_device, m_textureCache) {
+          m_pbrMaterialCache(m_device, m_textureCache),
+          m_meshCache(m_device) {
     m_deferredContext = DeferredContext(m_device);
     CreateUniformBuffers();
     CreateIblTextureSet();
@@ -121,32 +122,13 @@ void Renderer::CreatePipelines() {
 }
 
 void Renderer::CreateSkyboxCube() {
-    const std::vector<VertexPositionOnly> vertices{
-            VertexPositionOnly{{-1.0f, 1.0f, 1.0f}},
-            VertexPositionOnly{{1.0f, 1.0f, 1.0f}},
-            VertexPositionOnly{{-1.0f, -1.0f, 1.0f}},
-            VertexPositionOnly{{1.0f, -1.0f, 1.0f}},
-            VertexPositionOnly{{1.0f, -1.0f, -1.0f}},
-            VertexPositionOnly{{1.0f, 1.0f, 1.0f}},
-            VertexPositionOnly{{1.0f, 1.0f, -1.0f}},
-            VertexPositionOnly{{-1.0f, 1.0f, 1.0f}},
-            VertexPositionOnly{{-1.0f, 1.0f, -1.0f}},
-            VertexPositionOnly{{-1.0f, -1.0f, 1.0f}},
-            VertexPositionOnly{{-1.0f, -1.0f, -1.0f}},
-            VertexPositionOnly{{1.0f, -1.0f, -1.0f}},
-            VertexPositionOnly{{-1.0f, 1.0f, -1.0f}},
-            VertexPositionOnly{{1.0f, 1.0f, -1.0}}
-    };
+    const std::vector<VertexPositionOnly> vertices = CreateSkyboxVertices();
     m_skyboxCube = VulkanMesh(m_device, vertices.size(), sizeof(VertexPositionOnly), vertices.data());
 }
 
 void Renderer::CreateFullScreenQuad() {
-    const std::vector<VertexCanvas> vertices{
-            {{-1.0f, -1.0f}, {0.0f, 0.0f}},
-            {{1.0f,  -1.0f}, {1.0f, 0.0f}},
-            {{-1.0f, 1.0f},  {0.0f, 1.0f}},
-            {{1.0f,  1.0f},  {1.0f, 1.0f}}
-    };
+    std::vector<VertexCanvas> vertices;
+    AppendRectVertices(vertices, {-1.0f, -1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f});
     m_fullScreenQuad = VulkanMesh(m_device, vertices.size(), sizeof(VertexCanvas), vertices.data());
 }
 

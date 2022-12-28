@@ -2,7 +2,7 @@
 // Created by andyroiiid on 12/24/2022.
 //
 
-#include "DeferredFramebuffer.h"
+#include "gfx/DeferredFramebuffer.h"
 
 DeferredFramebuffer::DeferredFramebuffer(
         VulkanBase *device,

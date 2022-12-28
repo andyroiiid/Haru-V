@@ -19,9 +19,11 @@ add_library(engine
         include/vulkan/VulkanUniformBufferSet.h
         include/vulkan/VulkanPipelineConfig.h
         include/vulkan/VulkanPipeline.h
-        include/vulkan/VulkanMesh.h
         include/vulkan/VulkanTexture.h
         include/vulkan/TextureCache.h
+        include/vulkan/VertexFormats.h
+        include/vulkan/VulkanMesh.h
+        include/vulkan/MeshCache.h
         include/math/Transform.h
 
         src/file/FileSystem.cpp
@@ -39,9 +41,11 @@ add_library(engine
         src/vulkan/VulkanUniformBufferSet.cpp
         src/vulkan/VulkanPipelineConfig.cpp
         src/vulkan/VulkanPipeline.cpp
-        src/vulkan/VulkanMesh.cpp
         src/vulkan/VulkanTexture.cpp
-        src/vulkan/TextureCache.cpp)
+        src/vulkan/TextureCache.cpp
+        src/vulkan/VertexFormats.cpp
+        src/vulkan/VulkanMesh.cpp
+        src/vulkan/MeshCache.cpp)
 
 target_include_directories(engine PUBLIC include)
 

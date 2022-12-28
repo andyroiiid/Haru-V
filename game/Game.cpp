@@ -6,8 +6,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include "gfx/MeshUtilities.h"
-
 void Game::Init(GLFWwindow *window) {
     m_window = window;
     m_renderer = std::make_unique<Renderer>(window);
@@ -15,20 +13,10 @@ void Game::Init(GLFWwindow *window) {
 
     m_mouse->SetEnabled(false);
 
-    {
-        std::vector<VertexBase> vertices;
-        AppendObjVertices(vertices, "models/boom_box.obj");
-        m_boomBoxMesh = m_renderer->CreateMesh(vertices);
-    }
-
+    m_boomBoxMesh = m_renderer->LoadObjMesh("models/boom_box.obj");
     m_boomBoxMaterial = m_renderer->LoadPbrMaterial("materials/boom_box.json");
 
-    {
-        std::vector<VertexBase> vertices;
-        AppendObjVertices(vertices, "models/damaged_helmet.obj");
-        m_helmetMesh = m_renderer->CreateMesh(vertices);
-    }
-
+    m_helmetMesh = m_renderer->LoadObjMesh("models/damaged_helmet.obj");
     m_helmetMaterial = m_renderer->LoadPbrMaterial("materials/damaged_helmet.json");
 
     m_cameraTransform.SetPosition({0.0f, 0.0f, -5.0f});
