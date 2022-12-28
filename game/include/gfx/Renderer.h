@@ -112,7 +112,7 @@ private:
     vk::DescriptorSetLayout m_iblTextureSetLayout;
     vk::DescriptorSet m_iblTextureSet;
 
-    VulkanPipeline m_deferredPipeline;
+    VulkanPipeline m_basePipeline;
     VulkanPipeline m_skyboxPipeline;
     VulkanPipeline m_combinePipeline;
 

@@ -58,7 +58,7 @@ void Renderer::CreatePipelines() {
 
     ShaderCompiler compiler;
 
-    m_deferredPipeline = VulkanPipeline(
+    m_basePipeline = VulkanPipeline(
             m_device,
             compiler,
             {
@@ -136,7 +136,7 @@ Renderer::~Renderer() {
 
     m_fullScreenQuad = {};
     m_skyboxCube = {};
-    m_deferredPipeline = {};
+    m_basePipeline = {};
     m_skyboxPipeline = {};
     m_combinePipeline = {};
     m_device.FreeDescriptorSet(m_iblTextureSet);
@@ -164,7 +164,7 @@ void Renderer::FinishDrawing() {
 void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     cmd.beginRenderPass(m_deferredContext.GetRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
 
-    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_deferredPipeline.Get());
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_basePipeline.Get());
 
     {
         const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
@@ -174,7 +174,7 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
 
     cmd.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
-            m_deferredPipeline.GetLayout(),
+            m_basePipeline.GetLayout(),
             0,
             m_uniformBufferSet.GetDescriptorSet(),
             m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
@@ -183,13 +183,13 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
     for (const DrawCall &drawCall: m_drawCalls) {
         cmd.bindDescriptorSets(
                 vk::PipelineBindPoint::eGraphics,
-                m_deferredPipeline.GetLayout(),
+                m_basePipeline.GetLayout(),
                 1,
                 *drawCall.Material,
                 {}
         );
         cmd.pushConstants(
-                m_deferredPipeline.GetLayout(),
+                m_basePipeline.GetLayout(),
                 vk::ShaderStageFlagBits::eVertex,
                 0,
                 sizeof(glm::mat4),
