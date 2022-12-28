@@ -34,7 +34,6 @@ struct Face {
 struct Brush {
     u16 numVertices;
     Vec3 vertices[numVertices];
-
     u16 numFaces;
     Face faces[numFaces];
 };
