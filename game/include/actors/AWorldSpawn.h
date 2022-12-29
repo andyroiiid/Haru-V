@@ -4,12 +4,13 @@
 
 #pragma once
 
-#include <vulkan/VulkanMesh.h>
-
 #include "actors/Actor.h"
 #include "map/MapData.h"
+#include "map/Brushes.h"
 
-class PbrMaterial;
+namespace physx {
+    class PxRigidStatic;
+}
 
 class AWorldSpawn final : public Actor {
 public:
@@ -17,8 +18,12 @@ public:
 
     explicit AWorldSpawn(const std::vector<MapData::Brush> &brushes);
 
+    ~AWorldSpawn() final;
+
     void Draw() final;
 
 private:
-    std::vector<std::pair<VulkanMesh, PbrMaterial *>> m_meshes;
+    Brushes m_brushes;
+    physx::PxRigidStatic *m_rigidbody;
+    glm::mat4 m_transform{1.0f};
 };

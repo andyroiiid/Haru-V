@@ -4,32 +4,25 @@
 
 #include "actors/AWorldSpawn.h"
 
-#include <vulkan/VertexFormats.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <PxRigidStatic.h>
+#include <foundation/PxAllocator.h>
+#include <physics/PhysicsScene.h>
 
 #include "Globals.h"
-#include "gfx/Renderer.h"
 
-AWorldSpawn::AWorldSpawn(const std::vector<MapData::Brush> &brushes) {
-    std::map<std::string, std::vector<VertexBase>> textureToVertices;
-    for (const auto &brush: brushes) {
-        for (const auto &face: brush.Faces) {
-            std::vector<VertexBase> &vertices = textureToVertices[face.Texture];
-            // triangulate
-            for (int k = 1; k < face.Vertices.size() - 1; k++) {
-                vertices.emplace_back(face.Vertices[0].Position, face.Normal, face.Vertices[0].TexCoord);
-                vertices.emplace_back(face.Vertices[k].Position, face.Normal, face.Vertices[k].TexCoord);
-                vertices.emplace_back(face.Vertices[k + 1].Position, face.Normal, face.Vertices[k + 1].TexCoord);
-            }
-        }
-    }
-    for (const auto &[texture, vertices]: textureToVertices) {
-        m_meshes.emplace_back(g_Renderer->CreateMesh(vertices), g_Renderer->LoadPbrMaterial("materials/" + texture + ".json"));
-    }
+AWorldSpawn::AWorldSpawn(const std::vector<MapData::Brush> &brushes)
+        : m_brushes(brushes) {
+    const glm::vec3 &center = m_brushes.GetCenter();
+    m_rigidbody = g_PhysicsScene->CreateStatic(physx::PxTransform{center.x, center.y, center.z});
+    m_brushes.AttachToRigidActor(m_rigidbody);
+    m_transform = glm::translate(glm::mat4(1.0f), center);
+}
+
+AWorldSpawn::~AWorldSpawn() {
+    PX_RELEASE(m_rigidbody)
 }
 
 void AWorldSpawn::Draw() {
-    const glm::mat4 IDENTITY{1.0f};
-    for (const auto &[mesh, material]: m_meshes) {
-        g_Renderer->Draw(&mesh, IDENTITY, material);
-    }
+    m_brushes.Draw(m_transform);
 }

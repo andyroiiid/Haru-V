@@ -25,10 +25,12 @@ add_executable(game
         src/actors/APropTestModel.cpp
 
         include/map/MapData.h
+        include/map/Brushes.h
         include/map/MapParser.h
         include/map/LoadEntities.h
 
         src/map/MapData.cpp
+        src/map/Brushes.cpp
         src/map/MapParser.cpp
         src/map/LoadEntities.cpp
 

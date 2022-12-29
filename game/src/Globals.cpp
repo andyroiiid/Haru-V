@@ -10,8 +10,8 @@ Renderer *g_Renderer = nullptr;
 
 Mouse *g_Mouse = nullptr;
 
-Scene *g_Scene = nullptr;
-
 PhysicsSystem *g_PhysicsSystem = nullptr;
 
 PhysicsScene *g_PhysicsScene = nullptr;
+
+Scene *g_Scene = nullptr;

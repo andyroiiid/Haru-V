@@ -10,8 +10,8 @@ extern class Renderer *g_Renderer;
 
 extern class Mouse *g_Mouse;
 
-extern class Scene *g_Scene;
-
 extern class PhysicsSystem *g_PhysicsSystem;
 
 extern class PhysicsScene *g_PhysicsScene;
+
+extern class Scene *g_Scene;

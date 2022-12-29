@@ -19,14 +19,14 @@ void Game::Init(GLFWwindow *window) {
     m_mouse = std::make_unique<Mouse>(window);
     g_Mouse = m_mouse.get();
 
-    m_scene = std::make_unique<Scene>();
-    g_Scene = m_scene.get();
-
     m_physicsSystem = std::make_unique<PhysicsSystem>();
     g_PhysicsSystem = m_physicsSystem.get();
 
     m_physicsScene = std::make_unique<PhysicsScene>(m_physicsSystem.get());
     g_PhysicsScene = m_physicsScene.get();
+
+    m_scene = std::make_unique<Scene>();
+    g_Scene = m_scene.get();
 
     LoadEntities("maps/climb.haru");
 
@@ -38,14 +38,14 @@ void Game::Init(GLFWwindow *window) {
 void Game::Shutdown() {
     m_renderer->WaitDeviceIdle();
 
+    g_Scene = nullptr;
+    m_scene.reset();
+
     g_PhysicsScene = nullptr;
     m_physicsScene.reset();
 
     g_PhysicsSystem = nullptr;
     m_physicsSystem.reset();
-
-    g_Scene = nullptr;
-    m_scene.reset();
 
     g_Mouse = nullptr;
     m_mouse.reset();

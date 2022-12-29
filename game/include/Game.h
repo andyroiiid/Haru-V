@@ -27,7 +27,7 @@ private:
 
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Mouse> m_mouse;
-    std::unique_ptr<Scene> m_scene;
     std::unique_ptr<PhysicsSystem> m_physicsSystem;
     std::unique_ptr<PhysicsScene> m_physicsScene;
+    std::unique_ptr<Scene> m_scene;
 };
