@@ -5,6 +5,7 @@ add_subdirectory(dependencies EXCLUDE_FROM_ALL)
 add_library(engine
         include/core/Debug.h
         include/file/FileSystem.h
+        include/file/BinaryParser.h
         include/file/JsonFile.h
         include/file/ImageFile.h
         include/file/HdrImageFile.h
@@ -31,6 +32,7 @@ add_library(engine
         include/physics/PhysicsScene.h
 
         src/file/FileSystem.cpp
+        src/file/BinaryParser.cpp
         src/file/JsonFile.cpp
         src/file/ImageFile.cpp
         src/file/HdrImageFile.cpp

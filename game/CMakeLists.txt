@@ -24,6 +24,12 @@ add_executable(game
         src/actors/APropTestModel.cpp
         src/actors/APropTestBox.cpp
 
+        include/map/MapData.h
+        include/map/MapParser.h
+        include/map/LoadEntities.h
+        src/map/MapParser.cpp
+        src/map/LoadEntities.cpp
+
         include/JsonFiles.h
         include/Globals.h
         include/Game.h

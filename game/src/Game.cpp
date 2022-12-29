@@ -9,6 +9,7 @@
 #include "actors/APlayerNoClip.h"
 #include "actors/APropTestBox.h"
 #include "actors/APropTestModel.h"
+#include "map/LoadEntities.h"
 
 void Game::Init(GLFWwindow *window) {
     g_Window = window;
@@ -27,6 +28,8 @@ void Game::Init(GLFWwindow *window) {
 
     m_physicsScene = std::make_unique<PhysicsScene>(m_physicsSystem.get());
     g_PhysicsScene = m_physicsScene.get();
+
+    LoadEntities("maps/test.haru");
 
     m_scene->CreateActor<ALightWorld>(glm::vec3{0.75f, 0.07f, 0.65f}, glm::vec3{10.0f, 5.0f, 1.0f});
     m_scene->CreateActor<APlayerNoClip>(glm::vec3{0.0f, 0.0f, -5.0f});
