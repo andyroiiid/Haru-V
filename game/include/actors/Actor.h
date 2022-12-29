@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <math/Transform.h>
 
 #define DEFINE_ACTOR_CLASS(className) \
     className(const className&) = delete; \
@@ -50,6 +51,11 @@ public:
 
     void Destroy() { m_pendingDestroy = true; }
 
+    const Transform &GetTransform() const { return m_transform; }
+
+    Transform &GetTransform() { return m_transform; }
+
 private:
     bool m_pendingDestroy = false;
+    Transform m_transform;
 };

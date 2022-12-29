@@ -12,18 +12,17 @@ namespace physx {
     class PxRigidStatic;
 }
 
-class AWorldSpawn final : public Actor {
+class AFuncBrush final : public Actor {
 public:
-    DEFINE_ACTOR_CLASS(AWorldSpawn)
+    DEFINE_ACTOR_CLASS(AFuncBrush)
 
-    explicit AWorldSpawn(const std::vector<MapData::Brush> &brushes);
+    explicit AFuncBrush(const std::vector<MapData::Brush> &brushes);
 
-    ~AWorldSpawn() final;
+    ~AFuncBrush() final;
 
     void Draw() final;
 
 private:
     Brushes m_brushes;
     physx::PxRigidStatic *m_rigidbody;
-    glm::mat4 m_transform{1.0f};
 };

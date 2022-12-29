@@ -9,11 +9,11 @@
 #include "Globals.h"
 #include "map/MapParser.h"
 #include "actors/Scene.h"
-#include "actors/AWorldSpawn.h"
+#include "actors/AFuncBrush.h"
 #include "actors/APlayerNoClip.h"
 
 static void LoadWorldSpawn(const MapData::Entity &entity) {
-    g_Scene->CreateActor<AWorldSpawn>(entity.Brushes);
+    g_Scene->CreateActor<AFuncBrush>(entity.Brushes);
 }
 
 static void LoadInfoPlayerStart(const MapData::Entity &entity) {

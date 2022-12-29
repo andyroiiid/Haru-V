@@ -13,13 +13,13 @@ add_executable(game
 
         include/actors/Actor.h
         include/actors/Scene.h
-        include/actors/AWorldSpawn.h
+        include/actors/AFuncBrush.h
         include/actors/ALightWorld.h
         include/actors/APlayerNoClip.h
         include/actors/APropTestModel.h
 
         src/actors/Scene.cpp
-        src/actors/AWorldSpawn.cpp
+        src/actors/AFuncBrush.cpp
         src/actors/ALightWorld.cpp
         src/actors/APlayerNoClip.cpp
         src/actors/APropTestModel.cpp

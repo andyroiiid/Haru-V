@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <math/Transform.h>
-
 #include "actors/Actor.h"
 
 class APlayerNoClip final : public Actor {
@@ -19,7 +17,4 @@ public:
     void Update(float deltaTime) final;
 
     void Draw() final;
-
-private:
-    Transform m_transform;
 };
