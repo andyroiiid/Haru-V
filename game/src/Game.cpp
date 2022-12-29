@@ -7,7 +7,6 @@
 #include "Globals.h"
 #include "actors/ALightWorld.h"
 #include "actors/APlayerNoClip.h"
-#include "actors/APropTestBox.h"
 #include "actors/APropTestModel.h"
 #include "map/LoadEntities.h"
 
@@ -29,16 +28,11 @@ void Game::Init(GLFWwindow *window) {
     m_physicsScene = std::make_unique<PhysicsScene>(m_physicsSystem.get());
     g_PhysicsScene = m_physicsScene.get();
 
-    LoadEntities("maps/test.haru");
+    LoadEntities("maps/climb.haru");
 
-    m_scene->CreateActor<ALightWorld>(glm::vec3{0.75f, 0.07f, 0.65f}, glm::vec3{10.0f, 5.0f, 1.0f});
-    m_scene->CreateActor<APropTestBox>("materials/dev_1.json", glm::vec3{-1.0f, -1.0f, -1.0f}, glm::vec3{0.0f, 0.0f, 0.0f});
-    m_scene->CreateActor<APropTestBox>("materials/dev_2.json", glm::vec3{0.0f, -1.0f, -1.0f}, glm::vec3{1.0f, 0.0f, 0.0f});
-    m_scene->CreateActor<APropTestBox>("materials/dev_3.json", glm::vec3{-1.0f, 0.0f, -1.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
-    m_scene->CreateActor<APropTestBox>("materials/dev_4.json", glm::vec3{-1.0f, -1.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f});
-    m_scene->CreateActor<APropTestBox>("materials/dev_5.json", glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 1.0f, 1.0f});
-    m_scene->CreateActor<APropTestModel>("models/boom_box.obj", "materials/boom_box.json", glm::vec3{-2.0f, 0.0f, 0.0f});
-    m_scene->CreateActor<APropTestModel>("models/damaged_helmet.obj", "materials/damaged_helmet.json", glm::vec3{2.0f, 0.0f, 0.0f});
+    m_scene->CreateActor<ALightWorld>(glm::vec3{0.75f, 0.07f, 0.65f}, glm::vec3{1.0f, 0.5f, 0.0f});
+    m_scene->CreateActor<APropTestModel>("models/boom_box.obj", "materials/boom_box.json", glm::vec3{18.0f, 10.5f, -12.0f});
+    m_scene->CreateActor<APropTestModel>("models/damaged_helmet.obj", "materials/damaged_helmet.json", glm::vec3{20.0f, 10.5f, -12.0f});
 }
 
 void Game::Shutdown() {

@@ -2,6 +2,8 @@
 
 A Vulkan-based rewrite of [Haru Engine](https://github.com/andyroiiid/haru).
 
+![Screenshot](screenshot.png)
+
 ## Status
 
 Currently working on migrating the entities.
