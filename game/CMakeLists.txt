@@ -27,11 +27,13 @@ add_executable(game
         include/map/MapData.h
         include/map/Brushes.h
         include/map/MapParser.h
+        include/map/EntityLoaders.h
         include/map/LoadEntities.h
 
         src/map/MapData.cpp
         src/map/Brushes.cpp
         src/map/MapParser.cpp
+        src/map/EntityLoaders.cpp
         src/map/LoadEntities.cpp
 
         include/JsonFiles.h

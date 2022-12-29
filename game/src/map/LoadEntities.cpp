@@ -6,21 +6,12 @@
 
 #include <core/Debug.h>
 
-#include "Globals.h"
 #include "map/MapParser.h"
-#include "actors/Scene.h"
-#include "actors/AFuncBrush.h"
-#include "actors/APlayerNoClip.h"
+#include "map/EntityLoaders.h"
 
-static void LoadWorldSpawn(const MapData::Entity &entity) {
-    g_Scene->CreateActor<AFuncBrush>(entity.Brushes);
-}
-
-static void LoadInfoPlayerStart(const MapData::Entity &entity) {
-    glm::vec3 origin;
-    DebugCheckCritical(entity.GetPropertyVector("origin", origin), "info_player_start doesn't have a valid origin!");
-
-    g_Scene->CreateActor<APlayerNoClip>(origin);
+void LoadEntities(const std::string &mapFilename) {
+    const MapParser mapParser(mapFilename);
+    LoadEntities(mapParser.GetMap());
 }
 
 typedef void (*EntityLoader)(const MapData::Entity &entity);
@@ -44,9 +35,4 @@ void LoadEntities(const MapData::Map &map) {
     for (const MapData::Entity &entity: map.Entities) {
         LoadEntity(entity);
     }
-}
-
-void LoadEntities(const std::string &mapFilename) {
-    const MapParser mapParser(mapFilename);
-    LoadEntities(mapParser.GetMap());
 }

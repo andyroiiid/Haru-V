@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "MapData.h"
-
-void LoadEntities(const MapData::Map &map);
+#include "map/MapData.h"
 
 void LoadEntities(const std::string &mapFilename);
+
+void LoadEntities(const MapData::Map &map);
