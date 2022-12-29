@@ -6,7 +6,6 @@
 
 #include "Globals.h"
 #include "actors/ALightWorld.h"
-#include "actors/APlayerNoClip.h"
 #include "actors/APropTestModel.h"
 #include "map/LoadEntities.h"
 
