@@ -79,4 +79,5 @@ target_link_libraries(engine PUBLIC
         glm
         stb
         tinyobjloader
-        PhysX)
+        PhysX
+        TracyClient)

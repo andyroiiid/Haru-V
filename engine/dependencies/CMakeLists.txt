@@ -35,3 +35,5 @@ add_subdirectory(stb EXCLUDE_FROM_ALL)
 add_subdirectory(tinyobjloader EXCLUDE_FROM_ALL)
 
 add_subdirectory(physx-static EXCLUDE_FROM_ALL)
+
+add_subdirectory(tracy EXCLUDE_FROM_ALL)

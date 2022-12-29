@@ -25,3 +25,6 @@
 [submodule "engine/dependencies/physx-static"]
 	path = engine/dependencies/physx-static
 	url = https://github.com/andyroiiid/physx-static.git
+[submodule "engine/dependencies/tracy"]
+	path = engine/dependencies/tracy
+	url = https://github.com/wolfpld/tracy.git

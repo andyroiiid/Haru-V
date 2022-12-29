@@ -4,12 +4,16 @@
 
 #include "Game.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "Globals.h"
 #include "actors/ALightWorld.h"
 #include "actors/APropTestModel.h"
 #include "map/LoadEntities.h"
 
 void Game::Init(GLFWwindow *window) {
+    ZoneScoped;
+
     g_Window = window;
 
     m_renderer = std::make_unique<Renderer>(window);
@@ -56,17 +60,23 @@ void Game::Shutdown() {
 }
 
 void Game::Frame(float deltaTime) {
+    FrameMark;
+
     Update(deltaTime);
     Draw();
 }
 
 void Game::Update(float deltaTime) {
+    ZoneScoped;
+
     m_mouse->Update();
     m_physicsScene->Update(deltaTime, 1.0f);
     m_scene->Update(deltaTime);
 }
 
 void Game::Draw() {
+    ZoneScoped;
+
     m_scene->Draw();
     m_renderer->FinishDrawing();
 }
