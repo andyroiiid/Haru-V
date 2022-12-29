@@ -32,7 +32,6 @@ void Game::Init(GLFWwindow *window) {
     LoadEntities("maps/test.haru");
 
     m_scene->CreateActor<ALightWorld>(glm::vec3{0.75f, 0.07f, 0.65f}, glm::vec3{10.0f, 5.0f, 1.0f});
-    m_scene->CreateActor<APlayerNoClip>(glm::vec3{0.0f, 0.0f, -5.0f});
     m_scene->CreateActor<APropTestBox>("materials/dev_1.json", glm::vec3{-1.0f, -1.0f, -1.0f}, glm::vec3{0.0f, 0.0f, 0.0f});
     m_scene->CreateActor<APropTestBox>("materials/dev_2.json", glm::vec3{0.0f, -1.0f, -1.0f}, glm::vec3{1.0f, 0.0f, 0.0f});
     m_scene->CreateActor<APropTestBox>("materials/dev_3.json", glm::vec3{-1.0f, 0.0f, -1.0f}, glm::vec3{0.0f, 1.0f, 0.0f});

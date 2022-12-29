@@ -13,12 +13,14 @@ add_executable(game
 
         include/actors/Actor.h
         include/actors/Scene.h
+        include/actors/AWorldSpawn.h
         include/actors/ALightWorld.h
         include/actors/APlayerNoClip.h
         include/actors/APropTestModel.h
         include/actors/APropTestBox.h
 
         src/actors/Scene.cpp
+        src/actors/AWorldSpawn.cpp
         src/actors/ALightWorld.cpp
         src/actors/APlayerNoClip.cpp
         src/actors/APropTestModel.cpp
@@ -27,6 +29,8 @@ add_executable(game
         include/map/MapData.h
         include/map/MapParser.h
         include/map/LoadEntities.h
+
+        src/map/MapData.cpp
         src/map/MapParser.cpp
         src/map/LoadEntities.cpp
 
