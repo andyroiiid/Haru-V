@@ -28,15 +28,8 @@ public:
             vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat
     );
 
-    VulkanTexture *LoadHdrTexture(
-            const std::string &filename,
-            vk::Filter filter = vk::Filter::eNearest,
-            vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat
-    );
-
 private:
     VulkanBase &m_device;
 
     std::map<std::string, VulkanTexture> m_textures;
-    std::map<std::string, VulkanTexture> m_hdrTextures;
 };

@@ -47,8 +47,8 @@ void Renderer::CreateIblTextureSet() {
             vk::Filter::eLinear,
             vk::SamplerAddressMode::eClampToEdge
     )->BindToDescriptorSet(m_iblTextureSet, 0);
-    m_textureCache.LoadHdrTexture(
-            "textures/ibl/rainforest_trail.hdr",
+    m_textureCache.LoadTexture(
+            "textures/ibl/rainforest_trail.png",
             vk::Filter::eLinear
     )->BindToDescriptorSet(m_iblTextureSet, 1);
     m_textureCache.LoadTexture(

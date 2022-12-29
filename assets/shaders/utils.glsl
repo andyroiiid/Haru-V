@@ -21,3 +21,7 @@ vec2 SampleSphericalMap(vec3 v)
     );
     return uv;
 }
+
+vec4 RGBMToLinear(vec4 value) {
+    return vec4(value.rgb * value.a * 6.0f, 1.0);
+}

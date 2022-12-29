@@ -19,6 +19,5 @@ void main() {
     fWorldPositionMetallic = vec4(sign(vDirection) * INF, 0.0);
     fWorldNormalRoughness = vec4(-direction, 1.0);
     fAlbedoAmbientOcclusion = vec4(0.0, 0.0, 0.0, 0.0);
-    vec3 color = texture(uSkybox, SampleSphericalMap(direction)).rgb;
-    fEmissive = vec4(color, 1.0);
+    fEmissive = RGBMToLinear(texture(uSkybox, SampleSphericalMap(direction)));
 }

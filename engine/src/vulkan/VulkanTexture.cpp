@@ -19,20 +19,6 @@ VulkanTexture::VulkanTexture(
     CreateSampler(filter, addressMode);
 }
 
-VulkanTexture::VulkanTexture(
-        VulkanBase &device,
-        uint32_t width,
-        uint32_t height,
-        const float *data,
-        vk::Filter filter,
-        vk::SamplerAddressMode addressMode
-) : m_device(&device) {
-    constexpr size_t PIXEL_SIZE = sizeof(float) * 4;
-    CreateImage(width, height, width * height * PIXEL_SIZE, data, vk::Format::eR32G32B32A32Sfloat);
-    CreateImageView(vk::Format::eR32G32B32A32Sfloat);
-    CreateSampler(filter, addressMode);
-}
-
 void VulkanTexture::CreateImage(uint32_t width, uint32_t height, vk::DeviceSize size, const void *data, vk::Format format) {
     VulkanBuffer uploadBuffer = m_device->CreateBuffer(
             size,

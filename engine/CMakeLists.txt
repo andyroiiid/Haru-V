@@ -8,7 +8,6 @@ add_library(engine
         include/file/BinaryParser.h
         include/file/JsonFile.h
         include/file/ImageFile.h
-        include/file/HdrImageFile.h
         include/window/Window.h
         include/window/Mouse.h
         include/vulkan/DebugVk.h
@@ -35,7 +34,6 @@ add_library(engine
         src/file/BinaryParser.cpp
         src/file/JsonFile.cpp
         src/file/ImageFile.cpp
-        src/file/HdrImageFile.cpp
         src/window/Window.cpp
         src/window/Mouse.cpp
         src/vulkan/ShaderCompiler.cpp

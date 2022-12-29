@@ -22,16 +22,6 @@ public:
             vk::SamplerAddressMode addressMode
     );
 
-    // R32G32B32A32Sfloat
-    VulkanTexture(
-            VulkanBase &device,
-            uint32_t width,
-            uint32_t height,
-            const float *data,
-            vk::Filter filter,
-            vk::SamplerAddressMode addressMode
-    );
-
     ~VulkanTexture() {
         Release();
     }

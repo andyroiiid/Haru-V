@@ -69,11 +69,6 @@ vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 
 const float ENV_LODS = 6.0;
 
-vec4 RGBMToLinear(vec4 value) {
-    float maxRange = 6.0;
-    return vec4(value.xyz * value.w * maxRange, 1.0);
-}
-
 vec3 SampleIBLReflection(vec3 R, float roughness) {
     // based on https://github.com/oframe/ibl-converter/blob/master/src/shaders/PBRShader.js
     float blend = roughness * ENV_LODS;
