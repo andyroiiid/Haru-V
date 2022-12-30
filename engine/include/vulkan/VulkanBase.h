@@ -28,7 +28,7 @@ public:
     static constexpr vk::Format SURFACE_FORMAT = vk::Format::eB8G8R8A8Unorm;
     static constexpr vk::ColorSpaceKHR SURFACE_COLOR_SPACE = vk::ColorSpaceKHR::eSrgbNonlinear;
     static constexpr vk::Format DEPTH_FORMAT = vk::Format::eD32Sfloat;
-    static constexpr vk::PresentModeKHR PRESENT_MODE = vk::PresentModeKHR::eMailbox;
+    static constexpr vk::PresentModeKHR PRESENT_MODE = vk::PresentModeKHR::eFifo;
 
     explicit VulkanBase(GLFWwindow *window);
 
