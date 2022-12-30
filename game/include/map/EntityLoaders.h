@@ -9,3 +9,5 @@
 void LoadWorldSpawn(const MapData::Entity &entity);
 
 void LoadInfoPlayerStart(const MapData::Entity &entity);
+
+void LoadFuncMove(const MapData::Entity &entity);

@@ -10,6 +10,7 @@
 #include "Globals.h"
 #include "actors/Scene.h"
 #include "actors/AFuncBrush.h"
+#include "actors/AFuncMove.h"
 #include "actors/APlayer.h"
 
 void LoadWorldSpawn(const MapData::Entity &entity) {
@@ -25,4 +26,14 @@ void LoadInfoPlayerStart(const MapData::Entity &entity) {
     DebugCheckCritical(entity.GetPropertyVector("origin", origin), "info_player_start doesn't have a valid origin!");
 
     g_Scene->CreateActor<APlayer>(origin);
+}
+
+void LoadFuncMove(const MapData::Entity &entity) {
+    glm::vec3 moveSpeed;
+    DebugCheckCritical(entity.GetPropertyVector("move_speed", moveSpeed), "func_move doesn't have a valid move_speed!");
+
+    float moveTime;
+    DebugCheckCritical(entity.GetPropertyFloat("move_time", moveTime), "func_move doesn't have a valid move_time!");
+
+    g_Scene->CreateActor<AFuncMove>(entity.Brushes, moveSpeed, moveTime);
 }

@@ -18,7 +18,8 @@ typedef void (*EntityLoader)(const MapData::Entity &entity);
 
 static const std::map<std::string, EntityLoader> s_EntityLoaders{
         {"worldspawn",        LoadWorldSpawn},
-        {"info_player_start", LoadInfoPlayerStart}
+        {"info_player_start", LoadInfoPlayerStart},
+        {"func_move",         LoadFuncMove}
 };
 
 static void LoadEntity(const MapData::Entity &entity) {
