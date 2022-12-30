@@ -34,7 +34,7 @@ void Game::Init(GLFWwindow *window) {
 
     LoadEntities("maps/climb.haru");
 
-    m_scene->CreateActor<ALightWorld>(glm::vec3{0.75f, 0.07f, 0.65f}, glm::vec3{1.0f, 0.5f, 0.0f});
+    m_scene->CreateActor<ALightWorld>(glm::vec3{0.8f, 0.35f, 0.4f}, glm::vec3{5.0f, 4.0f, 3.0f});
     m_scene->CreateActor<APropTestModel>("models/boom_box.obj", "materials/boom_box.json", glm::vec3{18.0f, 10.5f, -12.0f});
     m_scene->CreateActor<APropTestModel>("models/damaged_helmet.obj", "materials/damaged_helmet.json", glm::vec3{20.0f, 10.5f, -12.0f});
 }
