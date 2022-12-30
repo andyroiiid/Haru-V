@@ -10,7 +10,7 @@
 #include "Globals.h"
 #include "actors/Scene.h"
 #include "actors/AFuncBrush.h"
-#include "actors/APlayerNoClip.h"
+#include "actors/APlayer.h"
 
 void LoadWorldSpawn(const MapData::Entity &entity) {
     ZoneScoped;
@@ -24,5 +24,5 @@ void LoadInfoPlayerStart(const MapData::Entity &entity) {
     glm::vec3 origin;
     DebugCheckCritical(entity.GetPropertyVector("origin", origin), "info_player_start doesn't have a valid origin!");
 
-    g_Scene->CreateActor<APlayerNoClip>(origin);
+    g_Scene->CreateActor<APlayer>(origin);
 }

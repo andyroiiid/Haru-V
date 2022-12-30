@@ -15,3 +15,5 @@ extern class PhysicsSystem *g_PhysicsSystem;
 extern class PhysicsScene *g_PhysicsScene;
 
 extern class Scene *g_Scene;
+
+extern bool g_SlowMotion;

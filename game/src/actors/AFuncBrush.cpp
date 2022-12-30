@@ -13,9 +13,13 @@
 AFuncBrush::AFuncBrush(const std::vector<MapData::Brush> &brushes)
         : m_brushes(brushes) {
     const glm::vec3 &center = m_brushes.GetCenter();
+
+    GetTransform().SetPosition(center);
+
     m_rigidbody = g_PhysicsScene->CreateStatic(physx::PxTransform{center.x, center.y, center.z});
     m_brushes.AttachToRigidActor(m_rigidbody);
-    GetTransform().SetPosition(center);
+
+    m_rigidbody->userData = this;
 }
 
 AFuncBrush::~AFuncBrush() {

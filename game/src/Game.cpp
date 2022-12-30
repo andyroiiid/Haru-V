@@ -4,6 +4,7 @@
 
 #include "Game.h"
 
+#include <GLFW/glfw3.h>
 #include <tracy/Tracy.hpp>
 
 #include "Globals.h"
@@ -70,8 +71,18 @@ void Game::Update(float deltaTime) {
     ZoneScoped;
 
     m_mouse->Update();
-    m_physicsScene->Update(deltaTime, 1.0f);
-    m_scene->Update(deltaTime);
+
+    if (glfwGetKey(g_Window, GLFW_KEY_ESCAPE)) {
+        glfwSetWindowShouldClose(g_Window, GLFW_TRUE);
+    }
+
+    g_SlowMotion = g_Mouse->IsButtonDown(MouseButton::Right);
+
+    const float timeScale = g_SlowMotion ? 0.2f : 1.0f;
+    if (m_physicsScene->Update(deltaTime, timeScale)) {
+        m_scene->FixedUpdate(m_physicsScene->GetFixedTimestep() * timeScale);
+    }
+    m_scene->Update(deltaTime * timeScale);
 }
 
 void Game::Draw() {

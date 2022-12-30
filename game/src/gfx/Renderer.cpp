@@ -48,15 +48,15 @@ void Renderer::CreateIblTextureSet() {
             vk::SamplerAddressMode::eClampToEdge
     )->BindToDescriptorSet(m_iblTextureSet, 0);
     m_textureCache.LoadTexture(
-            "textures/ibl/rainforest_trail.png",
+            "textures/ibl/kloppenheim06.png",
             vk::Filter::eLinear
     )->BindToDescriptorSet(m_iblTextureSet, 1);
     m_textureCache.LoadTexture(
-            "textures/ibl/rainforest_trail_specular.png",
+            "textures/ibl/kloppenheim06_specular.png",
             vk::Filter::eLinear
     )->BindToDescriptorSet(m_iblTextureSet, 2);
     m_textureCache.LoadTexture(
-            "textures/ibl/rainforest_trail_irradiance.png",
+            "textures/ibl/kloppenheim06_irradiance.png",
             vk::Filter::eLinear
     )->BindToDescriptorSet(m_iblTextureSet, 3);
 }

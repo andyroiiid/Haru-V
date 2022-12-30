@@ -28,10 +28,6 @@ static inline float GetKeyAxis(GLFWwindow *window, int posKey, int negKey) {
 }
 
 void APlayerNoClip::Update(float deltaTime) {
-    if (glfwGetKey(g_Window, GLFW_KEY_ESCAPE)) {
-        glfwSetWindowShouldClose(g_Window, GLFW_TRUE);
-    }
-
     const glm::vec3 inputDirection =
             GetTransform().GetHorizontalRightVector() * GetKeyAxis(g_Window, GLFW_KEY_D, GLFW_KEY_A) +
             glm::vec3(0.0f, 1.0f, 0.0f) * GetKeyAxis(g_Window, GLFW_KEY_E, GLFW_KEY_Q) +

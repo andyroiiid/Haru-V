@@ -7,6 +7,12 @@
 #include <string>
 #include <math/Transform.h>
 
+namespace physx {
+    struct PxRaycastHit;
+}
+
+class APlayer;
+
 #define DEFINE_ACTOR_CLASS(className) \
     className(const className&) = delete; \
     className& operator=(const className&) = delete; \
@@ -46,6 +52,8 @@ public:
     virtual void FixedUpdate(float fixedDeltaTime) {}
 
     virtual void Draw() {}
+
+    virtual void Use(APlayer *player, const physx::PxRaycastHit &hit) {}
 
     [[nodiscard]] bool IsPendingDestroy() const { return m_pendingDestroy; }
 

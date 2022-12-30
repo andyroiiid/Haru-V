@@ -15,3 +15,5 @@ PhysicsSystem *g_PhysicsSystem = nullptr;
 PhysicsScene *g_PhysicsScene = nullptr;
 
 Scene *g_Scene = nullptr;
+
+bool g_SlowMotion = false;

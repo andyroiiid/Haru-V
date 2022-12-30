@@ -77,6 +77,8 @@ void Brushes::CreateColliders(const std::vector<MapData::Brush> &brushes, Physic
 }
 
 Brushes::~Brushes() {
+    g_Renderer->WaitDeviceIdle();
+
     for (physx::PxShape *shape: m_shapes) {
         PX_RELEASE(shape)
     }
