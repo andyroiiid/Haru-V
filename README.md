@@ -6,23 +6,30 @@ A Vulkan-based rewrite of [Haru Engine](https://github.com/andyroiiid/haru).
 
 ## Status
 
-Currently working on migrating the entities.
-
-- Level Editing
-    - [x] Modified TrenchBroom: https://github.com/andyroiiid/TrenchBroom-Haru
-    - [x] Custom level format
-- Game Entities
-    - [ ] First-person controller
-    - [ ] Static/kinematic/physically-simulated BSP brushes
-    - [ ] Quake/Hammer style entities
 - Rendering
     - [x] Basic Vulkan rendering
     - [x] Deferred Rendering Pipeline
     - [x] Physically Based Lighting
     - [ ] Cascade Shadow Map
     - [ ] FXAA Integration
+- Level Editing
+    - [x] Modified TrenchBroom: https://github.com/andyroiiid/TrenchBroom-Haru
+    - [x] Custom level format (see docs/haru.hexpat)
+- Game Entities
+    - [x] First-person controller
+    - [x] Static/kinematic/physically-simulated BSP brushes
+    - [x] Quake/Hammer style entities
+- Scripting
+    - [ ] Entity Events
+    - [ ] Lua Level Script
+- UI
+    - [ ] Immediate-mode UI System
+- Sound
+    - [ ] [FMOD](https://fmod.com/) Integration?
+    - [ ] [OpenAL Soft](https://openal-soft.org/) Integration?
+    - [ ] [miniaudio](https://miniaud.io/) Integration?
 - Physics
-    - [ ] PhysX 5 Integration
+    - [x] PhysX 5 Integration
 
 ## Dependencies
 
