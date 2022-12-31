@@ -7,13 +7,23 @@
 #include "vulkan/VulkanDevice.h"
 #include "vulkan/VulkanImage.h"
 
-static inline std::pair<vk::Viewport, vk::Rect2D> CalcViewportAndScissorFromExtent(const vk::Extent2D &extent) {
+static inline std::pair<vk::Viewport, vk::Rect2D> CalcViewportAndScissorFromExtent(const vk::Extent2D &extent, bool flipped = true) {
     // flipped upside down so that it's consistent with OpenGL
     const auto width = static_cast<float>(extent.width);
     const auto height = static_cast<float>(extent.height);
     return {
-            {0.0f,   height, width, -height, 0.0f, 1.0f},
-            {{0, 0}, extent}
+            {
+                    0.0f,
+                    flipped ? height : 0,
+                    width,
+                    flipped ? -height : height,
+                    0.0f,
+                    1.0f
+            },
+            {
+                    {0, 0},
+                    extent
+            }
     };
 }
 

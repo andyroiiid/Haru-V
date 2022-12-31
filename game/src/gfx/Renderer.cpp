@@ -235,11 +235,9 @@ void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) 
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_shadowPipeline.Get());
 
-    {
-        const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_shadowContext.GetExtent());
-        cmd.setViewport(0, viewport);
-        cmd.setScissor(0, scissor);
-    }
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_shadowContext.GetExtent(), false);
+    cmd.setViewport(0, viewport);
+    cmd.setScissor(0, scissor);
 
     cmd.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
@@ -268,11 +266,9 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_basePipeline.Get());
 
-    {
-        const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
-        cmd.setViewport(0, viewport);
-        cmd.setScissor(0, scissor);
-    }
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
+    cmd.setViewport(0, viewport);
+    cmd.setScissor(0, scissor);
 
     cmd.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
@@ -303,11 +299,8 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_skyboxPipeline.Get());
 
-    {
-        const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
-        cmd.setViewport(0, viewport);
-        cmd.setScissor(0, scissor);
-    }
+    cmd.setViewport(0, viewport);
+    cmd.setScissor(0, scissor);
 
     cmd.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
