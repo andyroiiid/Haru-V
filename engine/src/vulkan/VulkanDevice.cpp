@@ -347,7 +347,7 @@ void VulkanDevice::DestroyImageView(vk::ImageView imageView) {
     m_device.destroyImageView(imageView);
 }
 
-vk::Sampler VulkanDevice::CreateSampler(vk::Filter filter, vk::SamplerAddressMode addressMode) {
+vk::Sampler VulkanDevice::CreateSampler(vk::Filter filter, vk::SamplerAddressMode addressMode, vk::Bool32 compareEnable, vk::CompareOp compareOp) {
     const vk::SamplerCreateInfo createInfo(
             {},
             filter,
@@ -355,7 +355,16 @@ vk::Sampler VulkanDevice::CreateSampler(vk::Filter filter, vk::SamplerAddressMod
             {},
             addressMode,
             addressMode,
-            addressMode
+            addressMode,
+            0.0f,
+            VK_FALSE,
+            0.0f,
+            compareEnable,
+            compareOp,
+            0.0f,
+            0.0f,
+            vk::BorderColor::eFloatTransparentBlack,
+            {}
     );
     const auto [result, sampler] = m_device.createSampler(createInfo);
     DebugCheckCriticalVk(result, "Failed to create Vulkan sampler");

@@ -60,7 +60,12 @@ public:
 
     void DestroyImageView(vk::ImageView imageView);
 
-    vk::Sampler CreateSampler(vk::Filter filter, vk::SamplerAddressMode addressMode);
+    vk::Sampler CreateSampler(
+            vk::Filter filter,
+            vk::SamplerAddressMode addressMode,
+            vk::Bool32 compareEnable = VK_FALSE,
+            vk::CompareOp compareOp = vk::CompareOp::eNever
+    );
 
     void DestroySampler(vk::Sampler sampler);
 
