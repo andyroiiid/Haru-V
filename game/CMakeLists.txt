@@ -17,6 +17,7 @@ add_executable(game
 
         include/actors/Actor.h
         include/actors/Scene.h
+        include/actors/AWorldSpawn.h
         include/actors/AFuncBrush.h
         include/actors/AFuncMove.h
         include/actors/AFuncPhys.h
@@ -26,6 +27,7 @@ add_executable(game
         include/actors/APropTestModel.h
 
         src/actors/Scene.cpp
+        src/actors/AWorldSpawn.cpp
         src/actors/AFuncBrush.cpp
         src/actors/AFuncMove.cpp
         src/actors/AFuncPhys.cpp

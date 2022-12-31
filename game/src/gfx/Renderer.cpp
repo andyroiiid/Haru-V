@@ -27,8 +27,8 @@ void Renderer::CreateUniformBuffers() {
     m_uniformBufferSet = VulkanUniformBufferSet(
             m_device,
             {
-                    {0, vk::ShaderStageFlagBits::eAllGraphics, sizeof(RendererUniformData)},
-                    {1, vk::ShaderStageFlagBits::eFragment,    sizeof(LightingUniformData)}
+                    {0, vk::ShaderStageFlagBits::eAllGraphics,                                   sizeof(RendererUniformData)},
+                    {1, vk::ShaderStageFlagBits::eGeometry | vk::ShaderStageFlagBits::eFragment, sizeof(LightingUniformData)}
             }
     );
 }
@@ -180,10 +180,42 @@ Renderer::~Renderer() {
     m_shadowContext = {};
 }
 
+void Renderer::SetCameraData(const glm::vec3 &cameraPosition, const glm::mat4 &view, float fov, float near, float far) {
+    const vk::Extent2D &extent = m_device.GetSwapchainExtent();
+    const float aspectRatio = static_cast<float>(extent.width) / static_cast<float>(extent.height);
+
+    m_rendererUniformData.Projection = glm::perspective(fov, aspectRatio, near, far);
+    m_rendererUniformData.View = view;
+    m_rendererUniformData.CameraPosition = cameraPosition;
+
+    m_shadowMatrixCalculator.SetCameraInfo(view, fov, aspectRatio);
+}
+
+void Renderer::SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor) {
+    m_lightingUniformData.LightDirection = lightDirection;
+    m_lightingUniformData.LightColor = lightColor;
+
+    m_shadowMatrixCalculator.SetLightDirection(lightDirection);
+}
+
+void Renderer::SetWorldBounds(const glm::vec3 &min, const glm::vec3 &max) {
+    static constexpr float SHADOW_SAFE_DISTANCE = 4.0f;
+    m_shadowMatrixCalculator.SetWorldBounds(min - SHADOW_SAFE_DISTANCE, max + SHADOW_SAFE_DISTANCE);
+}
+
 void Renderer::FinishDrawing() {
     const VulkanFrameInfo frameInfo = m_device.BeginFrame();
 
     m_deferredContext.CheckFramebuffersOutOfDate();
+
+    constexpr float shadowNear = 0.01f;
+    constexpr float shadowFar = 64.0f;
+    constexpr glm::vec3 csmSplits{8.0f, 16.0f, 32.0f};
+    m_lightingUniformData.CascadeShadowMapSplits = csmSplits;
+    m_lightingUniformData.ShadowMatrices[0] = m_shadowMatrixCalculator.CalcShadowMatrix(shadowNear, csmSplits[0]);
+    m_lightingUniformData.ShadowMatrices[1] = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[0], csmSplits[1]);
+    m_lightingUniformData.ShadowMatrices[2] = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[1], csmSplits[2]);
+    m_lightingUniformData.ShadowMatrices[3] = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[2], shadowFar);
 
     m_uniformBufferSet.UpdateAllBuffers(frameInfo.BufferingIndex, {
             &m_rendererUniformData,

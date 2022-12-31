@@ -187,11 +187,12 @@ void APlayer::FixedUpdate(float fixedDeltaTime) {
 }
 
 void APlayer::Draw() {
-    const glm::mat4 projection = glm::perspective(
+    const Transform &transform = GetTransform();
+    g_Renderer->SetCameraData(
+            transform.GetPosition(),
+            transform.GetInverseMatrix(),
             glm::radians(60.0f),
-            g_Renderer->GetAspectRatio(),
             0.01f,
             100.0f
     );
-    g_Renderer->SetCameraData(projection, GetTransform().GetInverseMatrix(), GetTransform().GetPosition());
 }

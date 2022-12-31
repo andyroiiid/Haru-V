@@ -9,6 +9,7 @@
 
 #include "Globals.h"
 #include "actors/Scene.h"
+#include "actors/AWorldSpawn.h"
 #include "actors/AFuncBrush.h"
 #include "actors/AFuncMove.h"
 #include "actors/AFuncPhys.h"
@@ -17,7 +18,7 @@
 void LoadWorldSpawn(const MapData::Entity &entity) {
     ZoneScoped;
 
-    g_Scene->CreateActor<AFuncBrush>(entity.Brushes);
+    g_Scene->CreateActor<AWorldSpawn>(entity.Brushes);
 }
 
 void LoadInfoPlayerStart(const MapData::Entity &entity) {

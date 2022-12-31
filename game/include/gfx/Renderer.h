@@ -12,6 +12,7 @@
 #include <vulkan/VulkanPipeline.h>
 #include <vulkan/VulkanMesh.h>
 #include <vulkan/VertexFormats.h>
+#include <math/ShadowMatrixCalculator.h>
 
 #include "gfx/ShadowContext.h"
 #include "gfx/DeferredContext.h"
@@ -30,6 +31,9 @@ struct alignas(256) LightingUniformData {
     [[maybe_unused]] float Padding0;
     glm::vec3 LightColor;
     [[maybe_unused]] float Padding1;
+    glm::vec3 CascadeShadowMapSplits;
+    [[maybe_unused]] float Padding2;
+    [[maybe_unused]] glm::mat4 ShadowMatrices[4];
 };
 
 class Renderer {
@@ -45,11 +49,6 @@ public:
     Renderer(Renderer &&) = delete;
 
     Renderer &operator=(Renderer &&) = delete;
-
-    float GetAspectRatio() {
-        const vk::Extent2D &extent = m_device.GetSwapchainExtent();
-        return static_cast<float>(extent.width) / static_cast<float>(extent.height);
-    }
 
     void WaitDeviceIdle() {
         m_device.WaitIdle();
@@ -67,16 +66,11 @@ public:
         return m_pbrMaterialCache.LoadMaterial(materialFilename);
     }
 
-    void SetCameraData(const glm::mat4 &projection, const glm::mat4 &view, const glm::vec3 &cameraPosition) {
-        m_rendererUniformData.Projection = projection;
-        m_rendererUniformData.View = view;
-        m_rendererUniformData.CameraPosition = cameraPosition;
-    }
+    void SetCameraData(const glm::vec3 &cameraPosition, const glm::mat4 &view, float fov, float near, float far);
 
-    void SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor) {
-        m_lightingUniformData.LightDirection = lightDirection;
-        m_lightingUniformData.LightColor = lightColor;
-    }
+    void SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor);
+
+    void SetWorldBounds(const glm::vec3 &min, const glm::vec3 &max);
 
     void Draw(const VulkanMesh *mesh, const glm::mat4 &modelMatrix, const PbrMaterial *material) {
         m_drawCalls.emplace_back(mesh, modelMatrix, material);
@@ -108,6 +102,8 @@ private:
 
     ShadowContext m_shadowContext;
     DeferredContext m_deferredContext;
+
+    ShadowMatrixCalculator m_shadowMatrixCalculator;
 
     RendererUniformData m_rendererUniformData{};
     LightingUniformData m_lightingUniformData{};

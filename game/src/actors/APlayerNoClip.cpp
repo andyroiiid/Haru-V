@@ -46,11 +46,11 @@ void APlayerNoClip::Update(float deltaTime) {
 }
 
 void APlayerNoClip::Draw() {
-    const glm::mat4 projection = glm::perspective(
+    g_Renderer->SetCameraData(
+            GetTransform().GetPosition(),
+            GetTransform().GetInverseMatrix(),
             glm::radians(60.0f),
-            g_Renderer->GetAspectRatio(),
             0.01f,
             100.0f
     );
-    g_Renderer->SetCameraData(projection, GetTransform().GetInverseMatrix(), GetTransform().GetPosition());
 }

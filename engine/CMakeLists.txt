@@ -25,6 +25,7 @@ add_library(engine
         include/vulkan/VulkanMesh.h
         include/vulkan/MeshCache.h
         include/math/Transform.h
+        include/math/ShadowMatrixCalculator.h
         include/physics/PhysicsErrorCallback.h
         include/physics/PhysicsLayer.h
         include/physics/PhysicsSystem.h
@@ -50,6 +51,7 @@ add_library(engine
         src/vulkan/VertexFormats.cpp
         src/vulkan/VulkanMesh.cpp
         src/vulkan/MeshCache.cpp
+        src/math/ShadowMatrixCalculator.cpp
         src/physics/PhysicsErrorCallback.cpp
         src/physics/PhysicsLayer.cpp
         src/physics/PhysicsSystem.cpp
