@@ -100,6 +100,7 @@ void VulkanBase::CreatePrimaryRenderPass() {
                     SURFACE_FORMAT
             },
             DEPTH_FORMAT,
+            false,
             true
     );
 }

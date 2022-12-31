@@ -18,6 +18,8 @@ layout (set = 2, binding = 1) uniform sampler2D uSkybox;
 layout (set = 2, binding = 2) uniform sampler2D uSkyboxSpecular;
 layout (set = 2, binding = 3) uniform sampler2D uSkyboxIrradiance;
 
+layout (set = 3, binding = 0) uniform sampler2DArrayShadow uShadowMap;
+
 // PBR functions from https://learnopengl.com/PBR/Lighting
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -106,6 +108,38 @@ vec3 IBL(vec3 N, float NdotV, vec3 R, vec3 F0, float metallic, float roughness, 
     return (kD * irradiance * albedo + specular) * ambientOcclusion;
 }
 
+float ShadowPCF(vec3 shadowCoord, int layer) {
+    const vec2 texelSize = 1.0 / textureSize(uShadowMap, 0).xy;
+    float shadow = 0.0;
+    for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
+            vec4 coord = vec4(shadowCoord.xy + vec2(x, y) * texelSize, layer, shadowCoord.z);
+            shadow += texture(uShadowMap, coord);
+        }
+    }
+    shadow /= 25.0;
+    return shadow;
+}
+
+int GetShadowLayer(vec4 viewSpacePos)
+{
+    const float depth = viewSpacePos.z;
+    int layer = 0;
+    if (depth > uCascadeShadowMapSplits[0]) layer = 1;
+    if (depth > uCascadeShadowMapSplits[1]) layer = 2;
+    if (depth > uCascadeShadowMapSplits[2]) layer = 3;
+    return layer;
+}
+
+float ReadShadowMap(vec4 viewSpacePos, vec4 worldPos)
+{
+    int layer = GetShadowLayer(viewSpacePos);
+    vec4 shadowCoord = uShadowMatrices[layer] * worldPos;
+    shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
+    shadowCoord /= shadowCoord.w;
+    return shadowCoord.z <= -1.0 || shadowCoord.z >= 1.0 ? 0.0 : ShadowPCF(shadowCoord.xyz, layer);
+}
+
 vec3 ToneMapping(vec3 color) {
     const vec3 A = vec3(2.51);
     const vec3 B = vec3(0.03);
@@ -121,8 +155,9 @@ void main() {
     const vec4 albedoAmbientOcclusion = texture(uAlbedoAmbientOcclusion, vTexCoord);
     const vec3 emissive = texture(uEmissive, vTexCoord).rgb;
 
-    const vec3 worldPosition = worldPositionMetallic.xyz;
-    const vec3 worldNormal = worldNormalRoughness.xyz;
+    const vec4 worldPosition = vec4(worldPositionMetallic.xyz, 1.0);
+    const vec4 viewSpacePosition = uView * worldPosition;
+    const vec3 worldNormal = normalize(worldNormalRoughness.xyz);
     const vec3 albedo = albedoAmbientOcclusion.rgb;
 
     const float metallic = worldPositionMetallic.w;
@@ -130,7 +165,7 @@ void main() {
     const float ambientOcclusion = albedoAmbientOcclusion.w;
 
     const vec3 N = worldNormal;
-    const vec3 V = normalize(uCameraPosition - worldPosition);
+    const vec3 V = normalize(uCameraPosition - worldPosition.xyz);
     const vec3 R = reflect(-V, N);
     const float NdotV = max(dot(N, V), 0.0);
 
@@ -154,9 +189,11 @@ void main() {
     const float denominator = 4.0 * NdotV * NdotL + 0.0001;
     const vec3 specular = numerator / denominator;
 
-    Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+    const float shadow = ReadShadowMap(viewSpacePosition, worldPosition);
 
-    const vec3 ibl = IBL(N, NdotV, R, F0, metallic, roughness, albedo, ambientOcclusion);
+    Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1.0 - shadow);
+
+    const vec3 ibl = IBL(N, NdotV, R, F0, metallic, roughness, albedo, ambientOcclusion) * 0.5;
 
     const vec3 color = ToneMapping(ibl + Lo + emissive);
 

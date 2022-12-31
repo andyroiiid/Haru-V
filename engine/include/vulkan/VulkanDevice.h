@@ -73,6 +73,7 @@ public:
     vk::RenderPass CreateRenderPass(
             const std::initializer_list<vk::Format> &colorAttachmentFormats,
             vk::Format depthStencilAttachmentFormat = vk::Format::eUndefined,
+            bool shaderReadsDepth = false,
             bool forPresent = false
     );
 

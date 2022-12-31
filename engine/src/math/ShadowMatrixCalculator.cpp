@@ -6,15 +6,38 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+void ShadowMatrixCalculator::SetCameraInfo(const glm::mat4 &view, float fov, float aspectRatio) {
+    m_view = view;
+    m_fov = fov;
+    m_aspectRatio = aspectRatio;
+}
+
+void ShadowMatrixCalculator::SetLightDirection(const glm::vec3 &lightDir) {
+    m_lightDir = lightDir;
+}
+
+void ShadowMatrixCalculator::SetWorldBounds(const glm::vec3 &min, const glm::vec3 &max) {
+    m_worldCorners = {
+            glm::vec4{min.x, min.y, min.z, 1},
+            glm::vec4{min.x, min.y, max.z, 1},
+            glm::vec4{min.x, max.y, min.z, 1},
+            glm::vec4{min.x, max.y, max.z, 1},
+            glm::vec4{max.x, min.y, min.z, 1},
+            glm::vec4{max.x, min.y, max.z, 1},
+            glm::vec4{max.x, max.y, min.z, 1},
+            glm::vec4{max.x, max.y, max.z, 1},
+    };
+}
+
 std::array<glm::vec4, 8> ShadowMatrixCalculator::GetFrustumCorners(float near, float far) const {
     std::array<glm::vec4, 8> corners{
-            glm::vec4{-1, -1, 0, 1},
+            glm::vec4{-1, -1, -1, 1},
             glm::vec4{-1, -1, 1, 1},
-            glm::vec4{-1, 1, 0, 1},
+            glm::vec4{-1, 1, -1, 1},
             glm::vec4{-1, 1, 1, 1},
-            glm::vec4{1, -1, 0, 1},
+            glm::vec4{1, -1, -1, 1},
             glm::vec4{1, -1, 1, 1},
-            glm::vec4{1, 1, 0, 1},
+            glm::vec4{1, 1, -1, 1},
             glm::vec4{1, 1, 1, 1},
     };
     const glm::mat4 inverseCamera = glm::inverse(glm::perspective(m_fov, m_aspectRatio, near, far) * m_view);
@@ -32,19 +55,6 @@ static glm::vec3 GetFrustumCenter(const std::array<glm::vec4, 8> &corners) {
     }
     center /= corners.size();
     return center;
-}
-
-void ShadowMatrixCalculator::SetWorldBounds(const glm::vec3 &min, const glm::vec3 &max) {
-    m_worldCorners = {
-            glm::vec4{min.x, min.y, min.z, 1},
-            glm::vec4{min.x, min.y, max.z, 1},
-            glm::vec4{min.x, max.y, min.z, 1},
-            glm::vec4{min.x, max.y, max.z, 1},
-            glm::vec4{max.x, min.y, min.z, 1},
-            glm::vec4{max.x, min.y, max.z, 1},
-            glm::vec4{max.x, max.y, min.z, 1},
-            glm::vec4{max.x, max.y, max.z, 1},
-    };
 }
 
 glm::mat4 ShadowMatrixCalculator::GetLightProjection(const std::array<glm::vec4, 8> &frustumCorners, const glm::mat4 &lightView) const {

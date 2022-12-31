@@ -379,6 +379,7 @@ void VulkanDevice::DestroySampler(vk::Sampler sampler) {
 vk::RenderPass VulkanDevice::CreateRenderPass(
         const std::initializer_list<vk::Format> &colorAttachmentFormats,
         vk::Format depthStencilAttachmentFormat,
+        bool shaderReadsDepth,
         bool forPresent
 ) {
     std::vector<vk::AttachmentDescription> attachments;
@@ -415,7 +416,7 @@ vk::RenderPass VulkanDevice::CreateRenderPass(
                 vk::AttachmentLoadOp::eDontCare,
                 vk::AttachmentStoreOp::eDontCare,
                 vk::ImageLayout::eUndefined,
-                vk::ImageLayout::eDepthStencilAttachmentOptimal
+                shaderReadsDepth ? vk::ImageLayout::eShaderReadOnlyOptimal : vk::ImageLayout::eDepthStencilAttachmentOptimal
         );
 
         depthStencilAttachmentRef = {

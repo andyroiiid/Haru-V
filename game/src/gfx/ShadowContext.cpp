@@ -13,7 +13,8 @@ ShadowContext::ShadowContext(VulkanBase &device)
 void ShadowContext::CreateRenderPass() {
     m_renderPass = m_device->CreateRenderPass(
             {},
-            vk::Format::eD32Sfloat
+            vk::Format::eD32Sfloat,
+            true
     );
 
     vk::DescriptorSetLayoutBinding bindings[]{

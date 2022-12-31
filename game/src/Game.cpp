@@ -32,11 +32,11 @@ void Game::Init(GLFWwindow *window) {
     m_scene = std::make_unique<Scene>();
     g_Scene = m_scene.get();
 
-    LoadEntities("maps/climb.haru");
+    LoadEntities("maps/shadow_test.haru");
 
     m_scene->CreateActor<ALightWorld>(glm::vec3{0.8f, 0.35f, 0.4f}, glm::vec3{5.0f, 4.0f, 3.0f});
-    m_scene->CreateActor<APropTestModel>("models/boom_box.obj", "materials/boom_box.json", glm::vec3{18.0f, 10.5f, -12.0f});
-    m_scene->CreateActor<APropTestModel>("models/damaged_helmet.obj", "materials/damaged_helmet.json", glm::vec3{20.0f, 10.5f, -12.0f});
+    m_scene->CreateActor<APropTestModel>("models/boom_box.obj", "materials/boom_box.json", glm::vec3{-2.0f, 1.0f, 0.0f});
+    m_scene->CreateActor<APropTestModel>("models/damaged_helmet.obj", "materials/damaged_helmet.json", glm::vec3{2.0f, 1.0f, 0.0f});
 }
 
 void Game::Shutdown() {

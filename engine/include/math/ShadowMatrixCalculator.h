@@ -11,15 +11,9 @@
 
 class ShadowMatrixCalculator {
 public:
-    void SetCameraInfo(const glm::mat4 &view, float fov, float aspectRatio) {
-        m_view = view;
-        m_fov = fov;
-        m_aspectRatio = aspectRatio;
-    }
+    void SetCameraInfo(const glm::mat4 &view, float fov, float aspectRatio);
 
-    void SetLightDirection(const glm::vec3 &lightDir) {
-        m_lightDir = lightDir;
-    }
+    void SetLightDirection(const glm::vec3 &lightDir);
 
     void SetWorldBounds(const glm::vec3 &min, const glm::vec3 &max);
 

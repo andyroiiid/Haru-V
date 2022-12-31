@@ -140,7 +140,8 @@ void Renderer::CreatePipelines() {
             {
                     m_uniformBufferSet.GetDescriptorSetLayout(),
                     m_deferredContext.GetTextureSetLayout(),
-                    m_iblTextureSetLayout
+                    m_iblTextureSetLayout,
+                    m_shadowContext.GetTextureSetLayout()
             },
             {},
             VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
@@ -339,7 +340,8 @@ void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBegi
             {
                     m_uniformBufferSet.GetDescriptorSet(),
                     m_deferredContext.GetTextureSet(bufferingIndex),
-                    m_iblTextureSet
+                    m_iblTextureSet,
+                    m_shadowContext.GetTextureSet(bufferingIndex)
             },
             m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
