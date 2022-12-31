@@ -61,6 +61,7 @@ private:
 
     vk::PipelineLayout m_pipelineLayout;
     vk::ShaderModule m_vertexShaderModule;
+    vk::ShaderModule m_geometryShaderModule;
     vk::ShaderModule m_fragmentShaderModule;
     vk::Pipeline m_pipeline;
 };

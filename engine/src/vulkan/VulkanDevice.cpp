@@ -157,6 +157,7 @@ void VulkanDevice::CreateDevice() {
     const std::vector<const char *> enabledExtensions = GetEnabledDeviceExtensions();
 
     vk::PhysicalDeviceFeatures features;
+    features.geometryShader = VK_TRUE;
     features.fillModeNonSolid = VK_TRUE;
 
     const vk::DeviceCreateInfo createInfo(

@@ -8,6 +8,7 @@
 
 struct VulkanPipelineConfig {
     std::string VertexShader;
+    std::string GeometryShader;
     std::string FragmentShader;
     VulkanPipelineOptions Options;
 

@@ -75,6 +75,22 @@ void Renderer::CreatePipelines() {
 
     ShaderCompiler compiler;
 
+    m_shadowPipeline = VulkanPipeline(
+            m_device,
+            compiler,
+            {
+                    m_uniformBufferSet.GetDescriptorSetLayout()
+            },
+            {
+                    {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
+            },
+            VertexBase::GetPipelineVertexInputStateCreateInfo(),
+            "shaders/shadow.json",
+            {},
+            m_shadowContext.GetRenderPass(),
+            0
+    );
+
     m_basePipeline = VulkanPipeline(
             m_device,
             compiler,
@@ -153,6 +169,7 @@ Renderer::~Renderer() {
 
     m_fullScreenQuad = {};
     m_skyboxCube = {};
+    m_shadowPipeline = {};
     m_basePipeline = {};
     m_skyboxPipeline = {};
     m_combinePipeline = {};
@@ -182,6 +199,33 @@ void Renderer::FinishDrawing() {
 
 void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     cmd.beginRenderPass(m_shadowContext.GetRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
+
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_shadowPipeline.Get());
+
+    {
+        const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_shadowContext.GetExtent());
+        cmd.setViewport(0, viewport);
+        cmd.setScissor(0, scissor);
+    }
+
+    cmd.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            m_shadowPipeline.GetLayout(),
+            0,
+            m_uniformBufferSet.GetDescriptorSet(),
+            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+    );
+
+    for (const DrawCall &drawCall: m_drawCalls) {
+        cmd.pushConstants(
+                m_shadowPipeline.GetLayout(),
+                vk::ShaderStageFlagBits::eVertex,
+                0,
+                sizeof(glm::mat4),
+                glm::value_ptr(drawCall.ModelMatrix)
+        );
+        drawCall.Mesh->BindAndDraw(cmd);
+    }
 
     cmd.endRenderPass();
 }

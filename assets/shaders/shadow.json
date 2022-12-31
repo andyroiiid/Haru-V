@@ -1,0 +1,5 @@
+{
+  "vertex": "shaders/shadow.vert",
+  "geometry": "shaders/shadow.geom",
+  "fragment": "shaders/shadow.frag"
+}

@@ -25,15 +25,23 @@ VulkanPipeline::VulkanPipeline(
     );
 
     const VulkanPipelineConfig pipelineConfig(pipelineConfigFile);
+
     const std::vector<uint32_t> vertexSpirv = compiler.CompileFromFile(vk::ShaderStageFlagBits::eVertex, pipelineConfig.VertexShader);
-    const std::vector<uint32_t> fragmentSpirv = compiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, pipelineConfig.FragmentShader);
     m_vertexShaderModule = m_device->CreateShaderModule(vertexSpirv);
+    if (!pipelineConfig.GeometryShader.empty()) {
+        const std::vector<uint32_t> geometrySpirv = compiler.CompileFromFile(vk::ShaderStageFlagBits::eGeometry, pipelineConfig.GeometryShader);
+        m_geometryShaderModule = m_device->CreateShaderModule(geometrySpirv);
+    }
+    const std::vector<uint32_t> fragmentSpirv = compiler.CompileFromFile(vk::ShaderStageFlagBits::eFragment, pipelineConfig.FragmentShader);
     m_fragmentShaderModule = m_device->CreateShaderModule(fragmentSpirv);
 
-    std::vector<vk::PipelineShaderStageCreateInfo> shaderStages{
-            {{}, vk::ShaderStageFlagBits::eVertex,   m_vertexShaderModule,   "main"},
-            {{}, vk::ShaderStageFlagBits::eFragment, m_fragmentShaderModule, "main"}
-    };
+    std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
+
+    shaderStages.emplace_back(vk::PipelineShaderStageCreateFlags{}, vk::ShaderStageFlagBits::eVertex, m_vertexShaderModule, "main");
+    if (!pipelineConfig.GeometryShader.empty()) {
+        shaderStages.emplace_back(vk::PipelineShaderStageCreateFlags{}, vk::ShaderStageFlagBits::eGeometry, m_geometryShaderModule, "main");
+    }
+    shaderStages.emplace_back(vk::PipelineShaderStageCreateFlags{}, vk::ShaderStageFlagBits::eFragment, m_fragmentShaderModule, "main");
 
     m_pipeline = m_device->CreatePipeline(
             m_pipelineLayout,
@@ -50,6 +58,7 @@ void VulkanPipeline::Release() {
     if (m_device) {
         m_device->DestroyPipeline(m_pipeline);
         m_device->DestroyShaderModule(m_fragmentShaderModule);
+        m_device->DestroyShaderModule(m_geometryShaderModule);
         m_device->DestroyShaderModule(m_vertexShaderModule);
         m_device->DestroyPipelineLayout(m_pipelineLayout);
     }
@@ -57,6 +66,7 @@ void VulkanPipeline::Release() {
     m_device = nullptr;
     m_pipeline = VK_NULL_HANDLE;
     m_vertexShaderModule = VK_NULL_HANDLE;
+    m_geometryShaderModule = VK_NULL_HANDLE;
     m_fragmentShaderModule = VK_NULL_HANDLE;
     m_pipelineLayout = VK_NULL_HANDLE;
 }
@@ -65,6 +75,7 @@ void VulkanPipeline::Swap(VulkanPipeline &other) noexcept {
     std::swap(m_device, other.m_device);
     std::swap(m_pipeline, other.m_pipeline);
     std::swap(m_vertexShaderModule, other.m_vertexShaderModule);
+    std::swap(m_geometryShaderModule, other.m_geometryShaderModule);
     std::swap(m_fragmentShaderModule, other.m_fragmentShaderModule);
     std::swap(m_pipelineLayout, other.m_pipelineLayout);
 }

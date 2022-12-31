@@ -76,6 +76,7 @@ static vk::CompareOp CompareOpFromString(const std::string &compareOp) {
 VulkanPipelineConfig::VulkanPipelineConfig(const std::string &jsonFilename) {
     JsonFile pipelineJson(jsonFilename);
     VertexShader = pipelineJson.GetString("vertex");
+    GeometryShader = pipelineJson.GetString("geometry", {});
     FragmentShader = pipelineJson.GetString("fragment");
     const std::string topology = pipelineJson.GetString("topology", {});
     Options.Topology = topology.empty() ? vk::PrimitiveTopology::eTriangleList : TopologyFromString(topology);
