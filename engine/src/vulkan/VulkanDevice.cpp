@@ -323,11 +323,11 @@ vk::SwapchainKHR VulkanDevice::CreateSwapchain(
     return swapchain;
 }
 
-vk::ImageView VulkanDevice::CreateImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectMask) {
+vk::ImageView VulkanDevice::CreateImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectMask, uint32_t layers) {
     const vk::ImageViewCreateInfo createInfo(
             {},
             image,
-            vk::ImageViewType::e2D,
+            layers == 1 ? vk::ImageViewType::e2D : vk::ImageViewType::e2DArray,
             format,
             {},
             {
@@ -335,7 +335,7 @@ vk::ImageView VulkanDevice::CreateImageView(vk::Image image, vk::Format format, 
                     0,
                     1,
                     0,
-                    1
+                    layers
             }
     );
     const auto [result, imageView] = m_device.createImageView(createInfo);
@@ -451,7 +451,8 @@ void VulkanDevice::DestroyRenderPass(vk::RenderPass renderPass) {
 vk::Framebuffer VulkanDevice::CreateFramebuffer(
         vk::RenderPass renderPass,
         const vk::ArrayProxyNoTemporaries<vk::ImageView> &attachments,
-        const vk::Extent2D &extent
+        const vk::Extent2D &extent,
+        uint32_t layers
 ) {
     const vk::FramebufferCreateInfo createInfo(
             {},
@@ -459,7 +460,7 @@ vk::Framebuffer VulkanDevice::CreateFramebuffer(
             attachments,
             extent.width,
             extent.height,
-            1
+            layers
     );
     const auto [result, framebuffer] = m_device.createFramebuffer(createInfo);
     DebugCheckCriticalVk(result, "Failed to create Vulkan framebuffer.");

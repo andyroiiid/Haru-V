@@ -17,7 +17,8 @@ public:
             const vk::Extent2D &extent,
             vk::ImageUsageFlags imageUsage,
             VmaAllocationCreateFlags flags,
-            VmaMemoryUsage memoryUsage
+            VmaMemoryUsage memoryUsage,
+            uint32_t layers = 1
     );
 
     ~VulkanImage() {

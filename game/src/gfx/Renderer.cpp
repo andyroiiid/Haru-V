@@ -14,6 +14,7 @@ Renderer::Renderer(GLFWwindow *window)
           m_textureCache(m_device),
           m_pbrMaterialCache(m_device, m_textureCache),
           m_meshCache(m_device) {
+    m_shadowContext = ShadowContext(m_device);
     m_deferredContext = DeferredContext(m_device);
     CreateUniformBuffers();
     CreateIblTextureSet();
@@ -159,6 +160,7 @@ Renderer::~Renderer() {
     m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
     m_uniformBufferSet = {};
     m_deferredContext = {};
+    m_shadowContext = {};
 }
 
 void Renderer::FinishDrawing() {
@@ -171,10 +173,17 @@ void Renderer::FinishDrawing() {
             &m_lightingUniformData
     });
 
+    DrawToShadowMaps(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
     DrawToDeferredTextures(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
     DrawToScreen(frameInfo.PrimaryRenderPassBeginInfo, frameInfo.CommandBuffer, frameInfo.BufferingIndex);
 
     m_device.EndFrame();
+}
+
+void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+    cmd.beginRenderPass(m_shadowContext.GetRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
+
+    cmd.endRenderPass();
 }
 
 void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingIndex) {

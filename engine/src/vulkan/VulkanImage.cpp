@@ -12,7 +12,8 @@ VulkanImage::VulkanImage(
         const vk::Extent2D &extent,
         vk::ImageUsageFlags imageUsage,
         VmaAllocationCreateFlags flags,
-        VmaMemoryUsage memoryUsage
+        VmaMemoryUsage memoryUsage,
+        uint32_t layers
 ) : m_allocator(allocator) {
     vk::ImageCreateInfo imageCreateInfo(
             {},
@@ -20,7 +21,7 @@ VulkanImage::VulkanImage(
             format,
             {extent.width, extent.height, 1},
             1,
-            1,
+            layers,
             vk::SampleCountFlagBits::e1,
             vk::ImageTiling::eOptimal,
             imageUsage
@@ -39,7 +40,7 @@ VulkanImage::VulkanImage(
                     &m_allocation,
                     nullptr
             ),
-            "Failed to create Vulkan image."
+            "Failed to create Vulkan 2d image."
     );
 }
 

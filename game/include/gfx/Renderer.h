@@ -13,6 +13,7 @@
 #include <vulkan/VulkanMesh.h>
 #include <vulkan/VertexFormats.h>
 
+#include "gfx/ShadowContext.h"
 #include "gfx/DeferredContext.h"
 #include "gfx/PbrMaterialCache.h"
 
@@ -94,6 +95,8 @@ private:
 
     void CreateFullScreenQuad();
 
+    void DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex);
+
     void DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
     void DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex);
@@ -103,6 +106,7 @@ private:
     PbrMaterialCache m_pbrMaterialCache;
     MeshCache m_meshCache;
 
+    ShadowContext m_shadowContext;
     DeferredContext m_deferredContext;
 
     RendererUniformData m_rendererUniformData{};

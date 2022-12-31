@@ -51,12 +51,13 @@ public:
             const vk::Extent2D &extent,
             vk::ImageUsageFlags imageUsage,
             VmaAllocationCreateFlags flags,
-            VmaMemoryUsage memoryUsage
+            VmaMemoryUsage memoryUsage,
+            uint32_t layers = 1
     ) {
-        return {m_allocator, format, extent, imageUsage, flags, memoryUsage};
+        return {m_allocator, format, extent, imageUsage, flags, memoryUsage, layers};
     }
 
-    vk::ImageView CreateImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectMask);
+    vk::ImageView CreateImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectMask, uint32_t layers = 1);
 
     void DestroyImageView(vk::ImageView imageView);
 
@@ -80,7 +81,8 @@ public:
     vk::Framebuffer CreateFramebuffer(
             vk::RenderPass renderPass,
             const vk::ArrayProxyNoTemporaries<vk::ImageView> &attachments,
-            const vk::Extent2D &extent
+            const vk::Extent2D &extent,
+            uint32_t layers = 1
     );
 
     void DestroyFramebuffer(vk::Framebuffer framebuffer);
