@@ -28,3 +28,6 @@
 [submodule "engine/dependencies/tracy"]
 	path = engine/dependencies/tracy
 	url = https://github.com/wolfpld/tracy.git
+[submodule "engine/dependencies/lua"]
+	path = engine/dependencies/lua
+	url = https://github.com/andyroiiid/lua.git

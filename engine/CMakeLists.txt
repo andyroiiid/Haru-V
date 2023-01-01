@@ -80,4 +80,5 @@ target_link_libraries(engine PUBLIC
         stb
         tinyobjloader
         PhysX
+        lua
         TracyClient)
