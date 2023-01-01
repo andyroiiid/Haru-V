@@ -16,4 +16,6 @@ PhysicsScene *g_PhysicsScene = nullptr;
 
 Scene *g_Scene = nullptr;
 
+LuaSandbox *g_Lua = nullptr;
+
 bool g_SlowMotion = false;

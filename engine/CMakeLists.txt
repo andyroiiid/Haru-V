@@ -30,6 +30,7 @@ add_library(engine
         include/physics/PhysicsLayer.h
         include/physics/PhysicsSystem.h
         include/physics/PhysicsScene.h
+        include/script/LuaSandbox.h
 
         src/file/FileSystem.cpp
         src/file/BinaryParser.cpp
@@ -55,7 +56,8 @@ add_library(engine
         src/physics/PhysicsErrorCallback.cpp
         src/physics/PhysicsLayer.cpp
         src/physics/PhysicsSystem.cpp
-        src/physics/PhysicsScene.cpp)
+        src/physics/PhysicsScene.cpp
+        src/script/LuaSandbox.cpp)
 
 target_include_directories(engine PUBLIC include)
 

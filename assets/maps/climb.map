@@ -4,6 +4,9 @@
 {
 "classname" "worldspawn"
 "_tb_textures" "textures"
+"light_color" "5.0 4.0 3.0"
+"light_direction" "8 4 3.5"
+"script" "scripts/climb.lua"
 // brush 0
 {
 ( -64 64 0 ) ( -64 -64 0 ) ( -64 -64 -32 ) dev_2 0 0 0 1 1

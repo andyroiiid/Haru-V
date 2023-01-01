@@ -8,7 +8,6 @@
 #include <tracy/Tracy.hpp>
 
 #include "Globals.h"
-#include "actors/ALightWorld.h"
 #include "actors/APropTestModel.h"
 #include "map/LoadEntities.h"
 
@@ -32,15 +31,20 @@ void Game::Init(GLFWwindow *window) {
     m_scene = std::make_unique<Scene>();
     g_Scene = m_scene.get();
 
+    m_lua = std::make_unique<LuaSandbox>();
+    g_Lua = m_lua.get();
+
     LoadEntities("maps/climb.haru");
 
-    m_scene->CreateActor<ALightWorld>(glm::vec3{0.8f, 0.35f, 0.4f}, glm::vec3{5.0f, 4.0f, 3.0f});
     m_scene->CreateActor<APropTestModel>("models/boom_box.obj", "materials/boom_box.json", glm::vec3{-2.0f, 1.0f, 0.0f});
     m_scene->CreateActor<APropTestModel>("models/damaged_helmet.obj", "materials/damaged_helmet.json", glm::vec3{2.0f, 1.0f, 0.0f});
 }
 
 void Game::Shutdown() {
     m_renderer->WaitDeviceIdle();
+
+    g_Lua = nullptr;
+    m_lua.reset();
 
     g_Scene = nullptr;
     m_scene.reset();

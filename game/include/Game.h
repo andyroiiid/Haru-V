@@ -8,6 +8,7 @@
 #include <window/Mouse.h>
 #include <physics/PhysicsSystem.h>
 #include <physics/PhysicsScene.h>
+#include <script/LuaSandbox.h>
 
 #include "gfx/Renderer.h"
 #include "actors/Scene.h"
@@ -30,4 +31,5 @@ private:
     std::unique_ptr<PhysicsSystem> m_physicsSystem;
     std::unique_ptr<PhysicsScene> m_physicsScene;
     std::unique_ptr<Scene> m_scene;
+    std::unique_ptr<LuaSandbox> m_lua;
 };

@@ -18,7 +18,21 @@
 void LoadWorldSpawn(const MapData::Entity &entity) {
     ZoneScoped;
 
-    g_Scene->CreateActor<AWorldSpawn>(entity.Brushes);
+    glm::vec3 lightDirection;
+    DebugCheckCritical(entity.GetPropertyVector("light_direction", lightDirection), "worldspawn doesn't have a valid light_direction!");
+
+    glm::vec3 lightColor;
+    DebugCheckCritical(entity.GetPropertyColor("light_color", lightColor), "worldspawn doesn't have a valid light_color!");
+
+    std::string script;
+    DebugCheckCritical(entity.GetPropertyString("script", script), "worldspawn doesn't have a valid script!");
+
+    g_Scene->CreateActor<AWorldSpawn>(
+            entity.Brushes,
+            lightDirection,
+            lightColor,
+            script
+    );
 }
 
 void LoadInfoPlayerStart(const MapData::Entity &entity) {
