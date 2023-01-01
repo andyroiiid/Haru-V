@@ -1,5 +1,6 @@
 {
   "vertex": "shaders/shadow.vert",
   "geometry": "shaders/shadow.geom",
-  "fragment": "shaders/shadow.frag"
+  "fragment": "shaders/shadow.frag",
+  "cull_mode": "none"
 }
