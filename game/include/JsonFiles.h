@@ -11,6 +11,7 @@ struct GameConfig {
     int Width;
     int Height;
     bool Maximized;
+    std::string StartMap;
 
     explicit GameConfig(const std::string &jsonFilename);
 };

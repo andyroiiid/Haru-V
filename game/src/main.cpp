@@ -10,7 +10,7 @@ int main() {
     {
         const GameConfig gameConfig("game.json");
         Window window(gameConfig.Name, gameConfig.Width, gameConfig.Height, gameConfig.Maximized);
-        Game game;
+        Game game(gameConfig.StartMap);
         window.MainLoop(&game);
     }
     FileSystem::Shutdown();

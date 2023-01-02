@@ -10,6 +10,7 @@
 #include "map/EntityLoaders.h"
 
 void LoadEntities(const std::string &mapFilename) {
+    DebugInfo("Loading map {}.", mapFilename);
     const MapParser mapParser(mapFilename);
     LoadEntities(mapParser.GetMap());
 }

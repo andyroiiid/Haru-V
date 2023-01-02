@@ -27,7 +27,7 @@ void LoadWorldSpawn(const MapData::Entity &entity) {
     DebugCheckCritical(entity.GetPropertyColor("light_color", lightColor), "worldspawn doesn't have a valid light_color!");
 
     std::string script;
-    DebugCheckCritical(entity.GetPropertyString("script", script), "worldspawn doesn't have a valid script!");
+    DebugCheck(entity.GetPropertyString("script", script), "worldspawn doesn't have a valid script!");
 
     g_Scene->CreateActor<AWorldSpawn>(
             entity.Brushes,

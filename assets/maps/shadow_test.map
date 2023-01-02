@@ -4,6 +4,8 @@
 {
 "classname" "worldspawn"
 "_tb_textures" "textures"
+"light_color" "5 4 3"
+"light_direction" "8 4 3.5"
 // brush 0
 {
 ( -512 512 0 ) ( -512 -512 0 ) ( -512 -512 -16 ) dev_1 0 0 0 1 1

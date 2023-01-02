@@ -33,7 +33,7 @@ void Game::Init(GLFWwindow *window) {
     m_lua = std::make_unique<LuaSandbox>();
     g_Lua = m_lua.get();
 
-    LoadEntities("maps/climb.haru");
+    LoadEntities(m_startMap);
 }
 
 void Game::Shutdown() {

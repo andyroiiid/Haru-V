@@ -28,7 +28,9 @@ AWorldSpawn::AWorldSpawn(
     m_lightDirection = lightDirection;
     m_lightColor = lightColor;
 
-    g_Lua->DoFile(script);
+    if (!script.empty()) {
+        g_Lua->DoFile(script);
+    }
 }
 
 void AWorldSpawn::Draw() {

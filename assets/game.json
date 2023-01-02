@@ -2,5 +2,6 @@
   "name": "Haru-V",
   "width": 1280,
   "height": 720,
-  "maximized": true
+  "maximized": true,
+  "start_map": "maps/shadow_test.haru"
 }

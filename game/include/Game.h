@@ -15,6 +15,9 @@
 
 class Game : public App {
 public:
+    explicit Game(std::string startMap)
+            : m_startMap(std::move(startMap)) {}
+
     void Init(GLFWwindow *window) override;
 
     void Shutdown() override;
@@ -25,6 +28,8 @@ private:
     void Update(float deltaTime);
 
     void Draw();
+
+    std::string m_startMap;
 
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Mouse> m_mouse;

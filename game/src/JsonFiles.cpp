@@ -12,6 +12,7 @@ GameConfig::GameConfig(const std::string &jsonFilename) {
     Width = json.GetInteger("width");
     Height = json.GetInteger("height");
     Maximized = json.GetBoolean("maximized");
+    StartMap = json.GetString("start_map");
 }
 
 PbrMaterialConfig::PbrMaterialConfig(const std::string &jsonFilename) {
