@@ -17,3 +17,5 @@ void LoadFuncMove(const MapData::Entity &entity);
 void LoadFuncButton(const MapData::Entity &entity);
 
 void LoadFuncPhys(const MapData::Entity &entity);
+
+void LoadPropTestModel(const MapData::Entity &entity);

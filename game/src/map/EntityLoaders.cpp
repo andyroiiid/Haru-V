@@ -10,11 +10,12 @@
 #include "Globals.h"
 #include "actors/Scene.h"
 #include "actors/AWorldSpawn.h"
+#include "actors/APlayer.h"
 #include "actors/AFuncBrush.h"
 #include "actors/AFuncMove.h"
 #include "actors/AFuncButton.h"
 #include "actors/AFuncPhys.h"
-#include "actors/APlayer.h"
+#include "actors/APropTestModel.h"
 
 void LoadWorldSpawn(const MapData::Entity &entity) {
     ZoneScoped;
@@ -82,4 +83,20 @@ void LoadFuncPhys(const MapData::Entity &entity) {
     ZoneScoped;
 
     g_Scene->CreateActor<AFuncPhys>(entity.Brushes);
+}
+
+void LoadPropTestModel(const MapData::Entity &entity) {
+    ZoneScoped;
+
+    glm::vec3 origin;
+    DebugCheckCritical(entity.GetPropertyVector("origin", origin), "prop_test_model doesn't have a valid origin!");
+
+    std::string model;
+    DebugCheckCritical(entity.GetPropertyString("model", model), "prop_test_model doesn't have a valid model!");
+
+    g_Scene->CreateActor<APropTestModel>(
+            "models/" + model + ".obj",
+            "materials/" + model + ".json",
+            origin
+    );
 }

@@ -269,3 +269,33 @@
 ( 128 4 16 ) ( 128 20 16 ) ( 128 20 0 ) dev_4 -4 -16 0 1 1
 }
 }
+// entity 6
+{
+"classname" "prop_test_model"
+"origin" "112 48 -16"
+"model" "boom_box"
+}
+// entity 7
+{
+"classname" "prop_test_model"
+"origin" "-48 144 48"
+"model" "boom_box"
+}
+// entity 8
+{
+"classname" "prop_test_model"
+"origin" "-48 240 48"
+"model" "damaged_helmet"
+}
+// entity 9
+{
+"classname" "prop_test_model"
+"origin" "48 144 48"
+"model" "damaged_helmet"
+}
+// entity 10
+{
+"classname" "prop_test_model"
+"origin" "48 240 48"
+"model" "boom_box"
+}

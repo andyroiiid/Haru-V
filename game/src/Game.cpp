@@ -8,7 +8,6 @@
 #include <tracy/Tracy.hpp>
 
 #include "Globals.h"
-#include "actors/APropTestModel.h"
 #include "map/LoadEntities.h"
 
 void Game::Init(GLFWwindow *window) {
@@ -35,9 +34,6 @@ void Game::Init(GLFWwindow *window) {
     g_Lua = m_lua.get();
 
     LoadEntities("maps/climb.haru");
-
-    m_scene->CreateActor<APropTestModel>("models/boom_box.obj", "materials/boom_box.json", glm::vec3{-2.0f, 1.0f, 0.0f});
-    m_scene->CreateActor<APropTestModel>("models/damaged_helmet.obj", "materials/damaged_helmet.json", glm::vec3{2.0f, 1.0f, 0.0f});
 }
 
 void Game::Shutdown() {
