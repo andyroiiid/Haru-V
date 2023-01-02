@@ -59,6 +59,7 @@ bool PhysicsScene::Update(const float deltaTime, const float timeScale) {
 physx::PxController *PhysicsScene::CreateController(const physx::PxVec3 &position, float radius, float height, PhysicsLayer queryLayer) {
     physx::PxCapsuleControllerDesc desc;
     desc.position = {position.x, position.y, position.z};
+    desc.stepOffset = 0.0f;
     desc.material = m_defaultMaterial;
     // https://nvidia-omniverse.github.io/PhysX/physx/5.1.0/docs/CharacterControllers.html#character-volume
     desc.radius = radius;

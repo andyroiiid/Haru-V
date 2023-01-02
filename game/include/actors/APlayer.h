@@ -45,10 +45,8 @@ private:
     static constexpr float GRAVITY = 20.0f;
     static constexpr float GROUND_ACCELERATION = 50.0f;
     static constexpr float GROUND_DRAG = 10.0f;
-    static constexpr float GROUND_STEP_OFFSET = 0.3f;
     static constexpr float AIR_ACCELERATION = 10.0f;
     static constexpr float AIR_DRAG = 2.0f;
-    static constexpr float AIR_STEP_OFFSET = 0.0f;
     static constexpr float JUMP_VELOCITY = 7.0f;
 
     physx::PxController *m_controller;

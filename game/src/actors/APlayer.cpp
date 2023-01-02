@@ -134,9 +134,6 @@ void APlayer::UpdateGround() {
 
     // check is touching ground and ground is not too steep
     m_isOnGround = buffer.hasBlock && buffer.block.normal.y >= m_controller->getSlopeLimit();
-
-    // reduce step offset when the player is in air
-    m_controller->setStepOffset(m_isOnGround ? GROUND_STEP_OFFSET : AIR_STEP_OFFSET);
 }
 
 void APlayer::CalcHorizontalAcceleration(const glm::vec3 &direction, float acceleration, float drag) {
