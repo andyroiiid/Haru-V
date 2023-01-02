@@ -31,12 +31,6 @@ void AFuncMove::FixedUpdate(float fixedDeltaTime) {
     }
 }
 
-void AFuncMove::Use(APlayer *player, const physx::PxRaycastHit &hit) {
-    AFuncBrush::Use(player, hit);
-
-    Toggle();
-}
-
 void AFuncMove::Open() {
     switch (m_state) {
         case State::Close:

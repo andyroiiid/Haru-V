@@ -17,7 +17,11 @@ public:
 
     void FixedUpdate(float fixedDeltaTime) override;
 
-    void Use(APlayer *player, const physx::PxRaycastHit &hit) override;
+    [[nodiscard]] bool IsMoving() const { return m_state == State::MovingOpen || m_state == State::MovingClose; }
+
+    [[nodiscard]] bool IsOpen() const { return m_state == State::Open; }
+
+    [[nodiscard]] bool IsClosed() const { return m_state == State::Close; }
 
     void Open();
 

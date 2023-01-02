@@ -12,6 +12,7 @@
 #include "actors/AWorldSpawn.h"
 #include "actors/AFuncBrush.h"
 #include "actors/AFuncMove.h"
+#include "actors/AFuncButton.h"
 #include "actors/AFuncPhys.h"
 #include "actors/APlayer.h"
 
@@ -60,6 +61,21 @@ void LoadFuncMove(const MapData::Entity &entity) {
     DebugCheckCritical(entity.GetPropertyFloat("move_time", moveTime), "func_move doesn't have a valid move_time!");
 
     g_Scene->CreateActor<AFuncMove>(entity.Brushes, moveSpeed, moveTime);
+}
+
+void LoadFuncButton(const MapData::Entity &entity) {
+    ZoneScoped;
+
+    glm::vec3 moveSpeed;
+    DebugCheckCritical(entity.GetPropertyVector("move_speed", moveSpeed), "func_button doesn't have a valid move_speed!");
+
+    float moveTime;
+    DebugCheckCritical(entity.GetPropertyFloat("move_time", moveTime), "func_button doesn't have a valid move_time!");
+
+    std::string event;
+    DebugCheckCritical(entity.GetPropertyString("event", event), "func_button doesn't have a valid event!");
+
+    g_Scene->CreateActor<AFuncButton>(entity.Brushes, moveSpeed, moveTime, event);
 }
 
 void LoadFuncPhys(const MapData::Entity &entity) {

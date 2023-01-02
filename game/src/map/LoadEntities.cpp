@@ -21,6 +21,7 @@ static const std::map<std::string, EntityLoader> s_EntityLoaders{
         {"info_player_start", LoadInfoPlayerStart},
         {"func_brush",        LoadFuncBrush},
         {"func_move",         LoadFuncMove},
+        {"func_button",       LoadFuncButton},
         {"func_phys",         LoadFuncPhys}
 };
 

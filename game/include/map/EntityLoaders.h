@@ -14,4 +14,6 @@ void LoadFuncBrush(const MapData::Entity &entity);
 
 void LoadFuncMove(const MapData::Entity &entity);
 
+void LoadFuncButton(const MapData::Entity &entity);
+
 void LoadFuncPhys(const MapData::Entity &entity);

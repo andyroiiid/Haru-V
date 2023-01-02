@@ -20,6 +20,7 @@ add_executable(game
         include/actors/AWorldSpawn.h
         include/actors/AFuncBrush.h
         include/actors/AFuncMove.h
+        include/actors/AFuncButton.h
         include/actors/AFuncPhys.h
         include/actors/APlayerNoClip.h
         include/actors/APlayer.h
@@ -29,6 +30,7 @@ add_executable(game
         src/actors/AWorldSpawn.cpp
         src/actors/AFuncBrush.cpp
         src/actors/AFuncMove.cpp
+        src/actors/AFuncButton.cpp
         src/actors/AFuncPhys.cpp
         src/actors/APlayerNoClip.cpp
         src/actors/APlayer.cpp
