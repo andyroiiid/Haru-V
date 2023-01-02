@@ -9,5 +9,6 @@ void main()
     const vec3 lightDirection = normalize(uLightDirection);
     const vec3 worldNormal = normalize(gWorldNormal);
     const float slopeScale = 1 - abs(dot(lightDirection, worldNormal));
-    gl_FragDepth = gl_FragCoord.z + 0.004 * slopeScale / gl_FragCoord.w;
+    const float bias = float[](0.002, 0.004, 0.008, 0.016)[gl_Layer];
+    gl_FragDepth = gl_FragCoord.z + bias * slopeScale / gl_FragCoord.w;
 }
