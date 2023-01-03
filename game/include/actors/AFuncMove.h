@@ -17,6 +17,8 @@ public:
 
     void FixedUpdate(float fixedDeltaTime) override;
 
+    void LuaSignal(lua_State *L) override;
+
     [[nodiscard]] bool IsMoving() const { return m_state == State::MovingOpen || m_state == State::MovingClose; }
 
     [[nodiscard]] bool IsOpen() const { return m_state == State::Open; }

@@ -6,8 +6,11 @@
 
 #include <memory>
 #include <vector>
+#include <map>
 
 #include "actors/Actor.h"
+
+struct lua_State;
 
 class Scene {
 public:
@@ -42,9 +45,17 @@ public:
         return reinterpret_cast<T *>(FindFirstActorOfClassImpl(T::ClassName));
     }
 
+    void Register(const std::string &name, Actor *actor);
+
+    static int LuaSignal(lua_State *L);
+
 private:
     [[nodiscard]] Actor *FindFirstActorOfClassImpl(const std::string &className) const;
 
+    [[nodiscard]] Actor *FindActorWithName(const std::string &name) const;
+
     std::vector<std::unique_ptr<Actor>> m_actors;
     std::vector<std::unique_ptr<Actor>> m_pendingDestroyActors;
+
+    std::map<std::string, Actor *> m_registeredActors;
 };

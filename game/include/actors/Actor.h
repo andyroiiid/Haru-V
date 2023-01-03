@@ -11,6 +11,8 @@ namespace physx {
     struct PxRaycastHit;
 }
 
+struct lua_State;
+
 class APlayer;
 
 #define DEFINE_ACTOR_CLASS(className) \
@@ -52,6 +54,8 @@ public:
     virtual void FixedUpdate(float fixedDeltaTime) {}
 
     virtual void Draw() {}
+
+    virtual void LuaSignal(lua_State *L) {}
 
     virtual void Use(APlayer *player, const physx::PxRaycastHit &hit) {}
 

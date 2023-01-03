@@ -9,7 +9,7 @@
 
 int LuaPrint(lua_State *L) {
     const char *message = luaL_checkstring(L, 1);
-    DebugInfo("Lua: {}", message);
+    DebugInfo("{}", message);
     return 0;
 }
 

@@ -4,6 +4,11 @@
 
 #include "actors/Scene.h"
 
+#include <lua.hpp>
+#include <core/Debug.h>
+
+#include "Globals.h"
+
 void Scene::Update(const float deltaTime) {
     // put pending destroy actors from last frame into a temp queue
     const std::vector<std::unique_ptr<Actor>> pendingDestroyActorsFromLastFrame = std::move(m_pendingDestroyActors);
@@ -46,4 +51,31 @@ Actor *Scene::FindFirstActorOfClassImpl(const std::string &className) const {
         }
     }
     return nullptr;
+}
+
+Actor *Scene::FindActorWithName(const std::string &name) const {
+    auto pair = m_registeredActors.find(name);
+    if (pair == m_registeredActors.end()) {
+        DebugError("Failed to find actor \"{}\"", name);
+        return nullptr;
+    }
+    return pair->second;
+}
+
+void Scene::Register(const std::string &name, Actor *actor) {
+    auto pair = m_registeredActors.find(name);
+    if (pair == m_registeredActors.end()) {
+        m_registeredActors.emplace(name, actor);
+    } else {
+        DebugError("Failed to register actor \"{}\" because the name is already registered.");
+    }
+}
+
+int Scene::LuaSignal(lua_State *L) {
+    const std::string name = luaL_checkstring(L, 1);
+    Actor *actor = g_Scene->FindActorWithName(name);
+    if (actor != nullptr) {
+        actor->LuaSignal(L);
+    }
+    return 0;
 }

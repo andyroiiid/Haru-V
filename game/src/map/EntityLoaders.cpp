@@ -17,6 +17,13 @@
 #include "actors/AFuncPhys.h"
 #include "actors/APropTestModel.h"
 
+static void Register(Actor *actor, const MapData::Entity &entity) {
+    std::string name;
+    if (entity.GetPropertyString("name", name)) {
+        g_Scene->Register(name, actor);
+    }
+}
+
 void LoadWorldSpawn(const MapData::Entity &entity) {
     ZoneScoped;
 
@@ -61,7 +68,7 @@ void LoadFuncMove(const MapData::Entity &entity) {
     float moveTime;
     DebugCheckCritical(entity.GetPropertyFloat("move_time", moveTime), "func_move doesn't have a valid move_time!");
 
-    g_Scene->CreateActor<AFuncMove>(entity.Brushes, moveSpeed, moveTime);
+    Register(g_Scene->CreateActor<AFuncMove>(entity.Brushes, moveSpeed, moveTime), entity);
 }
 
 void LoadFuncButton(const MapData::Entity &entity) {

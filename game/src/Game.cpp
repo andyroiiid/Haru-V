@@ -33,6 +33,8 @@ void Game::Init(GLFWwindow *window) {
     m_lua = std::make_unique<LuaSandbox>();
     g_Lua = m_lua.get();
 
+    m_lua->SetGlobalFunction("signal", Scene::LuaSignal);
+
     LoadEntities(m_startMap);
 }
 

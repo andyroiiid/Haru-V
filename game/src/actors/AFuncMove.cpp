@@ -4,6 +4,9 @@
 
 #include "actors/AFuncMove.h"
 
+#include <lua.hpp>
+#include <core/Debug.h>
+
 void AFuncMove::FixedUpdate(float fixedDeltaTime) {
     AFuncBrush::FixedUpdate(fixedDeltaTime);
 
@@ -28,6 +31,19 @@ void AFuncMove::FixedUpdate(float fixedDeltaTime) {
         }
         default:
             break;
+    }
+}
+
+void AFuncMove::LuaSignal(lua_State *L) {
+    const std::string event = luaL_checkstring(L, 2);
+    if (event == "open") {
+        Open();
+    } else if (event == "close") {
+        Close();
+    } else if (event == "toggle") {
+        Toggle();
+    } else {
+        luaL_error(L, "func_move doesn't recognize event %s", event.c_str());
     }
 }
 
