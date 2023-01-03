@@ -20,8 +20,8 @@ A Vulkan-based rewrite of [Haru Engine](https://github.com/andyroiiid/haru).
     - [x] Static/kinematic/physically-simulated BSP brushes
     - [x] Quake/Hammer style entities
 - Scripting
-    - [ ] Entity Events
-    - [ ] Lua Level Script
+    - [x] Entity Events
+    - [x] Lua Level Script
 - UI
     - [ ] Immediate-mode UI System
 - Sound
