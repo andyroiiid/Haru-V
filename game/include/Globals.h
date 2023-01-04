@@ -16,6 +16,8 @@ extern class PhysicsScene *g_PhysicsScene;
 
 extern class Scene *g_Scene;
 
+extern class AudioSystem *g_Audio;
+
 extern class LuaSandbox *g_Lua;
 
 extern bool g_SlowMotion;

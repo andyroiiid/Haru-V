@@ -30,6 +30,9 @@ void Game::Init(GLFWwindow *window) {
     m_scene = std::make_unique<Scene>();
     g_Scene = m_scene.get();
 
+    m_audio = std::make_unique<AudioSystem>();
+    g_Audio = m_audio.get();
+
     m_lua = std::make_unique<LuaSandbox>();
     g_Lua = m_lua.get();
 
@@ -43,6 +46,9 @@ void Game::Shutdown() {
 
     g_Lua = nullptr;
     m_lua.reset();
+
+    g_Audio = nullptr;
+    m_audio.reset();
 
     g_Scene = nullptr;
     m_scene.reset();
@@ -73,6 +79,7 @@ void Game::Update(float deltaTime) {
     ZoneScoped;
 
     m_mouse->Update();
+    m_audio->Update();
 
     if (glfwGetKey(g_Window, GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(g_Window, GLFW_TRUE);

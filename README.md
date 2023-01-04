@@ -25,9 +25,7 @@ A Vulkan-based rewrite of [Haru Engine](https://github.com/andyroiiid/haru).
 - UI
     - [ ] Immediate-mode UI System
 - Sound
-    - [ ] [FMOD](https://fmod.com/) Integration?
-    - [ ] [OpenAL Soft](https://openal-soft.org/) Integration?
-    - [ ] [miniaudio](https://miniaud.io/) Integration?
+    - [x] [FMOD](https://fmod.com/) Integration
 - Physics
     - [x] PhysX 5 Integration
 

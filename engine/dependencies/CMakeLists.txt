@@ -38,4 +38,6 @@ add_subdirectory(physx-static EXCLUDE_FROM_ALL)
 
 add_subdirectory(lua EXCLUDE_FROM_ALL)
 
+add_subdirectory(fmod EXCLUDE_FROM_ALL)
+
 add_subdirectory(tracy EXCLUDE_FROM_ALL)

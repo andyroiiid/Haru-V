@@ -4,12 +4,21 @@ add_subdirectory(dependencies EXCLUDE_FROM_ALL)
 
 add_library(engine
         include/core/Debug.h
+
         include/file/FileSystem.h
         include/file/BinaryParser.h
         include/file/JsonFile.h
         include/file/ImageFile.h
+        src/file/FileSystem.cpp
+        src/file/BinaryParser.cpp
+        src/file/JsonFile.cpp
+        src/file/ImageFile.cpp
+
         include/window/Window.h
         include/window/Mouse.h
+        src/window/Window.cpp
+        src/window/Mouse.cpp
+
         include/vulkan/DebugVk.h
         include/vulkan/ShaderCompiler.h
         include/vulkan/VulkanBuffer.h
@@ -24,20 +33,6 @@ add_library(engine
         include/vulkan/VertexFormats.h
         include/vulkan/VulkanMesh.h
         include/vulkan/MeshCache.h
-        include/math/Transform.h
-        include/math/ShadowMatrixCalculator.h
-        include/physics/PhysicsErrorCallback.h
-        include/physics/PhysicsLayer.h
-        include/physics/PhysicsSystem.h
-        include/physics/PhysicsScene.h
-        include/script/LuaSandbox.h
-
-        src/file/FileSystem.cpp
-        src/file/BinaryParser.cpp
-        src/file/JsonFile.cpp
-        src/file/ImageFile.cpp
-        src/window/Window.cpp
-        src/window/Mouse.cpp
         src/vulkan/ShaderCompiler.cpp
         src/vulkan/vk_mem_alloc.cpp
         src/vulkan/VulkanBuffer.cpp
@@ -52,11 +47,24 @@ add_library(engine
         src/vulkan/VertexFormats.cpp
         src/vulkan/VulkanMesh.cpp
         src/vulkan/MeshCache.cpp
+
+        include/math/Transform.h
+        include/math/ShadowMatrixCalculator.h
         src/math/ShadowMatrixCalculator.cpp
+
+        include/physics/PhysicsErrorCallback.h
+        include/physics/PhysicsLayer.h
+        include/physics/PhysicsSystem.h
+        include/physics/PhysicsScene.h
         src/physics/PhysicsErrorCallback.cpp
         src/physics/PhysicsLayer.cpp
         src/physics/PhysicsSystem.cpp
         src/physics/PhysicsScene.cpp
+
+        include/audio/AudioSystem.h
+        src/audio/AudioSystem.cpp
+
+        include/script/LuaSandbox.h
         src/script/LuaSandbox.cpp)
 
 target_include_directories(engine PUBLIC include)
@@ -83,4 +91,6 @@ target_link_libraries(engine PUBLIC
         tinyobjloader
         PhysX
         lua
+        fmod
+        fmodstudio
         TracyClient)
