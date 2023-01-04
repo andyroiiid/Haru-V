@@ -36,7 +36,14 @@ void Game::Init(GLFWwindow *window) {
     m_lua = std::make_unique<LuaSandbox>();
     g_Lua = m_lua.get();
 
-    m_lua->SetGlobalFunction("signal", Scene::LuaSignal);
+    m_lua->SetGlobalFunction("signal", [](lua_State *L) {
+        const std::string name = luaL_checkstring(L, 1);
+        Actor *actor = g_Scene->FindActorWithName(name);
+        if (actor != nullptr) {
+            actor->LuaSignal(L);
+        }
+        return 0;
+    });
 
     m_lua->SetGlobalFunction("load_audio_bank", [](lua_State *L) {
         const std::string bank = luaL_checkstring(L, 1);

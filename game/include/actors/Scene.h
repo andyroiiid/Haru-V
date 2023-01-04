@@ -10,8 +10,6 @@
 
 #include "actors/Actor.h"
 
-struct lua_State;
-
 class Scene {
 public:
     Scene() = default;
@@ -47,12 +45,10 @@ public:
 
     void Register(const std::string &name, Actor *actor);
 
-    static int LuaSignal(lua_State *L);
+    [[nodiscard]] Actor *FindActorWithName(const std::string &name) const;
 
 private:
     [[nodiscard]] Actor *FindFirstActorOfClassImpl(const std::string &className) const;
-
-    [[nodiscard]] Actor *FindActorWithName(const std::string &name) const;
 
     std::vector<std::unique_ptr<Actor>> m_actors;
     std::vector<std::unique_ptr<Actor>> m_pendingDestroyActors;
