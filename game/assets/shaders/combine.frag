@@ -67,6 +67,27 @@ vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+vec3 PBR(vec3 lightDirection, vec3 lightColor, vec3 V, vec3 N, float roughness, float metallic, vec3 albedo, vec3 F0)
+{
+    const vec3 L = normalize(lightDirection);
+    const vec3 H = normalize(V + L);
+    const float NdotL = max(dot(N, L), 0.0);
+    const float NdotV = max(dot(N, V), 0.0);
+
+    const float NDF = DistributionGGX(N, H, roughness);
+    const float G = GeometrySmith(N, V, L, roughness);
+    const vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    const vec3 kS = F;
+    const vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
+
+    const vec3 numerator = NDF * G * F;
+    const float denominator = 4.0 * NdotV * NdotL + 0.0001;
+    const vec3 specular = numerator / denominator;
+
+    return (kD * albedo / PI + specular) * lightColor * NdotL;
+}
+
 // ibl textures generated using https://github.com/oframe/ibl-converter
 
 const float ENV_LODS = 6.0;
@@ -149,6 +170,19 @@ vec3 ToneMapping(vec3 color) {
     return color * fma(color, A, B) / fma(color, fma(color, C, D), E);
 }
 
+// from Real Shading in Unreal Engine 4 by Brian Karis, Epic Games
+float PointLightFalloff(float distance, float radius) {
+    float A = distance / radius;
+    A *= A;
+    A *= A;
+
+    A = clamp(1.0 - A, 0.0, 1.0);
+    A *= A;
+
+    float B = distance * distance + 1;
+    return A / B;
+}
+
 void main() {
     const vec4 worldPositionMetallic = texture(uWorldPositionMetallic, vTexCoord);
     const vec4 worldNormalRoughness = texture(uWorldNormalRoughness, vTexCoord);
@@ -173,25 +207,19 @@ void main() {
 
     vec3 Lo = vec3(0.0);
 
-    const vec3 L = normalize(uLightDirection);
-    const vec3 H = normalize(V + L);
-    const vec3 radiance = uLightColor;
-    const float NdotL = max(dot(N, L), 0.0);
-
-    const float NDF = DistributionGGX(N, H, roughness);
-    const float G = GeometrySmith(N, V, L, roughness);
-    const vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
-
-    const vec3 kS = F;
-    const vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
-
-    const vec3 numerator = NDF * G * F;
-    const float denominator = 4.0 * NdotV * NdotL + 0.0001;
-    const vec3 specular = numerator / denominator;
+    for (int i = 0; i < uNumPointLights; i++) {
+        const vec3 lightDelta = uPointLights[i].Position - worldPosition.xyz;
+        const float lightDistance = length(lightDelta);
+        const float lightRadius = uPointLights[i].Radius;
+        if (lightDistance > lightRadius) {
+            continue;
+        }
+        const float falloff = PointLightFalloff(lightDistance, lightRadius);
+        Lo += PBR(lightDelta, uPointLights[i].Color, V, N, roughness, metallic, albedo, F0) * falloff;
+    }
 
     const float shadow = ReadShadowMap(viewSpacePosition, worldPosition);
-
-    Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1.0 - shadow);
+    Lo += PBR(uLightDirection, uLightColor, V, N, roughness, metallic, albedo, F0) * (1.0 - shadow);
 
     const vec3 ibl = IBL(N, NdotV, R, F0, metallic, roughness, albedo, ambientOcclusion) * 0.5;
 

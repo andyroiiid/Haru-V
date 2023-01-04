@@ -18,4 +18,6 @@ void LoadFuncButton(const MapData::Entity &entity);
 
 void LoadFuncPhys(const MapData::Entity &entity);
 
+void LoadLightPoint(const MapData::Entity &entity);
+
 void LoadPropTestModel(const MapData::Entity &entity);

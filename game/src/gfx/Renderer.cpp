@@ -209,6 +209,7 @@ void Renderer::FinishDrawing() {
 
     m_deferredContext.CheckFramebuffersOutOfDate();
 
+    // update shadow data
     constexpr float shadowNear = 0.01f;
     constexpr float shadowFar = 64.0f;
     constexpr glm::vec3 csmSplits{8.0f, 16.0f, 32.0f};
@@ -217,6 +218,12 @@ void Renderer::FinishDrawing() {
     m_lightingUniformData.ShadowMatrices[1] = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[0], csmSplits[1]);
     m_lightingUniformData.ShadowMatrices[2] = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[1], csmSplits[2]);
     m_lightingUniformData.ShadowMatrices[3] = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[2], shadowFar);
+
+    // update point lights
+    const int numPointLights = static_cast<int>(m_pointLights.size());
+    m_lightingUniformData.NumPointLights = numPointLights;
+    memcpy(m_lightingUniformData.PointLights, m_pointLights.data(), numPointLights * sizeof(PointLightData));
+    m_pointLights.clear();
 
     m_uniformBufferSet.UpdateAllBuffers(frameInfo.BufferingIndex, {
             &m_rendererUniformData,

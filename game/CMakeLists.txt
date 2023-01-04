@@ -22,6 +22,7 @@ add_executable(game
         include/actors/AFuncMove.h
         include/actors/AFuncButton.h
         include/actors/AFuncPhys.h
+        include/actors/ALightPoint.h
         include/actors/APlayerNoClip.h
         include/actors/APlayer.h
         include/actors/APropTestModel.h
@@ -32,6 +33,7 @@ add_executable(game
         src/actors/AFuncMove.cpp
         src/actors/AFuncButton.cpp
         src/actors/AFuncPhys.cpp
+        src/actors/ALightPoint.cpp
         src/actors/APlayerNoClip.cpp
         src/actors/APlayer.cpp
         src/actors/APropTestModel.cpp

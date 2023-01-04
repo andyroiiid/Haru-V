@@ -15,6 +15,7 @@
 #include "actors/AFuncMove.h"
 #include "actors/AFuncButton.h"
 #include "actors/AFuncPhys.h"
+#include "actors/ALightPoint.h"
 #include "actors/APropTestModel.h"
 
 static void Register(Actor *actor, const MapData::Entity &entity) {
@@ -90,6 +91,21 @@ void LoadFuncPhys(const MapData::Entity &entity) {
     ZoneScoped;
 
     g_Scene->CreateActor<AFuncPhys>(entity.Brushes);
+}
+
+void LoadLightPoint(const MapData::Entity &entity) {
+    ZoneScoped;
+
+    glm::vec3 origin;
+    DebugCheckCritical(entity.GetPropertyVector("origin", origin), "light_point doesn't have a valid origin!");
+
+    glm::vec3 color;
+    DebugCheckCritical(entity.GetPropertyColor("color", color), "light_point doesn't have a valid color!");
+
+    float radius;
+    DebugCheckCritical(entity.GetPropertyFloat("radius", radius), "light_point doesn't have a valid radius!");
+
+    g_Scene->CreateActor<ALightPoint>(origin, color, radius);
 }
 
 void LoadPropTestModel(const MapData::Entity &entity) {

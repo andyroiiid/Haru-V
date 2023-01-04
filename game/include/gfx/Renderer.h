@@ -26,14 +26,30 @@ struct alignas(256) RendererUniformData {
     glm::vec3 CameraPosition;
 };
 
+struct alignas(16) PointLightData {
+    glm::vec3 Position;
+    [[maybe_unused]] float Radius;
+    glm::vec3 Color;
+    [[maybe_unused]] float Padding;
+
+    PointLightData() = default;
+
+    PointLightData(const glm::vec3 &position, float radius, const glm::vec3 &color)
+            : Position(position),
+              Radius(radius),
+              Color(color),
+              Padding(0.0f) {}
+};
+
 struct alignas(256) LightingUniformData {
     glm::vec3 LightDirection;
-    [[maybe_unused]] float Padding0;
+    int32_t NumPointLights;
     glm::vec3 LightColor;
     [[maybe_unused]] float Padding1;
     glm::vec3 CascadeShadowMapSplits;
     [[maybe_unused]] float Padding2;
     [[maybe_unused]] glm::mat4 ShadowMatrices[4];
+    PointLightData PointLights[128];
 };
 
 class Renderer {
@@ -71,6 +87,10 @@ public:
     void SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor);
 
     void SetWorldBounds(const glm::vec3 &min, const glm::vec3 &max);
+
+    void DrawPointLight(const glm::vec3 &position, const glm::vec3 &color, float radius) {
+        m_pointLights.emplace_back(position, radius, color);
+    }
 
     void Draw(const VulkanMesh *mesh, const glm::mat4 &modelMatrix, const PbrMaterial *material) {
         m_drawCalls.emplace_back(mesh, modelMatrix, material);
@@ -119,6 +139,8 @@ private:
 
     VulkanMesh m_skyboxCube;
     VulkanMesh m_fullScreenQuad;
+
+    std::vector<PointLightData> m_pointLights;
 
     struct DrawCall {
         const VulkanMesh *Mesh;
