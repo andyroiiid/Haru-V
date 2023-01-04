@@ -6,7 +6,7 @@
 
 int main() {
     FileSystem::Init();
-    FileSystem::Mount("assets", "/");
+    FileSystem::Mount("game", "/");
     {
         const GameConfig gameConfig("game.json");
         Window window(gameConfig.Name, gameConfig.Width, gameConfig.Height, gameConfig.Maximized);
