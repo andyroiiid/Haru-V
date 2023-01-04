@@ -10,4 +10,6 @@ function button3()
     signal("door1", "toggle")
 end
 
-print("hello,world")
+load_audio_bank("audio/Master.bank")
+load_audio_bank("audio/Master.strings.bank")
+play_audio_one_shot("event:/ambience/wind_calm")

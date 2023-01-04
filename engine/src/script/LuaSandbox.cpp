@@ -90,6 +90,8 @@ void LuaSandbox::CallGlobalFunction(const std::string &name) {
 }
 
 void LuaSandbox::DoFile(const std::string &filename) {
+    DebugInfo("Executing Lua script {}", filename);
+
     const std::string code = FileSystem::Read(filename);
 
     if (luaL_loadbuffer(L, code.data(), code.size(), filename.c_str()) != LUA_OK) {

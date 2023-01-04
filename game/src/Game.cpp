@@ -38,6 +38,18 @@ void Game::Init(GLFWwindow *window) {
 
     m_lua->SetGlobalFunction("signal", Scene::LuaSignal);
 
+    m_lua->SetGlobalFunction("load_audio_bank", [](lua_State *L) {
+        const std::string bank = luaL_checkstring(L, 1);
+        g_Audio->LoadBank(bank);
+        return 0;
+    });
+
+    m_lua->SetGlobalFunction("play_audio_one_shot", [](lua_State *L) {
+        const std::string path = luaL_checkstring(L, 1);
+        g_Audio->PlayOneShot(path);
+        return 0;
+    });
+
     LoadEntities(m_startMap);
 }
 
