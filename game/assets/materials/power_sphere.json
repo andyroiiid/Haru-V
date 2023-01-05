@@ -1,6 +1,6 @@
 {
-  "albedo": "textures/ball/albedo.png",
-  "normal": "textures/ball/normal.png",
-  "mra": "textures/ball/mra.png",
-  "emissive": "textures/ball/emissive.png"
+  "albedo": "textures/power_sphere/albedo.png",
+  "normal": "textures/power_sphere/normal.png",
+  "mra": "textures/power_sphere/mra.png",
+  "emissive": "textures/power_sphere/emissive.png"
 }
