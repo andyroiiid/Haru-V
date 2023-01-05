@@ -4,24 +4,26 @@
 
 #pragma once
 
-#include <string>
 #include <math/Transform.h>
+#include <string>
 
 namespace physx {
-    struct PxRaycastHit;
-}
+struct PxRaycastHit;
+} // namespace physx
 
 struct lua_State;
 
 class APlayer;
 
-#define DEFINE_ACTOR_CLASS(className) \
-    className(const className&) = delete; \
-    className& operator=(const className&) = delete; \
-    className(className&&) = delete; \
-    className& operator=(className&&) = delete; \
-    static inline const std::string &ClassName = #className; \
-    const std::string &GetActorClassName() const override { return ClassName; }
+#define DEFINE_ACTOR_CLASS(className)                                                                                                                \
+    className(const className &)                             = delete;                                                                               \
+    className &operator=(const className &)                  = delete;                                                                               \
+    className(className &&)                                  = delete;                                                                               \
+    className                       &operator=(className &&) = delete;                                                                               \
+    static inline const std::string &ClassName               = #className;                                                                           \
+    const std::string               &GetActorClassName() const override {                                                                            \
+        return ClassName;                                                                                                              \
+    }
 
 class Actor {
 public:
@@ -68,6 +70,6 @@ public:
     Transform &GetTransform() { return m_transform; }
 
 private:
-    bool m_pendingDestroy = false;
+    bool      m_pendingDestroy = false;
     Transform m_transform;
 };

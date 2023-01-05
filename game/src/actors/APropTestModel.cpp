@@ -9,7 +9,7 @@
 
 APropTestModel::APropTestModel(const std::string &meshName, const std::string &materialName, const glm::vec3 &position) {
     m_transform.SetPosition(position);
-    m_mesh = g_Renderer->LoadObjMesh(meshName);
+    m_mesh     = g_Renderer->LoadObjMesh(meshName);
     m_material = g_Renderer->LoadPbrMaterial(materialName);
 }
 

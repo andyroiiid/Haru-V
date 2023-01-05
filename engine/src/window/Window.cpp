@@ -9,9 +9,7 @@
 #include "core/Debug.h"
 
 Window::Window(const std::string &name, int width, int height, bool maximized) {
-    glfwSetErrorCallback([](int errorCode, const char *description) {
-        DebugError("GLFW error {}: {}", errorCode, description);
-    });
+    glfwSetErrorCallback([](int errorCode, const char *description) { DebugError("GLFW error {}: {}", errorCode, description); });
 
     DebugCheckCritical(glfwInit() == GLFW_TRUE, "Failed to init GLFW.");
 

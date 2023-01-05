@@ -7,11 +7,11 @@
 #include <string>
 
 namespace FileSystem {
-    void Init();
+void Init();
 
-    void Shutdown();
+void Shutdown();
 
-    void Mount(const std::string &newDir, const std::string &mountPoint, bool appendToPath = true);
+void Mount(const std::string &newDir, const std::string &mountPoint, bool appendToPath = true);
 
-    std::string Read(const std::string &filename);
-}
+std::string Read(const std::string &filename);
+} // namespace FileSystem

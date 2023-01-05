@@ -14,17 +14,13 @@ public:
 
     explicit ShadowContext(VulkanBase &device);
 
-    ~ShadowContext() {
-        Release();
-    }
+    ~ShadowContext() { Release(); }
 
     ShadowContext(const ShadowContext &) = delete;
 
     ShadowContext &operator=(const ShadowContext &) = delete;
 
-    ShadowContext(ShadowContext &&other) noexcept {
-        Swap(other);
-    }
+    ShadowContext(ShadowContext &&other) noexcept { Swap(other); }
 
     ShadowContext &operator=(ShadowContext &&other) noexcept {
         if (this != &other) {
@@ -44,9 +40,7 @@ public:
 
     [[nodiscard]] const vk::Extent2D &GetExtent() const { return m_extent; }
 
-    [[nodiscard]] const vk::DescriptorSet &GetTextureSet(uint32_t bufferingIndex) const {
-        return m_framebuffers[bufferingIndex].GetTextureSet();
-    }
+    [[nodiscard]] const vk::DescriptorSet &GetTextureSet(uint32_t bufferingIndex) const { return m_framebuffers[bufferingIndex].GetTextureSet(); }
 
     [[nodiscard]] const vk::RenderPassBeginInfo *GetRenderPassBeginInfo(uint32_t bufferingIndex) const {
         return &m_renderPassBeginInfos[bufferingIndex];
@@ -61,11 +55,11 @@ private:
 
     VulkanBase *m_device = nullptr;
 
-    vk::RenderPass m_renderPass;
+    vk::RenderPass          m_renderPass;
     vk::DescriptorSetLayout m_textureSetLayout;
-    vk::Sampler m_sampler;
+    vk::Sampler             m_sampler;
 
-    vk::Extent2D m_extent;
-    std::vector<ShadowMap> m_framebuffers;
+    vk::Extent2D                         m_extent;
+    std::vector<ShadowMap>               m_framebuffers;
     std::vector<vk::RenderPassBeginInfo> m_renderPassBeginInfos;
 };

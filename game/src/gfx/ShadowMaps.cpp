@@ -5,39 +5,50 @@
 #include "gfx/ShadowMaps.h"
 
 ShadowMap::ShadowMap(
-        VulkanBase *device,
-        vk::RenderPass renderPass,
-        vk::DescriptorSetLayout textureSetLayout,
-        vk::Sampler sampler,
-        const vk::Extent2D &extent
-) : m_device(device) {
+    VulkanBase             *device,
+    vk::RenderPass          renderPass,
+    vk::DescriptorSetLayout textureSetLayout,
+    vk::Sampler             sampler,
+    const vk::Extent2D     &extent
+)
+    : m_device(device) {
     CreateAttachment(extent);
     CreateAttachmentView();
 
-    m_framebuffer = m_device->CreateFramebuffer(renderPass, m_depthAttachmentView, extent, 4);
+    m_framebuffer = m_device->CreateFramebuffer(
+        renderPass, //
+        m_depthAttachmentView,
+        extent,
+        4
+    );
 
     m_textureSet = m_device->AllocateDescriptorSet(textureSetLayout);
 
-    m_device->WriteCombinedImageSamplerToDescriptorSet(sampler, m_depthAttachmentView, m_textureSet, 0);
+    m_device->WriteCombinedImageSamplerToDescriptorSet(
+        sampler, //
+        m_depthAttachmentView,
+        m_textureSet,
+        0
+    );
 }
 
 void ShadowMap::CreateAttachment(const vk::Extent2D &extent) {
     m_depthAttachment = m_device->CreateImage(
-            vk::Format::eD32Sfloat,
-            extent,
-            vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
-            0,
-            VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
-            4
+        vk::Format::eD32Sfloat,
+        extent,
+        vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
+        0,
+        VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
+        4
     );
 }
 
 void ShadowMap::CreateAttachmentView() {
     m_depthAttachmentView = m_device->CreateImageView(
-            m_depthAttachment.Get(),
-            vk::Format::eD32Sfloat,
-            vk::ImageAspectFlagBits::eDepth,
-            4
+        m_depthAttachment.Get(), //
+        vk::Format::eD32Sfloat,
+        vk::ImageAspectFlagBits::eDepth,
+        4
     );
 }
 
@@ -48,11 +59,11 @@ void ShadowMap::Release() {
         m_device->DestroyImageView(m_depthAttachmentView);
     }
 
-    m_device = nullptr;
-    m_depthAttachment = {};
+    m_device              = nullptr;
+    m_depthAttachment     = {};
     m_depthAttachmentView = VK_NULL_HANDLE;
-    m_framebuffer = VK_NULL_HANDLE;
-    m_textureSet = VK_NULL_HANDLE;
+    m_framebuffer         = VK_NULL_HANDLE;
+    m_textureSet          = VK_NULL_HANDLE;
 }
 
 void ShadowMap::Swap(ShadowMap &other) noexcept {

@@ -8,17 +8,17 @@
 
 GameConfig::GameConfig(const std::string &jsonFilename) {
     JsonFile json(jsonFilename);
-    Name = json.GetString("name");
-    Width = json.GetInteger("width");
-    Height = json.GetInteger("height");
+    Name      = json.GetString("name");
+    Width     = json.GetInteger("width");
+    Height    = json.GetInteger("height");
     Maximized = json.GetBoolean("maximized");
-    StartMap = json.GetString("start_map");
+    StartMap  = json.GetString("start_map");
 }
 
 PbrMaterialConfig::PbrMaterialConfig(const std::string &jsonFilename) {
     JsonFile json(jsonFilename);
-    Albedo = json.GetString("albedo");
-    Normal = json.GetString("normal");
-    MRA = json.GetString("mra");
+    Albedo   = json.GetString("albedo");
+    Normal   = json.GetString("normal");
+    MRA      = json.GetString("mra");
     Emissive = json.GetString("emissive");
 }

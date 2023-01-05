@@ -9,8 +9,8 @@
 struct GLFWwindow;
 
 enum class MouseButton : int {
-    Left = 0,
-    Right = 1,
+    Left   = 0,
+    Right  = 1,
     Middle = 2
 };
 
@@ -34,13 +34,9 @@ public:
 
     [[nodiscard]] bool IsButtonDown(MouseButton button) const;
 
-    [[nodiscard]] const glm::vec2 &GetPosition() const {
-        return m_position;
-    }
+    [[nodiscard]] const glm::vec2 &GetPosition() const { return m_position; }
 
-    [[nodiscard]] const glm::vec2 &GetDeltaPosition() const {
-        return m_deltaPosition;
-    }
+    [[nodiscard]] const glm::vec2 &GetDeltaPosition() const { return m_deltaPosition; }
 
 private:
     GLFWwindow *m_window = nullptr;

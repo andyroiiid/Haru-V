@@ -6,27 +6,28 @@
 
 std::vector<VertexPositionOnly> CreateSkyboxVertices() {
     return {
-            VertexPositionOnly{{-1.0f, 1.0f, 1.0f}},
-            VertexPositionOnly{{1.0f, 1.0f, 1.0f}},
-            VertexPositionOnly{{-1.0f, -1.0f, 1.0f}},
-            VertexPositionOnly{{1.0f, -1.0f, 1.0f}},
-            VertexPositionOnly{{1.0f, -1.0f, -1.0f}},
-            VertexPositionOnly{{1.0f, 1.0f, 1.0f}},
-            VertexPositionOnly{{1.0f, 1.0f, -1.0f}},
-            VertexPositionOnly{{-1.0f, 1.0f, 1.0f}},
-            VertexPositionOnly{{-1.0f, 1.0f, -1.0f}},
-            VertexPositionOnly{{-1.0f, -1.0f, 1.0f}},
-            VertexPositionOnly{{-1.0f, -1.0f, -1.0f}},
-            VertexPositionOnly{{1.0f, -1.0f, -1.0f}},
-            VertexPositionOnly{{-1.0f, 1.0f, -1.0f}},
-            VertexPositionOnly{{1.0f, 1.0f, -1.0}}
-    };
+        VertexPositionOnly{{-1.0f, 1.0f, 1.0f}},
+        VertexPositionOnly{{1.0f, 1.0f, 1.0f}},
+        VertexPositionOnly{{-1.0f, -1.0f, 1.0f}},
+        VertexPositionOnly{{1.0f, -1.0f, 1.0f}},
+        VertexPositionOnly{{1.0f, -1.0f, -1.0f}},
+        VertexPositionOnly{{1.0f, 1.0f, 1.0f}},
+        VertexPositionOnly{{1.0f, 1.0f, -1.0f}},
+        VertexPositionOnly{{-1.0f, 1.0f, 1.0f}},
+        VertexPositionOnly{{-1.0f, 1.0f, -1.0f}},
+        VertexPositionOnly{{-1.0f, -1.0f, 1.0f}},
+        VertexPositionOnly{{-1.0f, -1.0f, -1.0f}},
+        VertexPositionOnly{{1.0f, -1.0f, -1.0f}},
+        VertexPositionOnly{{-1.0f, 1.0f, -1.0f}},
+        VertexPositionOnly{{1.0f, 1.0f, -1.0}}};
 }
 
 void AppendRectVertices(
-        std::vector<VertexCanvas> &vertices,
-        const glm::vec2 &minPosition, const glm::vec2 &maxPosition,
-        const glm::vec2 &minTexCoord, const glm::vec2 &maxTexCoord
+    std::vector<VertexCanvas> &vertices,
+    const glm::vec2           &minPosition,
+    const glm::vec2           &maxPosition,
+    const glm::vec2           &minTexCoord,
+    const glm::vec2           &maxTexCoord
 ) {
     const glm::vec2 P00{minPosition.x, minPosition.y};
     const glm::vec2 P01{minPosition.x, maxPosition.y};
@@ -62,24 +63,24 @@ void AppendBoxVertices(std::vector<VertexBase> &vertices, const glm::vec3 &min, 
     constexpr glm::vec3 NPZ{0, 0, 1};
     constexpr glm::vec3 NNZ{0, 0, -1};
 
-    const float WIDTH = max.x - min.x;
+    const float WIDTH  = max.x - min.x;
     const float HEIGHT = max.y - min.y;
-    const float DEPTH = max.z - min.z;
+    const float DEPTH  = max.z - min.z;
 
     constexpr glm::vec2 UVX00{0.0f, 0.0f};
-    const glm::vec2 UVX01{0.0f, HEIGHT};
-    const glm::vec2 UVX10{DEPTH, 0.0f};
-    const glm::vec2 UVX11{DEPTH, HEIGHT};
+    const glm::vec2     UVX01{0.0f, HEIGHT};
+    const glm::vec2     UVX10{DEPTH, 0.0f};
+    const glm::vec2     UVX11{DEPTH, HEIGHT};
 
     constexpr glm::vec2 UVY00{0.0f, 0.0f};
-    const glm::vec2 UVY01{0.0f, DEPTH};
-    const glm::vec2 UVY10{WIDTH, 0.0f};
-    const glm::vec2 UVY11{WIDTH, DEPTH};
+    const glm::vec2     UVY01{0.0f, DEPTH};
+    const glm::vec2     UVY10{WIDTH, 0.0f};
+    const glm::vec2     UVY11{WIDTH, DEPTH};
 
     constexpr glm::vec2 UVZ00{0.0f, 0.0f};
-    const glm::vec2 UVZ01{0.0f, HEIGHT};
-    const glm::vec2 UVZ10{WIDTH, 0.0f};
-    const glm::vec2 UVZ11{WIDTH, HEIGHT};
+    const glm::vec2     UVZ01{0.0f, HEIGHT};
+    const glm::vec2     UVZ10{WIDTH, 0.0f};
+    const glm::vec2     UVZ11{WIDTH, HEIGHT};
 
     vertices.reserve(vertices.size() + 36);
     // +x

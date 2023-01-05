@@ -4,14 +4,14 @@
 
 #include "physics/PhysicsSystem.h"
 
-#include <vector>
 #include <PxPhysicsAPI.h>
+#include <vector>
 
 #include "core/Debug.h"
 #include "physics/PhysicsErrorCallback.h"
 
 static physx::PxDefaultAllocator s_Allocator;
-static PhysicsErrorCallback s_ErrorCallback;
+static PhysicsErrorCallback      s_ErrorCallback;
 
 PhysicsSystem::PhysicsSystem() {
     m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, s_Allocator, s_ErrorCallback);
@@ -47,13 +47,11 @@ PhysicsSystem::~PhysicsSystem() {
 
 physx::PxConvexMesh *PhysicsSystem::CreateConvexMesh(physx::PxU32 count, const physx::PxVec3 *vertices, physx::PxU16 vertexLimit) {
     physx::PxConvexMeshDesc desc;
-    desc.points.count = count;
+    desc.points.count  = count;
     desc.points.stride = sizeof(physx::PxVec3);
-    desc.points.data = vertices;
-    desc.flags =
-            physx::PxConvexFlag::eCOMPUTE_CONVEX |
-            physx::PxConvexFlag::eDISABLE_MESH_VALIDATION |
-            physx::PxConvexFlag::eFAST_INERTIA_COMPUTATION;
+    desc.points.data   = vertices;
+    desc.flags         = physx::PxConvexFlag::eCOMPUTE_CONVEX | physx::PxConvexFlag::eDISABLE_MESH_VALIDATION |
+                 physx::PxConvexFlag::eFAST_INERTIA_COMPUTATION;
     desc.vertexLimit = vertexLimit;
 
     physx::PxDefaultMemoryOutputStream buffer;
@@ -68,10 +66,10 @@ physx::PxConvexMesh *PhysicsSystem::CreateConvexMesh(physx::PxU32 count, const p
 
 physx::PxTriangleMesh *PhysicsSystem::CreateTriangleMesh(physx::PxU32 count, const physx::PxVec3 *vertices) {
     physx::PxTriangleMeshDesc desc;
-    desc.points.count = count;
-    desc.points.stride = sizeof(physx::PxVec3);
-    desc.points.data = vertices;
-    desc.triangles.count = count / 3;
+    desc.points.count     = count;
+    desc.points.stride    = sizeof(physx::PxVec3);
+    desc.points.data      = vertices;
+    desc.triangles.count  = count / 3;
     desc.triangles.stride = 3 * sizeof(physx::PxU32);
     std::vector<physx::PxU32> trianglesData(count);
     for (int i = 0; i < count; i++) {

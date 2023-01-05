@@ -9,9 +9,9 @@
 class VulkanBase;
 
 struct VulkanUniformBufferInfo {
-    uint32_t Binding;
+    uint32_t             Binding;
     vk::ShaderStageFlags Stage;
-    size_t Size;
+    size_t               Size;
 };
 
 class VulkanUniformBufferSet {
@@ -20,17 +20,13 @@ public:
 
     VulkanUniformBufferSet(VulkanBase &device, const std::initializer_list<VulkanUniformBufferInfo> &uniformBufferInfos);
 
-    ~VulkanUniformBufferSet() {
-        Release();
-    }
+    ~VulkanUniformBufferSet() { Release(); }
 
     VulkanUniformBufferSet(const VulkanUniformBufferSet &) = delete;
 
     VulkanUniformBufferSet &operator=(const VulkanUniformBufferSet &) = delete;
 
-    VulkanUniformBufferSet(VulkanUniformBufferSet &&other) noexcept {
-        Swap(other);
-    }
+    VulkanUniformBufferSet(VulkanUniformBufferSet &&other) noexcept { Swap(other); }
 
     VulkanUniformBufferSet &operator=(VulkanUniformBufferSet &&other) noexcept {
         if (this != &other) {
@@ -55,9 +51,9 @@ public:
 private:
     VulkanBase *m_device = nullptr;
 
-    vk::DescriptorSetLayout m_descriptorSetLayout;
-    vk::DescriptorSet m_descriptorSet;
-    std::vector<uint32_t> m_uniformBufferSizes;
-    std::vector<VulkanBuffer> m_uniformBuffers;
+    vk::DescriptorSetLayout            m_descriptorSetLayout;
+    vk::DescriptorSet                  m_descriptorSet;
+    std::vector<uint32_t>              m_uniformBufferSizes;
+    std::vector<VulkanBuffer>          m_uniformBuffers;
     std::vector<std::vector<uint32_t>> m_dynamicOffsets;
 };

@@ -25,4 +25,3 @@ ATriggerTest::~ATriggerTest() {
 
     PX_RELEASE(m_shape)
 }
-

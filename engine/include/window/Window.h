@@ -42,7 +42,7 @@ public:
 
     Window &operator=(Window &&) = delete;
 
-    [[nodiscard]] GLFWwindow *const &Get() const { return m_window; }
+    [[nodiscard]] GLFWwindow * const &Get() const { return m_window; }
 
     void MainLoop(App *app);
 

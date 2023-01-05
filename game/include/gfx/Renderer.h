@@ -5,18 +5,18 @@
 #pragma once
 
 #include <glm/mat4x4.hpp>
-#include <vulkan/VulkanBase.h>
-#include <vulkan/TextureCache.h>
-#include <vulkan/MeshCache.h>
-#include <vulkan/VulkanUniformBufferSet.h>
-#include <vulkan/VulkanPipeline.h>
-#include <vulkan/VulkanMesh.h>
-#include <vulkan/VertexFormats.h>
 #include <math/ShadowMatrixCalculator.h>
+#include <vulkan/MeshCache.h>
+#include <vulkan/TextureCache.h>
+#include <vulkan/VertexFormats.h>
+#include <vulkan/VulkanBase.h>
+#include <vulkan/VulkanMesh.h>
+#include <vulkan/VulkanPipeline.h>
+#include <vulkan/VulkanUniformBufferSet.h>
 
-#include "gfx/ShadowContext.h"
 #include "gfx/DeferredContext.h"
 #include "gfx/PbrMaterialCache.h"
+#include "gfx/ShadowContext.h"
 
 struct GLFWwindow;
 
@@ -27,29 +27,29 @@ struct alignas(256) RendererUniformData {
 };
 
 struct alignas(16) PointLightData {
-    glm::vec3 Position;
+    glm::vec3              Position;
     [[maybe_unused]] float Radius;
-    glm::vec3 Color;
+    glm::vec3              Color;
     [[maybe_unused]] float Padding;
 
     PointLightData() = default;
 
     PointLightData(const glm::vec3 &position, float radius, const glm::vec3 &color)
-            : Position(position),
-              Radius(radius),
-              Color(color),
-              Padding(0.0f) {}
+        : Position(position)
+        , Radius(radius)
+        , Color(color)
+        , Padding(0.0f) {}
 };
 
 struct alignas(256) LightingUniformData {
-    glm::vec3 LightDirection;
-    int32_t NumPointLights;
-    glm::vec3 LightColor;
-    [[maybe_unused]] float Padding1;
-    glm::vec3 CascadeShadowMapSplits;
-    [[maybe_unused]] float Padding2;
+    glm::vec3                  LightDirection;
+    int32_t                    NumPointLights;
+    glm::vec3                  LightColor;
+    [[maybe_unused]] float     Padding1;
+    glm::vec3                  CascadeShadowMapSplits;
+    [[maybe_unused]] float     Padding2;
     [[maybe_unused]] glm::mat4 ShadowMatrices[4];
-    PointLightData PointLights[128];
+    PointLightData             PointLights[128];
 };
 
 class Renderer {
@@ -66,21 +66,13 @@ public:
 
     Renderer &operator=(Renderer &&) = delete;
 
-    void WaitDeviceIdle() {
-        m_device.WaitIdle();
-    }
+    void WaitDeviceIdle() { m_device.WaitIdle(); }
 
-    VulkanMesh CreateMesh(const std::vector<VertexBase> &vertices) {
-        return {m_device, vertices.size(), sizeof(VertexBase), vertices.data()};
-    }
+    VulkanMesh CreateMesh(const std::vector<VertexBase> &vertices) { return {m_device, vertices.size(), sizeof(VertexBase), vertices.data()}; }
 
-    VulkanMesh *LoadObjMesh(const std::string &objFilename) {
-        return m_meshCache.LoadObjMesh(objFilename);
-    }
+    VulkanMesh *LoadObjMesh(const std::string &objFilename) { return m_meshCache.LoadObjMesh(objFilename); }
 
-    PbrMaterial *LoadPbrMaterial(const std::string &materialFilename) {
-        return m_pbrMaterialCache.LoadMaterial(materialFilename);
-    }
+    PbrMaterial *LoadPbrMaterial(const std::string &materialFilename) { return m_pbrMaterialCache.LoadMaterial(materialFilename); }
 
     void SetCameraData(const glm::vec3 &cameraPosition, const glm::mat4 &view, float fov, float near, float far);
 
@@ -88,9 +80,7 @@ public:
 
     void SetWorldBounds(const glm::vec3 &min, const glm::vec3 &max);
 
-    void DrawPointLight(const glm::vec3 &position, const glm::vec3 &color, float radius) {
-        m_pointLights.emplace_back(position, radius, color);
-    }
+    void DrawPointLight(const glm::vec3 &position, const glm::vec3 &color, float radius) { m_pointLights.emplace_back(position, radius, color); }
 
     void Draw(const VulkanMesh *mesh, const glm::mat4 &modelMatrix, const PbrMaterial *material) {
         m_drawCalls.emplace_back(mesh, modelMatrix, material);
@@ -115,22 +105,22 @@ private:
 
     void DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
-    VulkanBase m_device;
-    TextureCache m_textureCache;
+    VulkanBase       m_device;
+    TextureCache     m_textureCache;
     PbrMaterialCache m_pbrMaterialCache;
-    MeshCache m_meshCache;
+    MeshCache        m_meshCache;
 
-    ShadowContext m_shadowContext;
+    ShadowContext   m_shadowContext;
     DeferredContext m_deferredContext;
 
     ShadowMatrixCalculator m_shadowMatrixCalculator;
 
-    RendererUniformData m_rendererUniformData{};
-    LightingUniformData m_lightingUniformData{};
+    RendererUniformData    m_rendererUniformData{};
+    LightingUniformData    m_lightingUniformData{};
     VulkanUniformBufferSet m_uniformBufferSet;
 
     vk::DescriptorSetLayout m_iblTextureSetLayout;
-    vk::DescriptorSet m_iblTextureSet;
+    vk::DescriptorSet       m_iblTextureSet;
 
     VulkanPipeline m_shadowPipeline;
     VulkanPipeline m_basePipeline;
@@ -143,14 +133,14 @@ private:
     std::vector<PointLightData> m_pointLights;
 
     struct DrawCall {
-        const VulkanMesh *Mesh;
-        glm::mat4 ModelMatrix;
+        const VulkanMesh  *Mesh;
+        glm::mat4          ModelMatrix;
         const PbrMaterial *Material;
 
         DrawCall(const VulkanMesh *mesh, const glm::mat4 &modelMatrix, const PbrMaterial *material)
-                : Mesh(mesh),
-                  ModelMatrix(modelMatrix),
-                  Material(material) {}
+            : Mesh(mesh)
+            , ModelMatrix(modelMatrix)
+            , Material(material) {}
     };
 
     std::vector<DrawCall> m_drawCalls;

@@ -13,22 +13,13 @@
 static std::vector<VertexBase> LoadObj(const std::string &filename) {
     tinyobj::ObjReader reader;
 
-    DebugCheckCritical(
-            reader.ParseFromString(FileSystem::Read(filename), ""),
-            "Failed to load OBJ file {}: {}",
-            filename,
-            reader.Error()
-    );
+    DebugCheckCritical(reader.ParseFromString(FileSystem::Read(filename), ""), "Failed to load OBJ file {}: {}", filename, reader.Error());
 
-    DebugCheck(
-            reader.Warning().empty(), "Warning when loading OBJ file {}: {}",
-            filename,
-            reader.Warning()
-    );
+    DebugCheck(reader.Warning().empty(), "Warning when loading OBJ file {}: {}", filename, reader.Warning());
 
-    const tinyobj::attrib_t &attrib = reader.GetAttrib();
+    const tinyobj::attrib_t            &attrib    = reader.GetAttrib();
     const std::vector<tinyobj::real_t> &positions = attrib.vertices;
-    const std::vector<tinyobj::real_t> &normals = attrib.normals;
+    const std::vector<tinyobj::real_t> &normals   = attrib.normals;
     const std::vector<tinyobj::real_t> &texCoords = attrib.texcoords;
 
     std::vector<VertexBase> vertices;
@@ -47,20 +38,9 @@ static std::vector<VertexBase> LoadObj(const std::string &filename) {
 
                 // X axis is flipped because Blender uses right-handed coordinates
                 vertices.emplace_back(
-                        glm::vec3{
-                                -positions[3 * index.vertex_index + 0],
-                                positions[3 * index.vertex_index + 1],
-                                positions[3 * index.vertex_index + 2]
-                        },
-                        glm::vec3{
-                                -normals[3 * index.normal_index + 0],
-                                normals[3 * index.normal_index + 1],
-                                normals[3 * index.normal_index + 2]
-                        },
-                        glm::vec2{
-                                texCoords[2 * index.texcoord_index + 0],
-                                texCoords[2 * index.texcoord_index + 1]
-                        }
+                    glm::vec3{-positions[3 * index.vertex_index + 0], positions[3 * index.vertex_index + 1], positions[3 * index.vertex_index + 2]},
+                    glm::vec3{-normals[3 * index.normal_index + 0], normals[3 * index.normal_index + 1], normals[3 * index.normal_index + 2]},
+                    glm::vec2{texCoords[2 * index.texcoord_index + 0], texCoords[2 * index.texcoord_index + 1]}
                 );
             }
             i += f;
@@ -74,10 +54,7 @@ VulkanMesh *MeshCache::LoadObjMesh(const std::string &filename) {
     if (pair == m_meshes.end()) {
         DebugInfo("Caching OBJ mesh {}.", filename);
         const std::vector<VertexBase> vertices = LoadObj(filename);
-        pair = m_meshes.emplace(
-                filename,
-                VulkanMesh(m_device, vertices.size(), sizeof(VertexBase), vertices.data())
-        ).first;
+        pair = m_meshes.emplace(filename, VulkanMesh(m_device, vertices.size(), sizeof(VertexBase), vertices.data())).first;
     }
     return &pair->second;
 }

@@ -8,9 +8,9 @@
 #include "file/FileSystem.h"
 
 BinaryParser::BinaryParser(const std::string &filename)
-        : m_binary(FileSystem::Read(filename)),
-          m_current(m_binary.data()),
-          m_remainingBytes(m_binary.size()) {
+    : m_binary(FileSystem::Read(filename))
+    , m_current(m_binary.data())
+    , m_remainingBytes(m_binary.size()) {
 }
 
 bool BinaryParser::ReadBytes(size_t numBytes, void *output) {
@@ -19,7 +19,7 @@ bool BinaryParser::ReadBytes(size_t numBytes, void *output) {
         return false;
     }
     memcpy(output, m_current, numBytes);
-    m_current += numBytes;
+    m_current        += numBytes;
     m_remainingBytes -= numBytes;
     return true;
 }

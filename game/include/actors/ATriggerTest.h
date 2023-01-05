@@ -7,10 +7,10 @@
 #include "actors/Actor.h"
 
 namespace physx {
-    class PxShape;
+class PxShape;
 
-    class PxRigidStatic;
-}
+class PxRigidStatic;
+} // namespace physx
 
 class ATriggerTest : public Actor {
 public:
@@ -21,6 +21,6 @@ public:
     ~ATriggerTest() override;
 
 private:
-    physx::PxShape *m_shape;
+    physx::PxShape       *m_shape;
     physx::PxRigidStatic *m_rigidBody;
 };

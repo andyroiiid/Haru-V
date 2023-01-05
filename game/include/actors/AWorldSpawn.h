@@ -13,10 +13,10 @@ public:
     DEFINE_ACTOR_CLASS(AWorldSpawn)
 
     explicit AWorldSpawn(
-            const std::vector<MapData::Brush> &brushes,
-            const glm::vec3 &lightDirection,
-            const glm::vec3 &lightColor,
-            const std::string &script
+        const std::vector<MapData::Brush> &brushes,
+        const glm::vec3                   &lightDirection,
+        const glm::vec3                   &lightColor,
+        const std::string                 &script
     );
 
     void Draw() override;

@@ -7,24 +7,25 @@
 #include "vulkan/DebugVk.h"
 
 VulkanImage::VulkanImage(
-        VmaAllocator allocator,
-        vk::Format format,
-        const vk::Extent2D &extent,
-        vk::ImageUsageFlags imageUsage,
-        VmaAllocationCreateFlags flags,
-        VmaMemoryUsage memoryUsage,
-        uint32_t layers
-) : m_allocator(allocator) {
+    VmaAllocator             allocator,
+    vk::Format               format,
+    const vk::Extent2D      &extent,
+    vk::ImageUsageFlags      imageUsage,
+    VmaAllocationCreateFlags flags,
+    VmaMemoryUsage           memoryUsage,
+    uint32_t                 layers
+)
+    : m_allocator(allocator) {
     vk::ImageCreateInfo imageCreateInfo(
-            {},
-            vk::ImageType::e2D,
-            format,
-            {extent.width, extent.height, 1},
-            1,
-            layers,
-            vk::SampleCountFlagBits::e1,
-            vk::ImageTiling::eOptimal,
-            imageUsage
+        {},
+        vk::ImageType::e2D,
+        format,
+        {extent.width, extent.height, 1},
+        1,
+        layers,
+        vk::SampleCountFlagBits::e1,
+        vk::ImageTiling::eOptimal,
+        imageUsage
     );
 
     VmaAllocationCreateInfo allocationCreateInfo{};
@@ -32,15 +33,15 @@ VulkanImage::VulkanImage(
     allocationCreateInfo.usage = memoryUsage;
 
     DebugCheckCriticalVk(
-            vmaCreateImage(
-                    m_allocator,
-                    reinterpret_cast<const VkImageCreateInfo *>(&imageCreateInfo),
-                    &allocationCreateInfo,
-                    reinterpret_cast<VkImage *>(&m_image),
-                    &m_allocation,
-                    nullptr
-            ),
-            "Failed to create Vulkan 2d image."
+        vmaCreateImage(
+            m_allocator,
+            reinterpret_cast<const VkImageCreateInfo *>(&imageCreateInfo),
+            &allocationCreateInfo,
+            reinterpret_cast<VkImage *>(&m_image),
+            &m_allocation,
+            nullptr
+        ),
+        "Failed to create Vulkan 2d image."
     );
 }
 
@@ -49,8 +50,8 @@ void VulkanImage::Release() {
         vmaDestroyImage(m_allocator, m_image, m_allocation);
     }
 
-    m_allocator = VK_NULL_HANDLE;
-    m_image = VK_NULL_HANDLE;
+    m_allocator  = VK_NULL_HANDLE;
+    m_image      = VK_NULL_HANDLE;
     m_allocation = VK_NULL_HANDLE;
 }
 

@@ -4,8 +4,8 @@
 
 #include "audio/AudioSystem.h"
 
-#include <fmod_studio.hpp>
 #include <fmod_errors.h>
+#include <fmod_studio.hpp>
 
 #include "core/Debug.h"
 #include "file/FileSystem.h"
@@ -39,18 +39,12 @@ void AudioSystem::Update() {
 FMOD::Studio::Bank *AudioSystem::LoadBank(const std::string &bankFilename) {
     DebugInfo("Loading FMOD bank {}", bankFilename);
 
-    std::string bankFile = FileSystem::Read(bankFilename);
-    FMOD::Studio::Bank *bank = nullptr;
+    std::string         bankFile = FileSystem::Read(bankFilename);
+    FMOD::Studio::Bank *bank     = nullptr;
     DebugCheckFMOD(
-            m_system->loadBankMemory(
-                    bankFile.data(),
-                    static_cast<int>(bankFile.size()),
-                    FMOD_STUDIO_LOAD_MEMORY,
-                    FMOD_STUDIO_LOAD_BANK_NORMAL,
-                    &bank
-            ),
-            "Failed to load FMOD bank {}: {}",
-            bankFilename
+        m_system->loadBankMemory(bankFile.data(), static_cast<int>(bankFile.size()), FMOD_STUDIO_LOAD_MEMORY, FMOD_STUDIO_LOAD_BANK_NORMAL, &bank),
+        "Failed to load FMOD bank {}: {}",
+        bankFilename
     );
     return bank;
 }

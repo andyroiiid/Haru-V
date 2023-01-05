@@ -17,5 +17,5 @@ public:
 private:
     glm::vec3 m_position;
     glm::vec3 m_color;
-    float m_radius;
+    float     m_radius;
 };

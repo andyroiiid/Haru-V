@@ -10,11 +10,11 @@
 #include "gfx/MeshUtilities.h"
 
 Renderer::Renderer(GLFWwindow *window)
-        : m_device(window),
-          m_textureCache(m_device),
-          m_pbrMaterialCache(m_device, m_textureCache),
-          m_meshCache(m_device) {
-    m_shadowContext = ShadowContext(m_device);
+    : m_device(window)
+    , m_textureCache(m_device)
+    , m_pbrMaterialCache(m_device, m_textureCache)
+    , m_meshCache(m_device) {
+    m_shadowContext   = ShadowContext(m_device);
     m_deferredContext = DeferredContext(m_device);
     CreateUniformBuffers();
     CreateIblTextureSet();
@@ -25,137 +25,132 @@ Renderer::Renderer(GLFWwindow *window)
 
 void Renderer::CreateUniformBuffers() {
     m_uniformBufferSet = VulkanUniformBufferSet(
-            m_device,
-            {
-                    {0, vk::ShaderStageFlagBits::eAllGraphics,                                   sizeof(RendererUniformData)},
-                    {1, vk::ShaderStageFlagBits::eGeometry | vk::ShaderStageFlagBits::eFragment, sizeof(LightingUniformData)}
-            }
+        m_device,
+        {
+            {0, vk::ShaderStageFlagBits::eAllGraphics,                                   sizeof(RendererUniformData)},
+            {1, vk::ShaderStageFlagBits::eGeometry | vk::ShaderStageFlagBits::eFragment, sizeof(LightingUniformData)}
+    }
     );
 }
 
 void Renderer::CreateIblTextureSet() {
     vk::DescriptorSetLayoutBinding iblBindings[]{
-            {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {3, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
+        {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+        {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+        {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+        {3, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
     };
     m_iblTextureSetLayout = m_device.CreateDescriptorSetLayout(iblBindings);
 
     m_iblTextureSet = m_device.AllocateDescriptorSet(m_iblTextureSetLayout);
-    m_textureCache.LoadTexture(
-            "textures/brdf_lut.png",
+    m_textureCache
+        .LoadTexture(
+            "textures/brdf_lut.png", //
             vk::Filter::eLinear,
             vk::SamplerAddressMode::eClampToEdge
-    )->BindToDescriptorSet(m_iblTextureSet, 0);
-    m_textureCache.LoadTexture(
-            "textures/ibl/sunset.png",
+        )
+        ->BindToDescriptorSet(m_iblTextureSet, 0);
+    m_textureCache
+        .LoadTexture(
+            "textures/ibl/sunset.png", //
             vk::Filter::eLinear,
             vk::SamplerAddressMode::eClampToEdge
-    )->BindToDescriptorSet(m_iblTextureSet, 1);
-    m_textureCache.LoadTexture(
-            "textures/ibl/sunset_specular.png",
+        )
+        ->BindToDescriptorSet(m_iblTextureSet, 1);
+    m_textureCache
+        .LoadTexture(
+            "textures/ibl/sunset_specular.png", //
             vk::Filter::eLinear,
             vk::SamplerAddressMode::eClampToEdge
-    )->BindToDescriptorSet(m_iblTextureSet, 2);
-    m_textureCache.LoadTexture(
-            "textures/ibl/sunset_irradiance.png",
+        )
+        ->BindToDescriptorSet(m_iblTextureSet, 2);
+    m_textureCache
+        .LoadTexture(
+            "textures/ibl/sunset_irradiance.png", //
             vk::Filter::eLinear,
             vk::SamplerAddressMode::eClampToEdge
-    )->BindToDescriptorSet(m_iblTextureSet, 3);
+        )
+        ->BindToDescriptorSet(m_iblTextureSet, 3);
 }
 
 void Renderer::CreatePipelines() {
     const vk::PipelineColorBlendAttachmentState NO_BLEND(
-            VK_FALSE,
-            vk::BlendFactor::eZero, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
-            vk::BlendFactor::eZero, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
-            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
+        VK_FALSE,
+        vk::BlendFactor::eZero,
+        vk::BlendFactor::eZero,
+        vk::BlendOp::eAdd,
+        vk::BlendFactor::eZero,
+        vk::BlendFactor::eZero,
+        vk::BlendOp::eAdd,
+        vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
     );
 
     ShaderCompiler compiler;
 
     m_shadowPipeline = VulkanPipeline(
-            m_device,
-            compiler,
-            {
-                    m_uniformBufferSet.GetDescriptorSetLayout()
-            },
-            {
-                    {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
-            },
-            VertexBase::GetPipelineVertexInputStateCreateInfo(),
-            "shaders/shadow.json",
-            {},
-            m_shadowContext.GetRenderPass(),
-            0
+        m_device,
+        compiler,
+        {
+            m_uniformBufferSet.GetDescriptorSetLayout()
+    },
+        {
+            {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)} //
+        },
+        VertexBase::GetPipelineVertexInputStateCreateInfo(),
+        "shaders/shadow.json",
+        {},
+        m_shadowContext.GetRenderPass(),
+        0
     );
 
     m_basePipeline = VulkanPipeline(
-            m_device,
-            compiler,
-            {
-                    m_uniformBufferSet.GetDescriptorSetLayout(),
-                    m_pbrMaterialCache.GetDescriptorSetLayout()
-            },
-            {
-                    {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)}
-            },
-            VertexBase::GetPipelineVertexInputStateCreateInfo(),
-            "shaders/base.json",
-            {
-                    NO_BLEND,
-                    NO_BLEND,
-                    NO_BLEND,
-                    NO_BLEND
-            },
-            m_deferredContext.GetRenderPass(),
-            0
+        m_device,
+        compiler,
+        {
+            m_uniformBufferSet.GetDescriptorSetLayout(),
+            m_pbrMaterialCache.GetDescriptorSetLayout()
+    },
+        {
+            {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)} //
+        },
+        VertexBase::GetPipelineVertexInputStateCreateInfo(),
+        "shaders/base.json",
+        {NO_BLEND, NO_BLEND, NO_BLEND, NO_BLEND},
+        m_deferredContext.GetRenderPass(),
+        0
     );
 
     m_skyboxPipeline = VulkanPipeline(
-            m_device,
-            compiler,
-            {
-                    m_uniformBufferSet.GetDescriptorSetLayout(),
-                    m_iblTextureSetLayout
-            },
-            {
-            },
-            VertexPositionOnly::GetPipelineVertexInputStateCreateInfo(),
-            "shaders/skybox.json",
-            {
-                    NO_BLEND,
-                    NO_BLEND,
-                    NO_BLEND,
-                    NO_BLEND
-            },
-            m_deferredContext.GetRenderPass(),
-            0
+        m_device,
+        compiler,
+        {m_uniformBufferSet.GetDescriptorSetLayout(), m_iblTextureSetLayout},
+        {},
+        VertexPositionOnly::GetPipelineVertexInputStateCreateInfo(),
+        "shaders/skybox.json",
+        {NO_BLEND, NO_BLEND, NO_BLEND, NO_BLEND},
+        m_deferredContext.GetRenderPass(),
+        0
     );
 
     m_combinePipeline = VulkanPipeline(
-            m_device,
-            compiler,
-            {
-                    m_uniformBufferSet.GetDescriptorSetLayout(),
-                    m_deferredContext.GetTextureSetLayout(),
-                    m_iblTextureSetLayout,
-                    m_shadowContext.GetTextureSetLayout()
-            },
-            {},
-            VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
-            "shaders/combine.json",
-            {
-                    NO_BLEND
-            },
-            m_device.GetPrimaryRenderPass(),
-            0
+        m_device,
+        compiler,
+        {m_uniformBufferSet.GetDescriptorSetLayout(),
+         m_deferredContext.GetTextureSetLayout(),
+         m_iblTextureSetLayout,
+         m_shadowContext.GetTextureSetLayout()},
+        {},
+        VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
+        "shaders/combine.json",
+        {NO_BLEND},
+        m_device.GetPrimaryRenderPass(),
+        0
     );
 }
 
 void Renderer::CreateSkyboxCube() {
     const std::vector<VertexPositionOnly> vertices = CreateSkyboxVertices();
+
     m_skyboxCube = VulkanMesh(m_device, vertices.size(), sizeof(VertexPositionOnly), vertices.data());
 }
 
@@ -168,25 +163,25 @@ void Renderer::CreateFullScreenQuad() {
 Renderer::~Renderer() {
     m_device.WaitIdle();
 
-    m_fullScreenQuad = {};
-    m_skyboxCube = {};
-    m_shadowPipeline = {};
-    m_basePipeline = {};
-    m_skyboxPipeline = {};
+    m_fullScreenQuad  = {};
+    m_skyboxCube      = {};
+    m_shadowPipeline  = {};
+    m_basePipeline    = {};
+    m_skyboxPipeline  = {};
     m_combinePipeline = {};
     m_device.FreeDescriptorSet(m_iblTextureSet);
     m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
     m_uniformBufferSet = {};
-    m_deferredContext = {};
-    m_shadowContext = {};
+    m_deferredContext  = {};
+    m_shadowContext    = {};
 }
 
 void Renderer::SetCameraData(const glm::vec3 &cameraPosition, const glm::mat4 &view, float fov, float near, float far) {
-    const vk::Extent2D &extent = m_device.GetSwapchainExtent();
-    const float aspectRatio = static_cast<float>(extent.width) / static_cast<float>(extent.height);
+    const vk::Extent2D &extent      = m_device.GetSwapchainExtent();
+    const float         aspectRatio = static_cast<float>(extent.width) / static_cast<float>(extent.height);
 
-    m_rendererUniformData.Projection = glm::perspective(fov, aspectRatio, near, far);
-    m_rendererUniformData.View = view;
+    m_rendererUniformData.Projection     = glm::perspective(fov, aspectRatio, near, far);
+    m_rendererUniformData.View           = view;
     m_rendererUniformData.CameraPosition = cameraPosition;
 
     m_shadowMatrixCalculator.SetCameraInfo(view, fov, aspectRatio);
@@ -194,7 +189,7 @@ void Renderer::SetCameraData(const glm::vec3 &cameraPosition, const glm::mat4 &v
 
 void Renderer::SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor) {
     m_lightingUniformData.LightDirection = lightDirection;
-    m_lightingUniformData.LightColor = lightColor;
+    m_lightingUniformData.LightColor     = lightColor;
 
     m_shadowMatrixCalculator.SetLightDirection(lightDirection);
 }
@@ -210,25 +205,22 @@ void Renderer::FinishDrawing() {
     m_deferredContext.CheckFramebuffersOutOfDate();
 
     // update shadow data
-    constexpr float shadowNear = 0.01f;
-    constexpr float shadowFar = 64.0f;
+    constexpr float     shadowNear = 0.01f;
+    constexpr float     shadowFar  = 64.0f;
     constexpr glm::vec3 csmSplits{8.0f, 16.0f, 32.0f};
     m_lightingUniformData.CascadeShadowMapSplits = csmSplits;
-    m_lightingUniformData.ShadowMatrices[0] = m_shadowMatrixCalculator.CalcShadowMatrix(shadowNear, csmSplits[0]);
-    m_lightingUniformData.ShadowMatrices[1] = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[0], csmSplits[1]);
-    m_lightingUniformData.ShadowMatrices[2] = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[1], csmSplits[2]);
-    m_lightingUniformData.ShadowMatrices[3] = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[2], shadowFar);
+    m_lightingUniformData.ShadowMatrices[0]      = m_shadowMatrixCalculator.CalcShadowMatrix(shadowNear, csmSplits[0]);
+    m_lightingUniformData.ShadowMatrices[1]      = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[0], csmSplits[1]);
+    m_lightingUniformData.ShadowMatrices[2]      = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[1], csmSplits[2]);
+    m_lightingUniformData.ShadowMatrices[3]      = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[2], shadowFar);
 
     // update point lights
-    const int numPointLights = static_cast<int>(m_pointLights.size());
+    const int numPointLights             = static_cast<int>(m_pointLights.size());
     m_lightingUniformData.NumPointLights = numPointLights;
     memcpy(m_lightingUniformData.PointLights, m_pointLights.data(), numPointLights * sizeof(PointLightData));
     m_pointLights.clear();
 
-    m_uniformBufferSet.UpdateAllBuffers(frameInfo.BufferingIndex, {
-            &m_rendererUniformData,
-            &m_lightingUniformData
-    });
+    m_uniformBufferSet.UpdateAllBuffers(frameInfo.BufferingIndex, {&m_rendererUniformData, &m_lightingUniformData});
 
     DrawToShadowMaps(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
     DrawToDeferredTextures(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
@@ -247,20 +239,20 @@ void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) 
     cmd.setScissor(0, scissor);
 
     cmd.bindDescriptorSets(
-            vk::PipelineBindPoint::eGraphics,
-            m_shadowPipeline.GetLayout(),
-            0,
-            m_uniformBufferSet.GetDescriptorSet(),
-            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+        vk::PipelineBindPoint::eGraphics,
+        m_shadowPipeline.GetLayout(),
+        0,
+        m_uniformBufferSet.GetDescriptorSet(),
+        m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
 
     for (const DrawCall &drawCall: m_drawCalls) {
         cmd.pushConstants(
-                m_shadowPipeline.GetLayout(),
-                vk::ShaderStageFlagBits::eVertex,
-                0,
-                sizeof(glm::mat4),
-                glm::value_ptr(drawCall.ModelMatrix)
+            m_shadowPipeline.GetLayout(), //
+            vk::ShaderStageFlagBits::eVertex,
+            0,
+            sizeof(glm::mat4),
+            glm::value_ptr(drawCall.ModelMatrix)
         );
         drawCall.Mesh->BindAndDraw(cmd);
     }
@@ -278,27 +270,27 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
     cmd.setScissor(0, scissor);
 
     cmd.bindDescriptorSets(
-            vk::PipelineBindPoint::eGraphics,
-            m_basePipeline.GetLayout(),
-            0,
-            m_uniformBufferSet.GetDescriptorSet(),
-            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+        vk::PipelineBindPoint::eGraphics,
+        m_basePipeline.GetLayout(),
+        0,
+        m_uniformBufferSet.GetDescriptorSet(),
+        m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
 
     for (const DrawCall &drawCall: m_drawCalls) {
         cmd.bindDescriptorSets(
-                vk::PipelineBindPoint::eGraphics,
-                m_basePipeline.GetLayout(),
-                1,
-                drawCall.Material->DescriptorSet,
-                {}
+            vk::PipelineBindPoint::eGraphics, //
+            m_basePipeline.GetLayout(),
+            1,
+            drawCall.Material->DescriptorSet,
+            {}
         );
         cmd.pushConstants(
-                m_basePipeline.GetLayout(),
-                vk::ShaderStageFlagBits::eVertex,
-                0,
-                sizeof(glm::mat4),
-                glm::value_ptr(drawCall.ModelMatrix)
+            m_basePipeline.GetLayout(), //
+            vk::ShaderStageFlagBits::eVertex,
+            0,
+            sizeof(glm::mat4),
+            glm::value_ptr(drawCall.ModelMatrix)
         );
         drawCall.Mesh->BindAndDraw(cmd);
     }
@@ -310,14 +302,11 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
     cmd.setScissor(0, scissor);
 
     cmd.bindDescriptorSets(
-            vk::PipelineBindPoint::eGraphics,
-            m_skyboxPipeline.GetLayout(),
-            0,
-            {
-                    m_uniformBufferSet.GetDescriptorSet(),
-                    m_iblTextureSet
-            },
-            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+        vk::PipelineBindPoint::eGraphics,
+        m_skyboxPipeline.GetLayout(),
+        0,
+        {m_uniformBufferSet.GetDescriptorSet(), m_iblTextureSet},
+        m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
     m_skyboxCube.BindAndDraw(cmd);
 
@@ -334,16 +323,14 @@ void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBegi
     cmd.setScissor(0, scissor);
 
     cmd.bindDescriptorSets(
-            vk::PipelineBindPoint::eGraphics,
-            m_combinePipeline.GetLayout(),
-            0,
-            {
-                    m_uniformBufferSet.GetDescriptorSet(),
-                    m_deferredContext.GetTextureSet(bufferingIndex),
-                    m_iblTextureSet,
-                    m_shadowContext.GetTextureSet(bufferingIndex)
-            },
-            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+        vk::PipelineBindPoint::eGraphics,
+        m_combinePipeline.GetLayout(),
+        0,
+        {m_uniformBufferSet.GetDescriptorSet(),
+         m_deferredContext.GetTextureSet(bufferingIndex),
+         m_iblTextureSet,
+         m_shadowContext.GetTextureSet(bufferingIndex)},
+        m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
 
     m_fullScreenQuad.BindAndDraw(cmd);

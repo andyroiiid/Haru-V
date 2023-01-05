@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <vector>
-#include <map>
 
 #include "actors/Actor.h"
 
@@ -30,10 +30,10 @@ public:
 
     void Draw();
 
-    template<class T, class... Args, std::enable_if_t<!std::is_array_v<T>, int>  = 0>
-    T *CreateActor(Args &&... args) {
-        std::unique_ptr<T> actor = std::make_unique<T>(std::forward<Args>(args)...);
-        T *actorRef = actor.get();
+    template<class T, class... Args, std::enable_if_t<!std::is_array_v<T>, int> = 0>
+    T *CreateActor(Args &&...args) {
+        std::unique_ptr<T> actor    = std::make_unique<T>(std::forward<Args>(args)...);
+        T                 *actorRef = actor.get();
         m_actors.emplace_back(std::move(actor));
         return actorRef;
     }

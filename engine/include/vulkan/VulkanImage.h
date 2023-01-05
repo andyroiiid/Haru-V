@@ -4,34 +4,30 @@
 
 #pragma once
 
-#include <vulkan/vulkan.hpp>
 #include <vk_mem_alloc.h>
+#include <vulkan/vulkan.hpp>
 
 class VulkanImage {
 public:
     VulkanImage() = default;
 
     VulkanImage(
-            VmaAllocator allocator,
-            vk::Format format,
-            const vk::Extent2D &extent,
-            vk::ImageUsageFlags imageUsage,
-            VmaAllocationCreateFlags flags,
-            VmaMemoryUsage memoryUsage,
-            uint32_t layers = 1
+        VmaAllocator             allocator,
+        vk::Format               format,
+        const vk::Extent2D      &extent,
+        vk::ImageUsageFlags      imageUsage,
+        VmaAllocationCreateFlags flags,
+        VmaMemoryUsage           memoryUsage,
+        uint32_t                 layers = 1
     );
 
-    ~VulkanImage() {
-        Release();
-    }
+    ~VulkanImage() { Release(); }
 
     VulkanImage(const VulkanImage &) = delete;
 
     VulkanImage &operator=(const VulkanImage &) = delete;
 
-    VulkanImage(VulkanImage &&other) noexcept {
-        Swap(other);
-    }
+    VulkanImage(VulkanImage &&other) noexcept { Swap(other); }
 
     VulkanImage &operator=(VulkanImage &&other) noexcept {
         if (this != &other) {
@@ -50,6 +46,6 @@ public:
 private:
     VmaAllocator m_allocator = VK_NULL_HANDLE;
 
-    vk::Image m_image = VK_NULL_HANDLE;
+    vk::Image     m_image      = VK_NULL_HANDLE;
     VmaAllocation m_allocation = VK_NULL_HANDLE;
 };

@@ -5,9 +5,9 @@
 #pragma once
 
 #include <array>
+#include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
 
 class ShadowMatrixCalculator {
 public:
@@ -25,8 +25,8 @@ private:
     [[nodiscard]] glm::mat4 GetLightProjection(const std::array<glm::vec4, 8> &frustumCorners, const glm::mat4 &lightView) const;
 
     glm::mat4 m_view{1.0f};
-    float m_fov = 0.0f;
-    float m_aspectRatio = 1.0f;
+    float     m_fov         = 0.0f;
+    float     m_aspectRatio = 1.0f;
 
     glm::vec3 m_lightDir{};
 

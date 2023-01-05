@@ -8,20 +8,20 @@
 #include <foundation/PxSimpleTypes.h>
 
 namespace physx {
-    class PxRigidActor;
-}
+class PxRigidActor;
+} // namespace physx
 
 enum PhysicsLayer : physx::PxU32 {
-    PHYSICS_LAYER_0 = (1u << 0),    // world default
-    PHYSICS_LAYER_1 = (1u << 1),    // character controller default
-    PHYSICS_LAYER_2 = (1u << 2),
-    PHYSICS_LAYER_3 = (1u << 3),
-    PHYSICS_LAYER_4 = (1u << 4),
-    PHYSICS_LAYER_5 = (1u << 5),
-    PHYSICS_LAYER_6 = (1u << 6),
-    PHYSICS_LAYER_7 = (1u << 7),
-    PHYSICS_LAYER_8 = (1u << 8),
-    PHYSICS_LAYER_9 = (1u << 9),
+    PHYSICS_LAYER_0  = (1u << 0), // world default
+    PHYSICS_LAYER_1  = (1u << 1), // character controller default
+    PHYSICS_LAYER_2  = (1u << 2),
+    PHYSICS_LAYER_3  = (1u << 3),
+    PHYSICS_LAYER_4  = (1u << 4),
+    PHYSICS_LAYER_5  = (1u << 5),
+    PHYSICS_LAYER_6  = (1u << 6),
+    PHYSICS_LAYER_7  = (1u << 7),
+    PHYSICS_LAYER_8  = (1u << 8),
+    PHYSICS_LAYER_9  = (1u << 9),
     PHYSICS_LAYER_10 = (1u << 10),
     PHYSICS_LAYER_11 = (1u << 11),
     PHYSICS_LAYER_12 = (1u << 12),

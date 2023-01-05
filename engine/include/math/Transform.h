@@ -4,16 +4,16 @@
 
 #pragma once
 
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 
 class Transform {
 public:
     Transform &SetPosition(const glm::vec3 &position) {
         m_translationDirty = true;
-        m_position = position;
+        m_position         = position;
         return *this;
     }
 
@@ -27,7 +27,7 @@ public:
 
     Transform &Translate(const glm::vec3 &translation) {
         m_translationDirty = true;
-        m_position += translation;
+        m_position         += translation;
         return *this;
     }
 
@@ -55,19 +55,15 @@ public:
         return *this;
     }
 
-    [[nodiscard]] const glm::vec3 &GetPosition() const {
-        return m_position;
-    }
+    [[nodiscard]] const glm::vec3 &GetPosition() const { return m_position; }
 
-    [[nodiscard]] const glm::vec3 &GetEulerAngles() const {
-        return m_eulerAngles;
-    }
+    [[nodiscard]] const glm::vec3 &GetEulerAngles() const { return m_eulerAngles; }
 
     [[nodiscard]] const glm::mat4 &GetTranslationMatrix() const {
         if (m_translationDirty) {
             static constexpr glm::mat4 IDENTITY(1.0f);
             m_translationMatrix = translate(IDENTITY, m_position);
-            m_translationDirty = false;
+            m_translationDirty  = false;
         }
         return m_translationMatrix;
     }
@@ -75,7 +71,7 @@ public:
     [[nodiscard]] const glm::mat4 &GetRotationMatrix() const {
         if (m_rotationDirty) {
             m_rotationMatrix = glm::eulerAngleYXZ(m_eulerAngles.y, m_eulerAngles.x, m_eulerAngles.z);
-            m_rotationDirty = false;
+            m_rotationDirty  = false;
         }
         return m_rotationMatrix;
     }
@@ -105,30 +101,22 @@ public:
         return {glm::sin(yaw), 0, glm::cos(yaw)};
     }
 
-    [[nodiscard]] glm::mat4 GetMatrix() const {
-        return GetTranslationMatrix() * GetRotationMatrix();
-    }
+    [[nodiscard]] glm::mat4 GetMatrix() const { return GetTranslationMatrix() * GetRotationMatrix(); }
 
-    [[nodiscard]] glm::mat4 GetInverseMatrix() const {
-        return inverse(GetMatrix());
-    }
+    [[nodiscard]] glm::mat4 GetInverseMatrix() const { return inverse(GetMatrix()); }
 
 private:
-    static float ClampPitch(const float radians) {
-        return glm::clamp(radians, -glm::half_pi<float>(), glm::half_pi<float>());
-    }
+    static float ClampPitch(const float radians) { return glm::clamp(radians, -glm::half_pi<float>(), glm::half_pi<float>()); }
 
     // Wrap to (-PI..PI]
-    static float WrapAngle(const float radians) {
-        return std::remainder(radians, glm::two_pi<float>());
-    }
+    static float WrapAngle(const float radians) { return std::remainder(radians, glm::two_pi<float>()); }
 
     glm::vec3 m_position{};
     glm::vec3 m_eulerAngles{}; // in radians
 
-    mutable bool m_translationDirty = true;
+    mutable bool      m_translationDirty = true;
     mutable glm::mat4 m_translationMatrix{1.0f};
 
-    mutable bool m_rotationDirty = true;
+    mutable bool      m_rotationDirty = true;
     mutable glm::mat4 m_rotationMatrix{1.0f};
 };

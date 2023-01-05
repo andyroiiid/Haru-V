@@ -11,24 +11,20 @@ public:
     ShadowMap() = default;
 
     ShadowMap(
-            VulkanBase *device,
-            vk::RenderPass renderPass,
-            vk::DescriptorSetLayout textureSetLayout,
-            vk::Sampler sampler,
-            const vk::Extent2D &extent
+        VulkanBase             *device,
+        vk::RenderPass          renderPass,
+        vk::DescriptorSetLayout textureSetLayout,
+        vk::Sampler             sampler,
+        const vk::Extent2D     &extent
     );
 
-    ~ShadowMap() {
-        Release();
-    }
+    ~ShadowMap() { Release(); }
 
     ShadowMap(const ShadowMap &) = delete;
 
     ShadowMap &operator=(const ShadowMap &) = delete;
 
-    ShadowMap(ShadowMap &&other) noexcept {
-        Swap(other);
-    }
+    ShadowMap(ShadowMap &&other) noexcept { Swap(other); }
 
     ShadowMap &operator=(ShadowMap &&other) noexcept {
         if (this != &other) {
@@ -53,8 +49,8 @@ private:
 
     VulkanBase *m_device = nullptr;
 
-    VulkanImage m_depthAttachment;
-    vk::ImageView m_depthAttachmentView;
-    vk::Framebuffer m_framebuffer;
+    VulkanImage       m_depthAttachment;
+    vk::ImageView     m_depthAttachmentView;
+    vk::Framebuffer   m_framebuffer;
     vk::DescriptorSet m_textureSet;
 };

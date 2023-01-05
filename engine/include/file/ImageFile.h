@@ -12,17 +12,13 @@ public:
 
     explicit ImageFile(const std::string &filename);
 
-    ~ImageFile() {
-        Release();
-    }
+    ~ImageFile() { Release(); }
 
     ImageFile(const ImageFile &) = delete;
 
     ImageFile &operator=(const ImageFile &) = delete;
 
-    ImageFile(ImageFile &&other) noexcept {
-        Swap(other);
-    }
+    ImageFile(ImageFile &&other) noexcept { Swap(other); }
 
     ImageFile &operator=(ImageFile &&other) noexcept {
         if (this != &other) {
@@ -43,7 +39,7 @@ public:
     [[nodiscard]] const unsigned char *GetData() const { return m_data; }
 
 private:
-    uint32_t m_width = 0;
-    uint32_t m_height = 0;
-    unsigned char *m_data = nullptr;
+    uint32_t       m_width  = 0;
+    uint32_t       m_height = 0;
+    unsigned char *m_data   = nullptr;
 };

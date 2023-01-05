@@ -6,7 +6,7 @@
 #include "core/Debug.h"
 
 MapParser::MapParser(const std::string &filename)
-        : BinaryParser(filename) {
+    : BinaryParser(filename) {
     ParseMap(m_map);
 }
 

@@ -19,7 +19,7 @@ JsonFile::JsonFile(const std::string &filename) {
 
 template<class T>
 T JsonFile::GetCriticalField(const std::string &key) {
-    T value{};
+    T                          value{};
     const simdjson::error_code error = m_document.at_key(key).get(value);
     DebugCheckCriticalSimdJson(error, "Failed to find key '{}': {}", key);
     return value;
@@ -27,7 +27,7 @@ T JsonFile::GetCriticalField(const std::string &key) {
 
 template<class T>
 T JsonFile::GetField(const std::string &key, const T &fallback) {
-    T value{};
+    T                          value{};
     const simdjson::error_code error = m_document.at_key(key).get(value);
     return error == simdjson::SUCCESS ? value : fallback;
 }

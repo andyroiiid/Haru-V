@@ -8,8 +8,8 @@
 #include <tracy/Tracy.hpp>
 
 #include "Globals.h"
-#include "map/LoadEntities.h"
 #include "actors/ATriggerTest.h"
+#include "map/LoadEntities.h"
 
 void Game::Init(GLFWwindow *window) {
     ZoneScoped;
@@ -41,8 +41,8 @@ void Game::Init(GLFWwindow *window) {
     g_Lua = m_lua.get();
 
     m_lua->SetGlobalFunction("signal", [](lua_State *L) {
-        const std::string name = luaL_checkstring(L, 1);
-        Actor *actor = g_Scene->FindActorWithName(name);
+        const std::string name  = luaL_checkstring(L, 1);
+        Actor            *actor = g_Scene->FindActorWithName(name);
         if (actor != nullptr) {
             actor->LuaSignal(L);
         }

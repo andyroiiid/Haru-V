@@ -17,8 +17,8 @@ static vk::Extent2D CalcSwapchainExtent(const vk::SurfaceCapabilitiesKHR &capabi
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         const vk::Extent2D extent(
-                std::clamp(static_cast<uint32_t>(width), capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
-                std::clamp(static_cast<uint32_t>(height), capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
+            std::clamp(static_cast<uint32_t>(width), capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
+            std::clamp(static_cast<uint32_t>(height), capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
         );
         return extent;
     }
@@ -26,7 +26,7 @@ static vk::Extent2D CalcSwapchainExtent(const vk::SurfaceCapabilitiesKHR &capabi
 }
 
 VulkanBase::VulkanBase(GLFWwindow *window)
-        : m_window(window) {
+    : m_window(window) {
     CreateImmediateContext();
     CreateBufferingObjects();
     CreateSurfaceSwapchainAndImageViews();
@@ -35,16 +35,16 @@ VulkanBase::VulkanBase(GLFWwindow *window)
 }
 
 void VulkanBase::CreateImmediateContext() {
-    m_immediateFence = CreateFence();
+    m_immediateFence         = CreateFence();
     m_immediateCommandBuffer = AllocateCommandBuffer();
 }
 
 void VulkanBase::CreateBufferingObjects() {
     for (BufferingObjects &bufferingObject: m_bufferingObjects) {
-        bufferingObject.RenderFence = CreateFence(vk::FenceCreateFlagBits::eSignaled);
+        bufferingObject.RenderFence      = CreateFence(vk::FenceCreateFlagBits::eSignaled);
         bufferingObject.PresentSemaphore = CreateSemaphore();
-        bufferingObject.RenderSemaphore = CreateSemaphore();
-        bufferingObject.CommandBuffer = AllocateCommandBuffer();
+        bufferingObject.RenderSemaphore  = CreateSemaphore();
+        bufferingObject.CommandBuffer    = AllocateCommandBuffer();
     }
 }
 
@@ -60,75 +60,47 @@ void VulkanBase::CreateSurfaceSwapchainAndImageViews() {
     m_swapchainExtent = CalcSwapchainExtent(capabilities, m_window);
 
     m_swapchain = CreateSwapchain(
-            m_surface,
-            imageCount,
-            SURFACE_FORMAT,
-            SURFACE_COLOR_SPACE,
-            m_swapchainExtent,
-            capabilities.currentTransform,
-            PRESENT_MODE,
-            m_swapchain
+        m_surface,
+        imageCount,
+        SURFACE_FORMAT,
+        SURFACE_COLOR_SPACE,
+        m_swapchainExtent,
+        capabilities.currentTransform,
+        PRESENT_MODE,
+        m_swapchain
     );
 
     const auto [swapchainImagesResult, swapchainImages] = m_device.getSwapchainImagesKHR(m_swapchain);
     DebugCheckCriticalVk(swapchainImagesResult, "Failed to get Vulkan swapchain images.");
     for (const vk::Image &image: swapchainImages) {
-        m_swapchainImageViews.push_back(CreateImageView(
-                image,
-                SURFACE_FORMAT,
-                vk::ImageAspectFlagBits::eColor
-        ));
-        VulkanImage depthImage = CreateImage(
-                DEPTH_FORMAT,
-                m_swapchainExtent,
-                vk::ImageUsageFlagBits::eDepthStencilAttachment,
-                0,
-                VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
-        );
-        m_depthImageViews.push_back(CreateImageView(
-                depthImage.Get(),
-                DEPTH_FORMAT,
-                vk::ImageAspectFlagBits::eDepth
-        ));
+        m_swapchainImageViews.push_back(CreateImageView(image, SURFACE_FORMAT, vk::ImageAspectFlagBits::eColor));
+        VulkanImage depthImage =
+            CreateImage(DEPTH_FORMAT, m_swapchainExtent, vk::ImageUsageFlagBits::eDepthStencilAttachment, 0, VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE);
+        m_depthImageViews.push_back(CreateImageView(depthImage.Get(), DEPTH_FORMAT, vk::ImageAspectFlagBits::eDepth));
         m_depthImages.push_back(std::move(depthImage));
     }
 }
 
 void VulkanBase::CreatePrimaryRenderPass() {
-    m_primaryRenderPass = CreateRenderPass(
-            {
-                    SURFACE_FORMAT
-            },
-            DEPTH_FORMAT,
-            false,
-            true
-    );
+    m_primaryRenderPass = CreateRenderPass({SURFACE_FORMAT}, DEPTH_FORMAT, false, true);
 }
 
 void VulkanBase::CreatePrimaryFramebuffers() {
     const size_t numSwapchainImages = m_swapchainImageViews.size();
     for (int i = 0; i < numSwapchainImages; i++) {
-        vk::ImageView attachmentViews[]{
-                m_swapchainImageViews[i],
-                m_depthImageViews[i]
-        };
-        m_primaryFramebuffers.push_back(CreateFramebuffer(
-                m_primaryRenderPass,
-                attachmentViews,
-                m_swapchainExtent
-        ));
+        vk::ImageView attachmentViews[]{m_swapchainImageViews[i], m_depthImageViews[i]};
+        m_primaryFramebuffers.push_back(CreateFramebuffer(m_primaryRenderPass, attachmentViews, m_swapchainExtent));
     }
 
-    static vk::ClearValue clearValues[]{
-            {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-            {vk::ClearDepthStencilValue{1.0f, 0}}
+    const vk::Rect2D renderArea{
+        {0, 0},
+        m_swapchainExtent
     };
-    vk::RenderPassBeginInfo beginInfo(
-            m_primaryRenderPass,
-            {},
-            {{0, 0}, m_swapchainExtent},
-            clearValues
-    );
+    static const vk::ClearValue clearValues[]{
+        {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
+        {vk::ClearDepthStencilValue{1.0f, 0}}};
+
+    vk::RenderPassBeginInfo beginInfo(m_primaryRenderPass, {}, renderArea, clearValues);
     for (const vk::Framebuffer &framebuffer: m_primaryFramebuffers) {
         beginInfo.framebuffer = framebuffer;
         m_primaryRenderPassBeginInfos.push_back(beginInfo);
@@ -199,13 +171,7 @@ VulkanBase::~VulkanBase() {
 vk::Result VulkanBase::TryAcquiringNextSwapchainImage() {
     const BufferingObjects &bufferingObjects = m_bufferingObjects[m_currentBufferingIndex];
 
-    return m_device.acquireNextImageKHR(
-            m_swapchain,
-            100'000'000,
-            bufferingObjects.PresentSemaphore,
-            nullptr,
-            &m_currentSwapchainImageIndex
-    );
+    return m_device.acquireNextImageKHR(m_swapchain, 100'000'000, bufferingObjects.PresentSemaphore, nullptr, &m_currentSwapchainImageIndex);
 }
 
 void VulkanBase::AcquireNextSwapchainImage() {
@@ -217,10 +183,7 @@ void VulkanBase::AcquireNextSwapchainImage() {
             result = TryAcquiringNextSwapchainImage();
         }
 
-        DebugCheckCriticalVk(
-                result,
-                "Failed to acquire next Vulkan swapchain image."
-        );
+        DebugCheckCriticalVk(result, "Failed to acquire next Vulkan swapchain image.");
     }
 }
 
@@ -234,11 +197,7 @@ VulkanFrameInfo VulkanBase::BeginFrame() {
     bufferingObjects.CommandBuffer.reset();
     BeginCommandBuffer(bufferingObjects.CommandBuffer, vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
 
-    return {
-            &m_primaryRenderPassBeginInfos[m_currentSwapchainImageIndex],
-            m_currentBufferingIndex,
-            bufferingObjects.CommandBuffer
-    };
+    return {&m_primaryRenderPassBeginInfos[m_currentSwapchainImageIndex], m_currentBufferingIndex, bufferingObjects.CommandBuffer};
 }
 
 void VulkanBase::EndFrame() {
@@ -247,27 +206,15 @@ void VulkanBase::EndFrame() {
     EndCommandBuffer(bufferingObjects.CommandBuffer);
 
     vk::PipelineStageFlags waitStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-    const vk::SubmitInfo submitInfo(
-            bufferingObjects.PresentSemaphore,
-            waitStage,
-            bufferingObjects.CommandBuffer,
-            bufferingObjects.RenderSemaphore
-    );
+    const vk::SubmitInfo   submitInfo(bufferingObjects.PresentSemaphore, waitStage, bufferingObjects.CommandBuffer, bufferingObjects.RenderSemaphore);
     SubmitToGraphicsQueue(submitInfo, bufferingObjects.RenderFence);
 
-    const vk::PresentInfoKHR presentInfo(
-            bufferingObjects.RenderSemaphore,
-            m_swapchain,
-            m_currentSwapchainImageIndex
-    );
-    const vk::Result result = m_graphicsQueue.presentKHR(presentInfo);
+    const vk::PresentInfoKHR presentInfo(bufferingObjects.RenderSemaphore, m_swapchain, m_currentSwapchainImageIndex);
+    const vk::Result         result = m_graphicsQueue.presentKHR(presentInfo);
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) {
         RecreateSwapchain();
     } else {
-        DebugCheckCriticalVk(
-                result,
-                "Failed to present Vulkan swapchain image."
-        );
+        DebugCheckCriticalVk(result, "Failed to present Vulkan swapchain image.");
     }
 
     m_currentBufferingIndex = (m_currentBufferingIndex + 1) % m_bufferingObjects.size();

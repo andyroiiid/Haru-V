@@ -5,20 +5,20 @@
 #pragma once
 
 #include <glm/mat4x4.hpp>
-#include <vulkan/VulkanMesh.h>
 #include <physics/PhysicsLayer.h>
+#include <vulkan/VulkanMesh.h>
 
 #include "map/MapData.h"
 
 class PbrMaterial;
 
 namespace physx {
-    class PxConvexMesh;
+class PxConvexMesh;
 
-    class PxShape;
+class PxShape;
 
-    class PxRigidActor;
-}
+class PxRigidActor;
+} // namespace physx
 
 class Brushes {
 public:
@@ -50,5 +50,5 @@ private:
     std::vector<std::pair<VulkanMesh, PbrMaterial *>> m_meshes;
 
     std::vector<physx::PxConvexMesh *> m_colliders;
-    std::vector<physx::PxShape *> m_shapes;
+    std::vector<physx::PxShape *>      m_shapes;
 };

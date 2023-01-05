@@ -10,7 +10,8 @@
 
 class TextureCache {
 public:
-    explicit TextureCache(VulkanBase &device) : m_device(device) {}
+    explicit TextureCache(VulkanBase &device)
+        : m_device(device) {}
 
     ~TextureCache() = default;
 
@@ -23,9 +24,9 @@ public:
     TextureCache &operator=(TextureCache &&) = delete;
 
     VulkanTexture *LoadTexture(
-            const std::string &filename,
-            vk::Filter filter = vk::Filter::eNearest,
-            vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat
+        const std::string     &filename,
+        vk::Filter             filter      = vk::Filter::eNearest,
+        vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat
     );
 
 private:

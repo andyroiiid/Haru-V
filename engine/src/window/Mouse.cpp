@@ -13,8 +13,8 @@ static glm::vec2 GetMousePosition(GLFWwindow *window) {
 }
 
 Mouse::Mouse(GLFWwindow *window)
-        : m_window(window),
-          m_position(GetMousePosition(window)) {
+    : m_window(window)
+    , m_position(GetMousePosition(window)) {
 }
 
 void Mouse::SetEnabled(bool enable) {
@@ -23,8 +23,8 @@ void Mouse::SetEnabled(bool enable) {
 
 void Mouse::Update() {
     const glm::vec2 mousePosition = GetMousePosition(m_window);
-    m_deltaPosition = mousePosition - m_position;
-    m_position = mousePosition;
+    m_deltaPosition               = mousePosition - m_position;
+    m_position                    = mousePosition;
 }
 
 bool Mouse::IsButtonDown(MouseButton button) const {

@@ -75,17 +75,17 @@ static vk::CompareOp CompareOpFromString(const std::string &compareOp) {
 
 VulkanPipelineConfig::VulkanPipelineConfig(const std::string &jsonFilename) {
     JsonFile pipelineJson(jsonFilename);
-    VertexShader = pipelineJson.GetString("vertex");
-    GeometryShader = pipelineJson.GetString("geometry", {});
-    FragmentShader = pipelineJson.GetString("fragment");
-    const std::string topology = pipelineJson.GetString("topology", {});
-    Options.Topology = topology.empty() ? vk::PrimitiveTopology::eTriangleList : TopologyFromString(topology);
+    VertexShader                  = pipelineJson.GetString("vertex");
+    GeometryShader                = pipelineJson.GetString("geometry", {});
+    FragmentShader                = pipelineJson.GetString("fragment");
+    const std::string topology    = pipelineJson.GetString("topology", {});
+    Options.Topology              = topology.empty() ? vk::PrimitiveTopology::eTriangleList : TopologyFromString(topology);
     const std::string polygonMode = pipelineJson.GetString("polygon_mode", {});
-    Options.PolygonMode = polygonMode.empty() ? vk::PolygonMode::eFill : PolygonModeFromString(polygonMode);
-    const std::string cullMode = pipelineJson.GetString("cull_mode", {});
-    Options.CullMode = cullMode.empty() ? vk::CullModeFlagBits::eBack : CullModeFromString(cullMode);
-    Options.DepthTestEnable = pipelineJson.GetBoolean("depth_test", true) ? VK_TRUE : VK_FALSE;
-    Options.DepthWriteEnable = pipelineJson.GetBoolean("depth_write", true) ? VK_TRUE : VK_FALSE;
-    const std::string compareOp = pipelineJson.GetString("compare_op", {});
-    Options.DepthCompareOp = compareOp.empty() ? vk::CompareOp::eLess : CompareOpFromString(compareOp);
+    Options.PolygonMode           = polygonMode.empty() ? vk::PolygonMode::eFill : PolygonModeFromString(polygonMode);
+    const std::string cullMode    = pipelineJson.GetString("cull_mode", {});
+    Options.CullMode              = cullMode.empty() ? vk::CullModeFlagBits::eBack : CullModeFromString(cullMode);
+    Options.DepthTestEnable       = pipelineJson.GetBoolean("depth_test", true) ? VK_TRUE : VK_FALSE;
+    Options.DepthWriteEnable      = pipelineJson.GetBoolean("depth_write", true) ? VK_TRUE : VK_FALSE;
+    const std::string compareOp   = pipelineJson.GetString("compare_op", {});
+    Options.DepthCompareOp        = compareOp.empty() ? vk::CompareOp::eLess : CompareOpFromString(compareOp);
 }

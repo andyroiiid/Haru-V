@@ -17,16 +17,13 @@
 APlayer::APlayer(const glm::vec3 &position, float yaw, float mouseSpeed) {
     GetTransform().SetPosition(position).RotateY(yaw);
 
-    m_controller = g_PhysicsScene->CreateController(
-            {position.x, position.y, position.z},
-            CAPSULE_RADIUS,
-            CAPSULE_HEIGHT
-    );
+    m_controller = g_PhysicsScene->CreateController({position.x, position.y, position.z}, CAPSULE_RADIUS, CAPSULE_HEIGHT);
+
     m_controller->getActor()->userData = this;
 
     m_mouseSpeed = mouseSpeed;
 
-    m_respawnPoint = position;
+    m_respawnPoint     = position;
     m_previousPosition = position;
 
     g_Mouse->SetEnabled(false);
@@ -46,34 +43,30 @@ static inline float GetKeyAxis(GLFWwindow *window, int posKey, int negKey) {
 }
 
 void APlayer::Update(const float deltaTime) {
+    Transform &transform = GetTransform();
+
     // sync position
     {
-        const physx::PxVec3 position = toVec3(m_controller->getPosition());
-        const float timeError = glm::min(g_PhysicsScene->GetFixedTimestep(), g_PhysicsScene->GetFixedUpdateTimeError());
-        const glm::vec3 predictedPosition{
-                position.x + m_velocity.x * timeError,
-                position.y + m_velocity.y * timeError,
-                position.z + m_velocity.z * timeError
-        };
-        GetTransform().SetPosition(predictedPosition + glm::vec3{0.0f, CAPSULE_HALF_HEIGHT, 0.0f});
+        const physx::PxVec3 position  = toVec3(m_controller->getPosition());
+        const float         timeError = glm::min(g_PhysicsScene->GetFixedTimestep(), g_PhysicsScene->GetFixedUpdateTimeError());
+        const glm::vec3     predictedPosition{
+            position.x + m_velocity.x * timeError,
+            position.y + m_velocity.y * timeError,
+            position.z + m_velocity.z * timeError};
+        transform.SetPosition(predictedPosition + glm::vec3{0.0f, CAPSULE_HALF_HEIGHT, 0.0f});
     }
 
     // turn
     {
-        const float mouseSpeed = g_SlowMotion ? m_mouseSpeed * 0.4f : m_mouseSpeed;
+        const float      mouseSpeed    = g_SlowMotion ? m_mouseSpeed * 0.4f : m_mouseSpeed;
         const glm::vec2 &deltaMousePos = g_Mouse->GetDeltaPosition();
-        GetTransform()
-                .RotateX(mouseSpeed * deltaMousePos.y)
-                .RotateY(mouseSpeed * deltaMousePos.x)
-                .ClampPitch();
+        transform.RotateX(mouseSpeed * deltaMousePos.y).RotateY(mouseSpeed * deltaMousePos.x).ClampPitch();
     }
 
     // move
     {
-        Transform &transform = GetTransform();
-        m_movementInput =
-                transform.GetHorizontalRightVector() * GetKeyAxis(g_Window, GLFW_KEY_D, GLFW_KEY_A) +
-                transform.GetHorizontalForwardVector() * GetKeyAxis(g_Window, GLFW_KEY_W, GLFW_KEY_S);
+        m_movementInput = transform.GetHorizontalRightVector() * GetKeyAxis(g_Window, GLFW_KEY_D, GLFW_KEY_A) +
+                          transform.GetHorizontalForwardVector() * GetKeyAxis(g_Window, GLFW_KEY_W, GLFW_KEY_S);
     }
 
     // jump
@@ -91,15 +84,12 @@ void APlayer::Update(const float deltaTime) {
     {
         bool currLmb = g_Mouse->IsButtonDown(MouseButton::Left);
 
-        const glm::vec3 position = GetTransform().GetPosition();
-        const glm::vec3 forward = GetTransform().GetForwardVector();
+        const glm::vec3 position = transform.GetPosition();
+        const glm::vec3 forward  = transform.GetForwardVector();
 
-        physx::PxRaycastBuffer buffer = g_PhysicsScene->Raycast(
-                {position.x, position.y, position.z},
-                {forward.x, forward.y, forward.z},
-                INTERACTION_DISTANCE,
-                PHYSICS_LAYER_0
-        );
+        const physx::PxVec3    origin{position.x, position.y, position.z};
+        const physx::PxVec3    unitDir{forward.x, forward.y, forward.z};
+        physx::PxRaycastBuffer buffer = g_PhysicsScene->Raycast(origin, unitDir, INTERACTION_DISTANCE, PHYSICS_LAYER_0);
 
         m_hitActor = nullptr;
         if (buffer.hasBlock) {
@@ -121,15 +111,15 @@ void APlayer::Update(const float deltaTime) {
 void APlayer::UpdateGround() {
     // https://nvidia-omniverse.github.io/PhysX/physx/5.1.1/docs/Geometry.html#capsules
     static const physx::PxCapsuleGeometry QUERY_GEOMETRY(CAPSULE_RADIUS, CAPSULE_HALF_HEIGHT);
-    static const physx::PxQuat QUERY_ROTATION(physx::PxHalfPi, physx::PxVec3(0.0f, 0.0f, 1.0f));
-    static const physx::PxVec3 QUERY_DIRECTION(0.0f, -1.0f, 0.0f);
+    static const physx::PxQuat            QUERY_ROTATION(physx::PxHalfPi, physx::PxVec3(0.0f, 0.0f, 1.0f));
+    static const physx::PxVec3            QUERY_DIRECTION(0.0f, -1.0f, 0.0f);
 
     physx::PxSweepBuffer buffer = g_PhysicsScene->Sweep(
-            QUERY_GEOMETRY,
-            physx::PxTransform(toVec3(m_controller->getPosition()), QUERY_ROTATION),
-            QUERY_DIRECTION,
-            GROUND_CHECK_DISTANCE,
-            PHYSICS_LAYER_0
+        QUERY_GEOMETRY,
+        physx::PxTransform(toVec3(m_controller->getPosition()), QUERY_ROTATION),
+        QUERY_DIRECTION,
+        GROUND_CHECK_DISTANCE,
+        PHYSICS_LAYER_0
     );
 
     // check is touching ground and ground is not too steep
@@ -142,9 +132,9 @@ void APlayer::CalcHorizontalAcceleration(const glm::vec3 &direction, float accel
 }
 
 void APlayer::UpdateAcceleration() {
-    m_acceleration = {};
+    m_acceleration     = {};
     float acceleration = m_isOnGround ? GROUND_ACCELERATION : AIR_ACCELERATION;
-    float drag = m_isOnGround ? GROUND_DRAG : AIR_DRAG;
+    float drag         = m_isOnGround ? GROUND_DRAG : AIR_DRAG;
     CalcHorizontalAcceleration(m_movementInput, acceleration, drag);
     m_acceleration.y = -GRAVITY;
 }
@@ -156,18 +146,15 @@ void APlayer::FixedUpdate(float fixedDeltaTime) {
 
     // move character controller
     m_velocity += m_acceleration * fixedDeltaTime;
-    const glm::vec3 displacement = m_velocity * fixedDeltaTime;
-    m_controller->move(
-            {displacement.x, displacement.y, displacement.z},
-            0.0001f,
-            fixedDeltaTime,
-            physx::PxControllerFilters()
-    );
+
+    const glm::vec3     displacement = m_velocity * fixedDeltaTime;
+    const physx::PxVec3 disp{displacement.x, displacement.y, displacement.z};
+    m_controller->move(disp, 0.0001f, fixedDeltaTime, physx::PxControllerFilters());
 
     // calc projected velocity
     const physx::PxVec3 pos = toVec3(m_controller->getPosition());
-    const glm::vec3 currentPosition{pos.x, pos.y, pos.z};
-    m_velocity = (currentPosition - m_previousPosition) / fixedDeltaTime;
+    const glm::vec3     currentPosition{pos.x, pos.y, pos.z};
+    m_velocity         = (currentPosition - m_previousPosition) / fixedDeltaTime;
     m_previousPosition = currentPosition;
 
     // clamp vertical speed (this is a hack)
@@ -177,19 +164,14 @@ void APlayer::FixedUpdate(float fixedDeltaTime) {
     if (currentPosition.y < -100.0f) {
         // just teleport player back
         m_controller->setPosition({m_respawnPoint.x, m_respawnPoint.y, m_respawnPoint.z});
-        m_velocity = {};
-        m_acceleration = {};
+        m_velocity         = {};
+        m_acceleration     = {};
         m_previousPosition = m_respawnPoint;
     }
 }
 
 void APlayer::Draw() {
     const Transform &transform = GetTransform();
-    g_Renderer->SetCameraData(
-            transform.GetPosition(),
-            transform.GetInverseMatrix(),
-            glm::radians(60.0f),
-            0.01f,
-            100.0f
-    );
+
+    g_Renderer->SetCameraData(transform.GetPosition(), transform.GetInverseMatrix(), glm::radians(60.0f), 0.01f, 100.0f);
 }

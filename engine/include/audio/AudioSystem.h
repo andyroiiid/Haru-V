@@ -7,12 +7,12 @@
 #include <string>
 
 namespace FMOD::Studio {
-    class System;
+class System;
 
-    class Bank;
+class Bank;
 
-    class EventDescription;
-}
+class EventDescription;
+} // namespace FMOD::Studio
 
 class AudioSystem {
 public:
@@ -38,9 +38,7 @@ public:
 
     void PlayOneShot(FMOD::Studio::EventDescription *event);
 
-    void PlayOneShot(const std::string &path) {
-        PlayOneShot(FindEvent(path));
-    }
+    void PlayOneShot(const std::string &path) { PlayOneShot(FindEvent(path)); }
 
 private:
     FMOD::Studio::System *m_system = nullptr;

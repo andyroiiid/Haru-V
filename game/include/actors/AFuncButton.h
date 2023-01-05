@@ -10,13 +10,9 @@ class AFuncButton : public AFuncMove {
 public:
     DEFINE_ACTOR_CLASS(AFuncButton)
 
-    AFuncButton(
-            const std::vector<MapData::Brush> &brushes,
-            const glm::vec3 &moveSpeed,
-            float moveTime,
-            std::string event
-    ) : AFuncMove(brushes, moveSpeed, moveTime),
-        m_event(std::move(event)) {}
+    AFuncButton(const std::vector<MapData::Brush> &brushes, const glm::vec3 &moveSpeed, float moveTime, std::string event)
+        : AFuncMove(brushes, moveSpeed, moveTime)
+        , m_event(std::move(event)) {}
 
     void FixedUpdate(float fixedDeltaTime) override;
 

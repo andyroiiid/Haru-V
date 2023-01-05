@@ -9,11 +9,12 @@
 #include "gfx/Renderer.h"
 
 AWorldSpawn::AWorldSpawn(
-        const std::vector<MapData::Brush> &brushes,
-        const glm::vec3 &lightDirection,
-        const glm::vec3 &lightColor,
-        const std::string &script
-) : AFuncBrush(brushes) {
+    const std::vector<MapData::Brush> &brushes,
+    const glm::vec3                   &lightDirection,
+    const glm::vec3                   &lightColor,
+    const std::string                 &script
+)
+    : AFuncBrush(brushes) {
     for (const auto &brush: brushes) {
         for (const auto &vertex: brush.Vertices) {
             m_geomMin.x = glm::min(vertex.x, m_geomMin.x);
@@ -26,7 +27,7 @@ AWorldSpawn::AWorldSpawn(
     }
 
     m_lightDirection = lightDirection;
-    m_lightColor = lightColor;
+    m_lightColor     = lightColor;
 
     if (!script.empty()) {
         g_Lua->DoFile(script);

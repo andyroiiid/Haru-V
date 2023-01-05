@@ -11,7 +11,8 @@
 #include "core/Debug.h"
 #include "physics/PhysicsSystem.h"
 
-PhysicsScene::PhysicsScene(PhysicsSystem *physicsSystem) : m_physics(physicsSystem->m_physics) {
+PhysicsScene::PhysicsScene(PhysicsSystem *physicsSystem)
+    : m_physics(physicsSystem->m_physics) {
     m_defaultCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
     DebugCheckCritical(m_defaultCpuDispatcher, "Failed to create default PhysX CPU dispatcher.");
 
@@ -19,10 +20,10 @@ PhysicsScene::PhysicsScene(PhysicsSystem *physicsSystem) : m_physics(physicsSyst
     DebugCheckCritical(m_defaultMaterial, "Failed to create default PhysX material.");
 
     physx::PxSceneDesc sceneDesc(m_physics->getTolerancesScale());
-    sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
+    sceneDesc.gravity       = physx::PxVec3(0.0f, -9.81f, 0.0f);
     sceneDesc.cpuDispatcher = m_defaultCpuDispatcher;
-    sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
-    m_scene = m_physics->createScene(sceneDesc);
+    sceneDesc.filterShader  = physx::PxDefaultSimulationFilterShader;
+    m_scene                 = m_physics->createScene(sceneDesc);
     DebugCheckCritical(m_scene, "Failed to create PhysX scene.");
 
     if (physx::PxPvdSceneClient *pvdClient = m_scene->getScenePvdClient()) {
@@ -62,12 +63,12 @@ void PhysicsScene::SetSimulationEventCallback(physx::PxSimulationEventCallback *
 
 physx::PxController *PhysicsScene::CreateController(const physx::PxVec3 &position, float radius, float height, PhysicsLayer queryLayer) {
     physx::PxCapsuleControllerDesc desc;
-    desc.position = {position.x, position.y, position.z};
+    desc.position   = {position.x, position.y, position.z};
     desc.stepOffset = 0.0f;
-    desc.material = m_defaultMaterial;
+    desc.material   = m_defaultMaterial;
     // https://nvidia-omniverse.github.io/PhysX/physx/5.1.0/docs/CharacterControllers.html#character-volume
-    desc.radius = radius;
-    desc.height = height;
+    desc.radius     = radius;
+    desc.height     = height;
 
     physx::PxController *controller = m_controllerManager->createController(desc);
 
@@ -87,11 +88,7 @@ physx::PxRigidStatic *PhysicsScene::CreateStatic(const physx::PxTransform &trans
     return actor;
 }
 
-physx::PxRigidStatic *PhysicsScene::CreateStatic(
-        const physx::PxTransform &transform,
-        const physx::PxGeometry &geometry,
-        PhysicsLayer queryLayer
-) {
+physx::PxRigidStatic *PhysicsScene::CreateStatic(const physx::PxTransform &transform, const physx::PxGeometry &geometry, PhysicsLayer queryLayer) {
     physx::PxRigidStatic *actor = PxCreateStatic(*m_physics, transform, geometry, *m_defaultMaterial);
     PhysicsSetQueryLayer(actor, queryLayer);
     m_scene->addActor(*actor);
@@ -105,10 +102,10 @@ physx::PxRigidDynamic *PhysicsScene::CreateDynamic(const physx::PxTransform &tra
 }
 
 physx::PxRigidDynamic *PhysicsScene::CreateDynamic(
-        const physx::PxTransform &transform,
-        const physx::PxGeometry &geometry,
-        PhysicsLayer queryLayer,
-        float density
+    const physx::PxTransform &transform,
+    const physx::PxGeometry  &geometry,
+    PhysicsLayer              queryLayer,
+    float                     density
 ) {
     physx::PxRigidDynamic *actor = PxCreateDynamic(*m_physics, transform, geometry, *m_defaultMaterial, density);
     PhysicsSetQueryLayer(actor, queryLayer);
@@ -116,12 +113,8 @@ physx::PxRigidDynamic *PhysicsScene::CreateDynamic(
     return actor;
 }
 
-physx::PxRaycastBuffer PhysicsScene::Raycast(
-        const physx::PxVec3 &origin,
-        const physx::PxVec3 &unitDir,
-        const float distance,
-        PhysicsLayer layer
-) const {
+physx::PxRaycastBuffer PhysicsScene::Raycast(const physx::PxVec3 &origin, const physx::PxVec3 &unitDir, const float distance, PhysicsLayer layer)
+    const {
     physx::PxQueryFilterData queryFilterData;
     queryFilterData.data = PhysicsFilterDataFromLayer(layer);
 
@@ -131,11 +124,11 @@ physx::PxRaycastBuffer PhysicsScene::Raycast(
 }
 
 physx::PxSweepBuffer PhysicsScene::Sweep(
-        const physx::PxGeometry &geometry,
-        const physx::PxTransform &pose,
-        const physx::PxVec3 &unitDir,
-        float distance,
-        PhysicsLayer layer
+    const physx::PxGeometry  &geometry,
+    const physx::PxTransform &pose,
+    const physx::PxVec3      &unitDir,
+    float                     distance,
+    PhysicsLayer              layer
 ) const {
     physx::PxQueryFilterData queryFilterData;
     queryFilterData.data = PhysicsFilterDataFromLayer(layer);

@@ -11,7 +11,7 @@
 #include "Globals.h"
 
 AFuncBrush::AFuncBrush(const std::vector<MapData::Brush> &brushes)
-        : m_brushes(brushes) {
+    : m_brushes(brushes) {
     const glm::vec3 &center = m_brushes.GetCenter();
 
     GetTransform().SetPosition(center);
@@ -28,8 +28,8 @@ AFuncBrush::~AFuncBrush() {
 
 void AFuncBrush::FixedUpdate(float fixedDeltaTime) {
     const physx::PxTransform transform = m_rigidbody->getGlobalPose();
-    const glm::vec3 position{transform.p.x, transform.p.y, transform.p.z};
-    const glm::quat rotation{transform.q.w, transform.q.x, transform.q.y, transform.q.z};
+    const glm::vec3          position{transform.p.x, transform.p.y, transform.p.z};
+    const glm::quat          rotation{transform.q.w, transform.q.x, transform.q.y, transform.q.z};
     m_modelMatrix = GetTransform().SetPosition(position).GetTranslationMatrix() * mat4_cast(rotation);
 }
 
@@ -38,10 +38,10 @@ void AFuncBrush::Draw() {
 }
 
 void AFuncBrush::Move(const glm::vec3 &deltaPosition) {
-    physx::PxTransform pose = m_rigidbody->getGlobalPose();
-    physx::PxVec3 &position = pose.p;
-    position.x += deltaPosition.x;
-    position.y += deltaPosition.y;
-    position.z += deltaPosition.z;
+    physx::PxTransform pose     = m_rigidbody->getGlobalPose();
+    physx::PxVec3     &position = pose.p;
+    position.x                  += deltaPosition.x;
+    position.y                  += deltaPosition.y;
+    position.z                  += deltaPosition.z;
     m_rigidbody->setGlobalPose(pose);
 }

@@ -4,8 +4,8 @@
 
 #include "vulkan/ShaderCompiler.h"
 
-#include <glslang/Public/ShaderLang.h>
 #include <glslang/Public/ResourceLimits.h>
+#include <glslang/Public/ShaderLang.h>
 #include <glslang/SPIRV/GlslangToSpv.h>
 
 #include "core/Debug.h"
@@ -17,13 +17,9 @@ struct ShaderIncluder : glslang::TShader::Includer {
         return nullptr;
     }
 
-    IncludeResult *includeSystem(const char *headerName, const char *, size_t) override {
-        return include(headerName);
-    }
+    IncludeResult *includeSystem(const char *headerName, const char *, size_t) override { return include(headerName); }
 
-    void releaseInclude(IncludeResult *result) override {
-        delete result;
-    }
+    void releaseInclude(IncludeResult *result) override { delete result; }
 
 private:
     IncludeResult *include(const std::string &headerName) {
@@ -52,40 +48,40 @@ ShaderCompiler::~ShaderCompiler() {
 
 static inline EShLanguage GetShaderStageLanguage(vk::ShaderStageFlagBits stage) {
     switch (stage) {
-        case vk::ShaderStageFlagBits::eVertex:
-            return EShLangVertex;
-        case vk::ShaderStageFlagBits::eGeometry:
-            return EShLangGeometry;
-        case vk::ShaderStageFlagBits::eFragment:
-            return EShLangFragment;
-        case vk::ShaderStageFlagBits::eCompute:
-            return EShLangCompute;
-        default:
-            return EShLangCount;
+    case vk::ShaderStageFlagBits::eVertex:
+        return EShLangVertex;
+    case vk::ShaderStageFlagBits::eGeometry:
+        return EShLangGeometry;
+    case vk::ShaderStageFlagBits::eFragment:
+        return EShLangFragment;
+    case vk::ShaderStageFlagBits::eCompute:
+        return EShLangCompute;
+    default:
+        return EShLangCount;
     }
 }
 
 static inline const char *GetShaderStageName(vk::ShaderStageFlagBits stage) {
     switch (stage) {
-        case vk::ShaderStageFlagBits::eVertex:
-            return "vertex";
-        case vk::ShaderStageFlagBits::eGeometry:
-            return "geometry";
-        case vk::ShaderStageFlagBits::eFragment:
-            return "fragment";
-        case vk::ShaderStageFlagBits::eCompute:
-            return "compute";
-        default:
-            return "unsupported stage";
+    case vk::ShaderStageFlagBits::eVertex:
+        return "vertex";
+    case vk::ShaderStageFlagBits::eGeometry:
+        return "geometry";
+    case vk::ShaderStageFlagBits::eFragment:
+        return "fragment";
+    case vk::ShaderStageFlagBits::eCompute:
+        return "compute";
+    default:
+        return "unsupported stage";
     }
 }
 
 std::vector<uint32_t> ShaderCompiler::Compile(vk::ShaderStageFlagBits stage, const std::string &source) {
     const EShLanguage glslStage = GetShaderStageLanguage(stage);
-    const char *stageName = GetShaderStageName(stage);
+    const char       *stageName = GetShaderStageName(stage);
 
     glslang::TShader shader(glslStage);
-    const char *sourceCStr = source.c_str();
+    const char      *sourceCStr = source.c_str();
     shader.setStrings(&sourceCStr, 1);
     shader.setPreamble("#extension GL_GOOGLE_include_directive : require\n");
     shader.setEnvInput(glslang::EShSourceGlsl, glslStage, glslang::EShClientVulkan, 100);

@@ -17,28 +17,24 @@ public:
     VulkanPipeline() = default;
 
     VulkanPipeline(
-            VulkanDevice &device,
-            ShaderCompiler &compiler,
-            const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
-            const std::initializer_list<vk::PushConstantRange> &pushConstantRanges,
-            const vk::PipelineVertexInputStateCreateInfo *vertexInput,
-            const std::string &pipelineConfigFile,
-            const std::initializer_list<vk::PipelineColorBlendAttachmentState> &attachmentColorBlends,
-            vk::RenderPass renderPass,
-            uint32_t subpass
+        VulkanDevice                                                       &device,
+        ShaderCompiler                                                     &compiler,
+        const std::initializer_list<vk::DescriptorSetLayout>               &descriptorSetLayouts,
+        const std::initializer_list<vk::PushConstantRange>                 &pushConstantRanges,
+        const vk::PipelineVertexInputStateCreateInfo                       *vertexInput,
+        const std::string                                                  &pipelineConfigFile,
+        const std::initializer_list<vk::PipelineColorBlendAttachmentState> &attachmentColorBlends,
+        vk::RenderPass                                                      renderPass,
+        uint32_t                                                            subpass
     );
 
-    ~VulkanPipeline() {
-        Release();
-    }
+    ~VulkanPipeline() { Release(); }
 
     VulkanPipeline(const VulkanPipeline &) = delete;
 
     VulkanPipeline &operator=(const VulkanPipeline &) = delete;
 
-    VulkanPipeline(VulkanPipeline &&other) noexcept {
-        Swap(other);
-    }
+    VulkanPipeline(VulkanPipeline &&other) noexcept { Swap(other); }
 
     VulkanPipeline &operator=(VulkanPipeline &&other) noexcept {
         if (this != &other) {
@@ -60,8 +56,8 @@ private:
     VulkanDevice *m_device = nullptr;
 
     vk::PipelineLayout m_pipelineLayout;
-    vk::ShaderModule m_vertexShaderModule;
-    vk::ShaderModule m_geometryShaderModule;
-    vk::ShaderModule m_fragmentShaderModule;
-    vk::Pipeline m_pipeline;
+    vk::ShaderModule   m_vertexShaderModule;
+    vk::ShaderModule   m_geometryShaderModule;
+    vk::ShaderModule   m_fragmentShaderModule;
+    vk::Pipeline       m_pipeline;
 };

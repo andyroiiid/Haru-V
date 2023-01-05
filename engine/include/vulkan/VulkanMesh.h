@@ -14,17 +14,13 @@ public:
 
     VulkanMesh(VulkanBase &device, size_t vertexCount, size_t vertexSize, const void *data);
 
-    ~VulkanMesh() {
-        Release();
-    }
+    ~VulkanMesh() { Release(); }
 
     VulkanMesh(const VulkanMesh &) = delete;
 
     VulkanMesh &operator=(const VulkanMesh &) = delete;
 
-    VulkanMesh(VulkanMesh &&other) noexcept {
-        Swap(other);
-    }
+    VulkanMesh(VulkanMesh &&other) noexcept { Swap(other); }
 
     VulkanMesh &operator=(VulkanMesh &&other) noexcept {
         if (this != &other) {
@@ -42,5 +38,5 @@ public:
 
 private:
     VulkanBuffer m_vertexBuffer;
-    uint32_t m_vertexCount = 0;
+    uint32_t     m_vertexCount = 0;
 };

@@ -14,17 +14,13 @@ public:
 
     explicit DeferredContext(VulkanBase &device);
 
-    ~DeferredContext() {
-        Release();
-    }
+    ~DeferredContext() { Release(); }
 
     DeferredContext(const DeferredContext &) = delete;
 
     DeferredContext &operator=(const DeferredContext &) = delete;
 
-    DeferredContext(DeferredContext &&other) noexcept {
-        Swap(other);
-    }
+    DeferredContext(DeferredContext &&other) noexcept { Swap(other); }
 
     DeferredContext &operator=(DeferredContext &&other) noexcept {
         if (this != &other) {
@@ -44,9 +40,7 @@ public:
 
     [[nodiscard]] const vk::Extent2D &GetExtent() const { return m_extent; }
 
-    [[nodiscard]] const vk::DescriptorSet &GetTextureSet(uint32_t bufferingIndex) const {
-        return m_framebuffers[bufferingIndex].GetTextureSet();
-    }
+    [[nodiscard]] const vk::DescriptorSet &GetTextureSet(uint32_t bufferingIndex) const { return m_framebuffers[bufferingIndex].GetTextureSet(); }
 
     [[nodiscard]] const vk::RenderPassBeginInfo *GetRenderPassBeginInfo(uint32_t bufferingIndex) const {
         return &m_renderPassBeginInfos[bufferingIndex];
@@ -63,11 +57,11 @@ private:
 
     VulkanBase *m_device = nullptr;
 
-    vk::RenderPass m_renderPass;
+    vk::RenderPass          m_renderPass;
     vk::DescriptorSetLayout m_textureSetLayout;
-    vk::Sampler m_sampler;
+    vk::Sampler             m_sampler;
 
-    vk::Extent2D m_extent;
-    std::vector<DeferredFramebuffer> m_framebuffers;
+    vk::Extent2D                         m_extent;
+    std::vector<DeferredFramebuffer>     m_framebuffers;
     std::vector<vk::RenderPassBeginInfo> m_renderPassBeginInfos;
 };

@@ -4,20 +4,20 @@
 
 #include "map/EntityLoaders.h"
 
-#include <tracy/Tracy.hpp>
 #include <core/Debug.h>
+#include <tracy/Tracy.hpp>
 
 #include "Globals.h"
-#include "actors/Scene.h"
-#include "actors/AWorldSpawn.h"
-#include "actors/APlayer.h"
 #include "actors/AFuncBrush.h"
-#include "actors/AFuncMove.h"
 #include "actors/AFuncButton.h"
+#include "actors/AFuncMove.h"
 #include "actors/AFuncPhys.h"
 #include "actors/ALightPoint.h"
-#include "actors/APropTestModel.h"
+#include "actors/APlayer.h"
 #include "actors/APropPowerSphere.h"
+#include "actors/APropTestModel.h"
+#include "actors/AWorldSpawn.h"
+#include "actors/Scene.h"
 
 static void Register(Actor *actor, const MapData::Entity &entity) {
     std::string name;
@@ -38,12 +38,7 @@ void LoadWorldSpawn(const MapData::Entity &entity) {
     std::string script;
     DebugCheck(entity.GetPropertyString("script", script), "worldspawn doesn't have a valid script!");
 
-    g_Scene->CreateActor<AWorldSpawn>(
-            entity.Brushes,
-            lightDirection,
-            lightColor,
-            script
-    );
+    g_Scene->CreateActor<AWorldSpawn>(entity.Brushes, lightDirection, lightColor, script);
 }
 
 void LoadInfoPlayerStart(const MapData::Entity &entity) {
@@ -119,9 +114,9 @@ void LoadPropTestModel(const MapData::Entity &entity) {
     DebugCheckCritical(entity.GetPropertyString("model", model), "prop_test_model doesn't have a valid model!");
 
     g_Scene->CreateActor<APropTestModel>(
-            "models/" + model + ".obj",
-            "materials/" + model + ".json",
-            origin
+        "models/" + model + ".obj", //
+        "materials/" + model + ".json",
+        origin
     );
 }
 

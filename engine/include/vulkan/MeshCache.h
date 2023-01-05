@@ -10,7 +10,8 @@
 
 class MeshCache {
 public:
-    explicit MeshCache(VulkanBase &device) : m_device(device) {}
+    explicit MeshCache(VulkanBase &device)
+        : m_device(device) {}
 
     ~MeshCache() = default;
 

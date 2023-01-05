@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <vulkan/vulkan.hpp>
 #include <vk_mem_alloc.h>
+#include <vulkan/vulkan.hpp>
 
 #include "vulkan/VulkanBuffer.h"
 #include "vulkan/VulkanImage.h"
@@ -13,12 +13,12 @@
 struct GLFWwindow;
 
 struct VulkanPipelineOptions {
-    vk::PrimitiveTopology Topology = vk::PrimitiveTopology::eTriangleList;
-    vk::PolygonMode PolygonMode = vk::PolygonMode::eFill;
-    vk::CullModeFlags CullMode = vk::CullModeFlagBits::eBack;
-    vk::Bool32 DepthTestEnable = VK_TRUE;
-    vk::Bool32 DepthWriteEnable = VK_TRUE;
-    vk::CompareOp DepthCompareOp = vk::CompareOp::eLess;
+    vk::PrimitiveTopology Topology         = vk::PrimitiveTopology::eTriangleList;
+    vk::PolygonMode       PolygonMode      = vk::PolygonMode::eFill;
+    vk::CullModeFlags     CullMode         = vk::CullModeFlagBits::eBack;
+    vk::Bool32            DepthTestEnable  = VK_TRUE;
+    vk::Bool32            DepthWriteEnable = VK_TRUE;
+    vk::CompareOp         DepthCompareOp   = vk::CompareOp::eLess;
 };
 
 class VulkanDevice {
@@ -37,22 +37,17 @@ public:
 
     void WaitIdle();
 
-    VulkanBuffer CreateBuffer(
-            vk::DeviceSize size,
-            vk::BufferUsageFlags bufferUsage,
-            VmaAllocationCreateFlags flags,
-            VmaMemoryUsage memoryUsage
-    ) {
+    VulkanBuffer CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags bufferUsage, VmaAllocationCreateFlags flags, VmaMemoryUsage memoryUsage) {
         return {m_allocator, size, bufferUsage, flags, memoryUsage};
     }
 
     VulkanImage CreateImage(
-            vk::Format format,
-            const vk::Extent2D &extent,
-            vk::ImageUsageFlags imageUsage,
-            VmaAllocationCreateFlags flags,
-            VmaMemoryUsage memoryUsage,
-            uint32_t layers = 1
+        vk::Format               format,
+        const vk::Extent2D      &extent,
+        vk::ImageUsageFlags      imageUsage,
+        VmaAllocationCreateFlags flags,
+        VmaMemoryUsage           memoryUsage,
+        uint32_t                 layers = 1
     ) {
         return {m_allocator, format, extent, imageUsage, flags, memoryUsage, layers};
     }
@@ -62,28 +57,28 @@ public:
     void DestroyImageView(vk::ImageView imageView);
 
     vk::Sampler CreateSampler(
-            vk::Filter filter,
-            vk::SamplerAddressMode addressMode,
-            vk::Bool32 compareEnable = VK_FALSE,
-            vk::CompareOp compareOp = vk::CompareOp::eNever
+        vk::Filter             filter,
+        vk::SamplerAddressMode addressMode,
+        vk::Bool32             compareEnable = VK_FALSE,
+        vk::CompareOp          compareOp     = vk::CompareOp::eNever
     );
 
     void DestroySampler(vk::Sampler sampler);
 
     vk::RenderPass CreateRenderPass(
-            const std::initializer_list<vk::Format> &colorAttachmentFormats,
-            vk::Format depthStencilAttachmentFormat = vk::Format::eUndefined,
-            bool shaderReadsDepth = false,
-            bool forPresent = false
+        const std::initializer_list<vk::Format> &colorAttachmentFormats,
+        vk::Format                               depthStencilAttachmentFormat = vk::Format::eUndefined,
+        bool                                     shaderReadsDepth             = false,
+        bool                                     forPresent                   = false
     );
 
     void DestroyRenderPass(vk::RenderPass renderPass);
 
     vk::Framebuffer CreateFramebuffer(
-            vk::RenderPass renderPass,
-            const vk::ArrayProxyNoTemporaries<vk::ImageView> &attachments,
-            const vk::Extent2D &extent,
-            uint32_t layers = 1
+        vk::RenderPass                                    renderPass,
+        const vk::ArrayProxyNoTemporaries<vk::ImageView> &attachments,
+        const vk::Extent2D                               &extent,
+        uint32_t                                          layers = 1
     );
 
     void DestroyFramebuffer(vk::Framebuffer framebuffer);
@@ -101,8 +96,8 @@ public:
     void WriteDynamicUniformBufferToDescriptorSet(vk::Buffer buffer, vk::DeviceSize size, vk::DescriptorSet descriptorSet, uint32_t binding);
 
     vk::PipelineLayout CreatePipelineLayout(
-            const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
-            const std::initializer_list<vk::PushConstantRange> &pushConstantRanges
+        const std::initializer_list<vk::DescriptorSetLayout> &descriptorSetLayouts,
+        const std::initializer_list<vk::PushConstantRange>   &pushConstantRanges
     );
 
     void DestroyPipelineLayout(vk::PipelineLayout pipelineLayout);
@@ -112,13 +107,13 @@ public:
     void DestroyShaderModule(vk::ShaderModule shaderModule);
 
     vk::Pipeline CreatePipeline(
-            vk::PipelineLayout pipelineLayout,
-            const vk::PipelineVertexInputStateCreateInfo *vertexInput,
-            const vk::ArrayProxyNoTemporaries<vk::PipelineShaderStageCreateInfo> &shaderStages,
-            const VulkanPipelineOptions &options,
-            const std::initializer_list<vk::PipelineColorBlendAttachmentState> &attachmentColorBlends,
-            vk::RenderPass renderPass,
-            uint32_t subpass
+        vk::PipelineLayout                                                    pipelineLayout,
+        const vk::PipelineVertexInputStateCreateInfo                         *vertexInput,
+        const vk::ArrayProxyNoTemporaries<vk::PipelineShaderStageCreateInfo> &shaderStages,
+        const VulkanPipelineOptions                                          &options,
+        const std::initializer_list<vk::PipelineColorBlendAttachmentState>   &attachmentColorBlends,
+        vk::RenderPass                                                        renderPass,
+        uint32_t                                                              subpass
     );
 
     void DestroyPipeline(vk::Pipeline pipeline);
@@ -153,23 +148,23 @@ protected:
     vk::SurfaceKHR CreateSurface(GLFWwindow *window);
 
     vk::SwapchainKHR CreateSwapchain(
-            vk::SurfaceKHR surface,
-            uint32_t imageCount,
-            vk::Format imageFormat,
-            vk::ColorSpaceKHR imageColorSpace,
-            const vk::Extent2D &imageExtent,
-            vk::SurfaceTransformFlagBitsKHR preTransform,
-            vk::PresentModeKHR presentMode,
-            vk::SwapchainKHR oldSwapchain
+        vk::SurfaceKHR                  surface,
+        uint32_t                        imageCount,
+        vk::Format                      imageFormat,
+        vk::ColorSpaceKHR               imageColorSpace,
+        const vk::Extent2D             &imageExtent,
+        vk::SurfaceTransformFlagBitsKHR preTransform,
+        vk::PresentModeKHR              presentMode,
+        vk::SwapchainKHR                oldSwapchain
     );
 
-    vk::Instance m_instance;
+    vk::Instance               m_instance;
     vk::DebugUtilsMessengerEXT m_debugMessenger;
 
     vk::PhysicalDevice m_physicalDevice;
-    uint32_t m_graphicsQueueFamily = 0;
-    vk::Device m_device;
-    vk::Queue m_graphicsQueue;
+    uint32_t           m_graphicsQueueFamily = 0;
+    vk::Device         m_device;
+    vk::Queue          m_graphicsQueue;
 
     vk::CommandPool m_commandPool;
 

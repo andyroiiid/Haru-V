@@ -6,29 +6,29 @@
 
 #include <PxRigidActor.h>
 #include <foundation/PxAllocator.h>
-#include <vulkan/VertexFormats.h>
-#include <physics/PhysicsSystem.h>
 #include <physics/PhysicsScene.h>
+#include <physics/PhysicsSystem.h>
+#include <vulkan/VertexFormats.h>
 
 #include "Globals.h"
 #include "gfx/Renderer.h"
 
 static glm::vec3 CalculateCenter(const std::vector<MapData::Brush> &brushes) {
-    float numVertices = 0;
+    float     numVertices = 0;
     glm::vec3 sum{0.0f};
     for (const auto &brush: brushes) {
         for (const auto &vertex: brush.Vertices) {
             numVertices += 1.0f;
-            sum.x += vertex.x;
-            sum.y += vertex.y;
-            sum.z += vertex.z;
+            sum.x       += vertex.x;
+            sum.y       += vertex.y;
+            sum.z       += vertex.z;
         }
     }
     return sum / numVertices;
 }
 
 Brushes::Brushes(const std::vector<MapData::Brush> &brushes, PhysicsLayer layer)
-        : m_center(CalculateCenter(brushes)) {
+    : m_center(CalculateCenter(brushes)) {
     CreateMeshes(brushes);
     CreateColliders(brushes, layer);
 }
@@ -40,14 +40,29 @@ void Brushes::CreateMeshes(const std::vector<MapData::Brush> &brushes) {
             std::vector<VertexBase> &vertices = textureToVertices[face.Texture];
             // triangulate
             for (int k = 1; k < face.Vertices.size() - 1; k++) {
-                vertices.emplace_back(face.Vertices[0].Position - m_center, face.Normal, face.Vertices[0].TexCoord);
-                vertices.emplace_back(face.Vertices[k].Position - m_center, face.Normal, face.Vertices[k].TexCoord);
-                vertices.emplace_back(face.Vertices[k + 1].Position - m_center, face.Normal, face.Vertices[k + 1].TexCoord);
+                vertices.emplace_back(
+                    face.Vertices[0].Position - m_center, //
+                    face.Normal,
+                    face.Vertices[0].TexCoord
+                );
+                vertices.emplace_back(
+                    face.Vertices[k].Position - m_center, //
+                    face.Normal,
+                    face.Vertices[k].TexCoord
+                );
+                vertices.emplace_back(
+                    face.Vertices[k + 1].Position - m_center, //
+                    face.Normal,
+                    face.Vertices[k + 1].TexCoord
+                );
             }
         }
     }
     for (const auto &[texture, vertices]: textureToVertices) {
-        m_meshes.emplace_back(g_Renderer->CreateMesh(vertices), g_Renderer->LoadPbrMaterial("materials/" + texture + ".json"));
+        m_meshes.emplace_back(
+            g_Renderer->CreateMesh(vertices), //
+            g_Renderer->LoadPbrMaterial("materials/" + texture + ".json")
+        );
     }
 }
 
@@ -61,9 +76,9 @@ void Brushes::CreateColliders(const std::vector<MapData::Brush> &brushes, Physic
         collider.reserve(brush.Vertices.size());
         for (const glm::vec3 &vertex: brush.Vertices) {
             collider.emplace_back(
-                    vertex.x - m_center.x,
-                    vertex.y - m_center.y,
-                    vertex.z - m_center.z
+                vertex.x - m_center.x, //
+                vertex.y - m_center.y,
+                vertex.z - m_center.z
             );
         }
 

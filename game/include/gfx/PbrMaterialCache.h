@@ -5,8 +5,8 @@
 #pragma once
 
 #include <map>
-#include <vulkan/VulkanBase.h>
 #include <vulkan/TextureCache.h>
+#include <vulkan/VulkanBase.h>
 
 struct PbrMaterial {
     vk::DescriptorSet DescriptorSet;
@@ -31,9 +31,9 @@ public:
     PbrMaterial *LoadMaterial(const std::string &filename);
 
 private:
-    VulkanBase &m_device;
+    VulkanBase   &m_device;
     TextureCache &m_textureCache;
 
-    vk::DescriptorSetLayout m_textureSetLayout;
+    vk::DescriptorSetLayout            m_textureSetLayout;
     std::map<std::string, PbrMaterial> m_materials;
 };

@@ -34,7 +34,9 @@ protected:
 
     // u16 size; T vector[size];
     template<class T>
-    bool ReadVector(std::vector<T> &vector) { return ReadVectorImpl<uint16_t>(vector); }
+    bool ReadVector(std::vector<T> &vector) {
+        return ReadVectorImpl<uint16_t>(vector);
+    }
 
 private:
     bool ReadBytes(size_t numBytes, void *output);
@@ -67,5 +69,5 @@ private:
     std::string m_binary;
 
     const char *m_current;
-    size_t m_remainingBytes;
+    size_t      m_remainingBytes;
 };

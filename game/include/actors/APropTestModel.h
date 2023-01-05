@@ -23,6 +23,6 @@ public:
 private:
     Transform m_transform;
 
-    VulkanMesh *m_mesh;
+    VulkanMesh  *m_mesh;
     PbrMaterial *m_material;
 };

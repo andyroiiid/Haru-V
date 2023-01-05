@@ -26,6 +26,7 @@ bool MapData::Entity::GetPropertyInteger(const std::string &key, int &value) con
     if (literal.empty()) return false;
 
     std::stringstream literalStream(literal);
+
     int x;
     literalStream >> x;
     if (literalStream.bad()) return false;
@@ -39,6 +40,7 @@ bool MapData::Entity::GetPropertyFloat(const std::string &key, float &value) con
     if (literal.empty()) return false;
 
     std::stringstream literalStream(literal);
+
     float x;
     literalStream >> x;
     if (literalStream.bad()) return false;
@@ -64,6 +66,7 @@ bool MapData::Entity::GetPropertyVec3(const std::string &key, glm::vec3 &value) 
     if (literal.empty()) return false;
 
     std::stringstream literalStream(literal);
+
     float x, y, z;
     literalStream >> x >> y >> z;
     if (literalStream.bad()) return false;

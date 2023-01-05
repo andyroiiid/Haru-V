@@ -28,39 +28,39 @@ LuaSandbox::~LuaSandbox() {
 void LuaSandbox::DebugStackItem(int idx) {
     const int type = lua_type(L, idx);
     switch (type) {
-        case LUA_TNONE:
-            DebugInfo("[#{}: None]", idx);
-            break;
-        case LUA_TNIL:
-            DebugInfo("[#{}: Nil]", idx);
-            break;
-        case LUA_TBOOLEAN:
-            DebugInfo("[#{}: {}]", idx, lua_toboolean(L, idx) ? "True" : "False");
-            break;
-        case LUA_TLIGHTUSERDATA:
-            DebugInfo("[#{}: <LightUserData {}>", idx, lua_topointer(L, idx));
-            break;
-        case LUA_TNUMBER:
-            DebugInfo("[#{}: {}", idx, lua_tonumber(L, idx));
-            break;
-        case LUA_TSTRING:
-            DebugInfo("[#{}: {}", idx, lua_tostring(L, idx));
-            break;
-        case LUA_TTABLE:
-            DebugInfo("[#{}: <Table {}>", idx, lua_topointer(L, idx));
-            break;
-        case LUA_TFUNCTION:
-            DebugInfo("[#{}: <Function {}>", idx, lua_topointer(L, idx));
-            break;
-        case LUA_TUSERDATA:
-            DebugInfo("[#{}: <UserData {}>", idx, lua_topointer(L, idx));
-            break;
-        case LUA_TTHREAD:
-            DebugInfo("[#{}: <Thread {}>", idx, lua_topointer(L, idx));
-            break;
-        default:
-            DebugWarning("[#{}: Unknown]", idx);
-            break;
+    case LUA_TNONE:
+        DebugInfo("[#{}: None]", idx);
+        break;
+    case LUA_TNIL:
+        DebugInfo("[#{}: Nil]", idx);
+        break;
+    case LUA_TBOOLEAN:
+        DebugInfo("[#{}: {}]", idx, lua_toboolean(L, idx) ? "True" : "False");
+        break;
+    case LUA_TLIGHTUSERDATA:
+        DebugInfo("[#{}: <LightUserData {}>", idx, lua_topointer(L, idx));
+        break;
+    case LUA_TNUMBER:
+        DebugInfo("[#{}: {}", idx, lua_tonumber(L, idx));
+        break;
+    case LUA_TSTRING:
+        DebugInfo("[#{}: {}", idx, lua_tostring(L, idx));
+        break;
+    case LUA_TTABLE:
+        DebugInfo("[#{}: <Table {}>", idx, lua_topointer(L, idx));
+        break;
+    case LUA_TFUNCTION:
+        DebugInfo("[#{}: <Function {}>", idx, lua_topointer(L, idx));
+        break;
+    case LUA_TUSERDATA:
+        DebugInfo("[#{}: <UserData {}>", idx, lua_topointer(L, idx));
+        break;
+    case LUA_TTHREAD:
+        DebugInfo("[#{}: <Thread {}>", idx, lua_topointer(L, idx));
+        break;
+    default:
+        DebugWarning("[#{}: Unknown]", idx);
+        break;
     }
 }
 

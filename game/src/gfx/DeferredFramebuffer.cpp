@@ -5,13 +5,14 @@
 #include "gfx/DeferredFramebuffer.h"
 
 DeferredFramebuffer::DeferredFramebuffer(
-        VulkanBase *device,
-        vk::RenderPass renderPass,
-        vk::DescriptorSetLayout textureSetLayout,
-        vk::Sampler sampler,
-        const vk::Extent2D &extent,
-        const vk::ArrayProxyNoTemporaries<vk::Format> &colorFormats
-) : m_device(device) {
+    VulkanBase                                    *device,
+    vk::RenderPass                                 renderPass,
+    vk::DescriptorSetLayout                        textureSetLayout,
+    vk::Sampler                                    sampler,
+    const vk::Extent2D                            &extent,
+    const vk::ArrayProxyNoTemporaries<vk::Format> &colorFormats
+)
+    : m_device(device) {
     CreateAttachments(extent, colorFormats);
     CreateAttachmentViews(colorFormats);
 
@@ -23,27 +24,32 @@ DeferredFramebuffer::DeferredFramebuffer(
     m_textureSet = m_device->AllocateDescriptorSet(textureSetLayout);
 
     for (int i = 0; i < m_colorAttachmentViews.size(); i++) {
-        m_device->WriteCombinedImageSamplerToDescriptorSet(sampler, m_colorAttachmentViews[i], m_textureSet, i);
+        m_device->WriteCombinedImageSamplerToDescriptorSet(
+            sampler, //
+            m_colorAttachmentViews[i],
+            m_textureSet,
+            i
+        );
     }
 }
 
 void DeferredFramebuffer::CreateAttachments(const vk::Extent2D &extent, const vk::ArrayProxyNoTemporaries<vk::Format> &colorFormats) {
     for (const vk::Format &colorFormat: colorFormats) {
         VulkanImage attachment = m_device->CreateImage(
-                colorFormat,
-                extent,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                0,
-                VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
+            colorFormat,
+            extent,
+            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+            0,
+            VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
         );
         m_colorAttachments.push_back(std::move(attachment));
     }
     m_depthAttachment = m_device->CreateImage(
-            vk::Format::eD32Sfloat,
-            extent,
-            vk::ImageUsageFlagBits::eDepthStencilAttachment,
-            0,
-            VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
+        vk::Format::eD32Sfloat, //
+        extent,
+        vk::ImageUsageFlagBits::eDepthStencilAttachment,
+        0,
+        VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
     );
 }
 
@@ -51,16 +57,16 @@ void DeferredFramebuffer::CreateAttachmentViews(const vk::ArrayProxyNoTemporarie
     uint32_t i = 0;
     for (const vk::Format &colorFormat: colorFormats) {
         const vk::ImageView colorAttachmentView = m_device->CreateImageView(
-                m_colorAttachments[i++].Get(),
-                colorFormat,
-                vk::ImageAspectFlagBits::eColor
+            m_colorAttachments[i++].Get(), //
+            colorFormat,
+            vk::ImageAspectFlagBits::eColor
         );
         m_colorAttachmentViews.push_back(colorAttachmentView);
     }
     m_depthAttachmentView = m_device->CreateImageView(
-            m_depthAttachment.Get(),
-            vk::Format::eD32Sfloat,
-            vk::ImageAspectFlagBits::eDepth
+        m_depthAttachment.Get(), //
+        vk::Format::eD32Sfloat,
+        vk::ImageAspectFlagBits::eDepth
     );
 }
 
@@ -79,8 +85,8 @@ void DeferredFramebuffer::Release() {
     m_depthAttachment = {};
     m_colorAttachmentViews.clear();
     m_depthAttachmentView = VK_NULL_HANDLE;
-    m_framebuffer = VK_NULL_HANDLE;
-    m_textureSet = VK_NULL_HANDLE;
+    m_framebuffer         = VK_NULL_HANDLE;
+    m_textureSet          = VK_NULL_HANDLE;
 }
 
 void DeferredFramebuffer::Swap(DeferredFramebuffer &other) noexcept {

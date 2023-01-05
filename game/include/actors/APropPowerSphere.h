@@ -7,8 +7,8 @@
 #include "actors/Actor.h"
 
 namespace physx {
-    class PxRigidDynamic;
-}
+class PxRigidDynamic;
+} // namespace physx
 
 class VulkanMesh;
 
@@ -33,6 +33,6 @@ private:
 
     glm::mat4 m_modelMatrix{1.0f};
 
-    VulkanMesh *m_mesh;
+    VulkanMesh  *m_mesh;
     PbrMaterial *m_material;
 };

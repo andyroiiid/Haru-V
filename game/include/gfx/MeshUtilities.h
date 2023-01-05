@@ -10,9 +10,11 @@
 std::vector<VertexPositionOnly> CreateSkyboxVertices();
 
 void AppendRectVertices(
-        std::vector<VertexCanvas> &vertices,
-        const glm::vec2 &minPosition, const glm::vec2 &maxPosition,
-        const glm::vec2 &minTexCoord, const glm::vec2 &maxTexCoord
+    std::vector<VertexCanvas> &vertices,
+    const glm::vec2           &minPosition,
+    const glm::vec2           &maxPosition,
+    const glm::vec2           &minTexCoord,
+    const glm::vec2           &maxTexCoord
 );
 
 void AppendBoxVertices(std::vector<VertexBase> &vertices, const glm::vec3 &min, const glm::vec3 &max);

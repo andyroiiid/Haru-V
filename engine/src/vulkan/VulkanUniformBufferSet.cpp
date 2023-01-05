@@ -7,22 +7,17 @@
 #include "vulkan/VulkanBase.h"
 
 VulkanUniformBufferSet::VulkanUniformBufferSet(VulkanBase &device, const std::initializer_list<VulkanUniformBufferInfo> &uniformBufferInfos)
-        : m_device(&device) {
-    const size_t numBuffering = m_device->GetNumBuffering();
+    : m_device(&device) {
+    const size_t numBuffering      = m_device->GetNumBuffering();
     const size_t numUniformBuffers = uniformBufferInfos.size();
 
     std::vector<vk::DescriptorSetLayoutBinding> bindings;
     bindings.reserve(numUniformBuffers);
     for (const auto &uniformBufferInfo: uniformBufferInfos) {
-        bindings.emplace_back(
-                uniformBufferInfo.Binding,
-                vk::DescriptorType::eUniformBufferDynamic,
-                1,
-                uniformBufferInfo.Stage
-        );
+        bindings.emplace_back(uniformBufferInfo.Binding, vk::DescriptorType::eUniformBufferDynamic, 1, uniformBufferInfo.Stage);
     }
     m_descriptorSetLayout = m_device->CreateDescriptorSetLayout(bindings);
-    m_descriptorSet = m_device->AllocateDescriptorSet(m_descriptorSetLayout);
+    m_descriptorSet       = m_device->AllocateDescriptorSet(m_descriptorSetLayout);
 
     m_uniformBufferSizes.reserve(numUniformBuffers);
     m_uniformBuffers.reserve(numUniformBuffers);
@@ -30,18 +25,13 @@ VulkanUniformBufferSet::VulkanUniformBufferSet(VulkanBase &device, const std::in
         m_uniformBufferSizes.push_back(uniformBufferInfo.Size);
 
         VulkanBuffer uniformBuffer = m_device->CreateBuffer(
-                numBuffering * uniformBufferInfo.Size,
-                vk::BufferUsageFlagBits::eUniformBuffer,
-                VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
-                VMA_MEMORY_USAGE_AUTO_PREFER_HOST
+            numBuffering * uniformBufferInfo.Size,
+            vk::BufferUsageFlagBits::eUniformBuffer,
+            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+            VMA_MEMORY_USAGE_AUTO_PREFER_HOST
         );
 
-        m_device->WriteDynamicUniformBufferToDescriptorSet(
-                uniformBuffer.Get(),
-                uniformBufferInfo.Size,
-                m_descriptorSet,
-                uniformBufferInfo.Binding
-        );
+        m_device->WriteDynamicUniformBufferToDescriptorSet(uniformBuffer.Get(), uniformBufferInfo.Size, m_descriptorSet, uniformBufferInfo.Binding);
 
         m_uniformBuffers.push_back(std::move(uniformBuffer));
     }
@@ -63,7 +53,7 @@ void VulkanUniformBufferSet::Release() {
         m_device->DestroyDescriptorSetLayout(m_descriptorSetLayout);
     }
 
-    m_device = nullptr;
+    m_device              = nullptr;
     m_descriptorSetLayout = VK_NULL_HANDLE;
     m_uniformBufferSizes.clear();
     m_uniformBuffers.clear();
@@ -83,7 +73,7 @@ void VulkanUniformBufferSet::Swap(VulkanUniformBufferSet &other) noexcept {
 void VulkanUniformBufferSet::UpdateAllBuffers(uint32_t bufferingIndex, const std::initializer_list<const void *> &allBuffersData) {
     int i = 0;
     for (const void *bufferData: allBuffersData) {
-        const uint32_t size = m_uniformBufferSizes[i];
+        const uint32_t size   = m_uniformBufferSizes[i];
         const uint32_t offset = bufferingIndex * size;
         m_uniformBuffers[i].UploadRange(offset, size, bufferData);
         i++;

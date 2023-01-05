@@ -10,18 +10,18 @@ VulkanMesh::VulkanMesh(VulkanBase &device, size_t vertexCount, size_t vertexSize
     const vk::DeviceSize size = vertexCount * vertexSize;
 
     VulkanBuffer uploadBuffer = device.CreateBuffer(
-            size,
-            vk::BufferUsageFlagBits::eTransferSrc,
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
-            VMA_MEMORY_USAGE_AUTO_PREFER_HOST
+        size,
+        vk::BufferUsageFlagBits::eTransferSrc,
+        VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+        VMA_MEMORY_USAGE_AUTO_PREFER_HOST
     );
     uploadBuffer.Upload(size, data);
 
     VulkanBuffer vertexBuffer = device.CreateBuffer(
-            size,
-            vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-            0,
-            VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
+        size,
+        vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+        0,
+        VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE
     );
 
     device.ImmediateSubmit([size, &uploadBuffer, &vertexBuffer](vk::CommandBuffer cmd) {
@@ -30,12 +30,12 @@ VulkanMesh::VulkanMesh(VulkanBase &device, size_t vertexCount, size_t vertexSize
     });
 
     m_vertexBuffer = std::move(vertexBuffer);
-    m_vertexCount = vertexCount;
+    m_vertexCount  = vertexCount;
 }
 
 void VulkanMesh::Release() {
     m_vertexBuffer = {};
-    m_vertexCount = 0;
+    m_vertexCount  = 0;
 }
 
 void VulkanMesh::Swap(VulkanMesh &other) noexcept {

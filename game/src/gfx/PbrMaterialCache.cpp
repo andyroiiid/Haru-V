@@ -9,13 +9,13 @@
 #include "JsonFiles.h"
 
 PbrMaterialCache::PbrMaterialCache(VulkanBase &device, TextureCache &textureCache)
-        : m_device(device),
-          m_textureCache(textureCache) {
+    : m_device(device)
+    , m_textureCache(textureCache) {
     vk::DescriptorSetLayoutBinding bindings[]{
-            {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
-            {3, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
+        {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+        {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+        {2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
+        {3, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}
     };
     m_textureSetLayout = m_device.CreateDescriptorSetLayout(bindings);
 }

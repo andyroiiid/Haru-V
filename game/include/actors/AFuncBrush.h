@@ -5,12 +5,12 @@
 #pragma once
 
 #include "actors/Actor.h"
-#include "map/MapData.h"
 #include "map/Brushes.h"
+#include "map/MapData.h"
 
 namespace physx {
-    class PxRigidStatic;
-}
+class PxRigidStatic;
+} // namespace physx
 
 class AFuncBrush : public Actor {
 public:
@@ -27,7 +27,7 @@ public:
     void Move(const glm::vec3 &deltaPosition);
 
 private:
-    Brushes m_brushes;
+    Brushes               m_brushes;
     physx::PxRigidStatic *m_rigidbody;
 
     glm::mat4 m_modelMatrix{1.0f};

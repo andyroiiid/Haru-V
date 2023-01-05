@@ -14,25 +14,21 @@ public:
 
     // R8G8B8A8Unorm
     VulkanTexture(
-            VulkanBase &device,
-            uint32_t width,
-            uint32_t height,
-            const unsigned char *data,
-            vk::Filter filter,
-            vk::SamplerAddressMode addressMode
+        VulkanBase            &device,
+        uint32_t               width,
+        uint32_t               height,
+        const unsigned char   *data,
+        vk::Filter             filter,
+        vk::SamplerAddressMode addressMode
     );
 
-    ~VulkanTexture() {
-        Release();
-    }
+    ~VulkanTexture() { Release(); }
 
     VulkanTexture(const VulkanTexture &) = delete;
 
     VulkanTexture &operator=(const VulkanTexture &) = delete;
 
-    VulkanTexture(VulkanTexture &&other) noexcept {
-        Swap(other);
-    }
+    VulkanTexture(VulkanTexture &&other) noexcept { Swap(other); }
 
     VulkanTexture &operator=(VulkanTexture &&other) noexcept {
         if (this != &other) {
@@ -57,7 +53,7 @@ private:
 
     VulkanBase *m_device = nullptr;
 
-    VulkanImage m_image;
+    VulkanImage   m_image;
     vk::ImageView m_imageView;
-    vk::Sampler m_sampler;
+    vk::Sampler   m_sampler;
 };

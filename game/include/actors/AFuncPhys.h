@@ -5,12 +5,12 @@
 #pragma once
 
 #include "actors/Actor.h"
-#include "map/MapData.h"
 #include "map/Brushes.h"
+#include "map/MapData.h"
 
 namespace physx {
-    class PxRigidDynamic;
-}
+class PxRigidDynamic;
+} // namespace physx
 
 class AFuncPhys : public Actor {
 public:
@@ -25,7 +25,7 @@ public:
     void Draw() override;
 
 private:
-    Brushes m_brushes;
+    Brushes                m_brushes;
     physx::PxRigidDynamic *m_rigidbody;
 
     glm::mat4 m_modelMatrix{1.0f};
