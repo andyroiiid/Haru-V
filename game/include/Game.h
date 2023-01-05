@@ -13,6 +13,7 @@
 
 #include "gfx/Renderer.h"
 #include "actors/Scene.h"
+#include "physics/PhysicsSimulationEventCallback.h"
 
 class Game : public App {
 public:
@@ -36,6 +37,7 @@ private:
     std::unique_ptr<Mouse> m_mouse;
     std::unique_ptr<PhysicsSystem> m_physicsSystem;
     std::unique_ptr<PhysicsScene> m_physicsScene;
+    std::unique_ptr<PhysicsSimulationEventCallback> m_physicsCallback;
     std::unique_ptr<Scene> m_scene;
     std::unique_ptr<AudioSystem> m_audio;
     std::unique_ptr<LuaSandbox> m_lua;

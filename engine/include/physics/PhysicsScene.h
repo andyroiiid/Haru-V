@@ -21,6 +21,8 @@ namespace physx {
 
     class PxScene;
 
+    class PxSimulationEventCallback;
+
     class PxController;
 
     class PxControllerManager;
@@ -45,6 +47,8 @@ public:
     PhysicsScene &operator=(PhysicsScene &&) = delete;
 
     bool Update(float deltaTime, float timeScale);
+
+    void SetSimulationEventCallback(physx::PxSimulationEventCallback *callback);
 
     [[nodiscard]] float GetFixedTimestep() const { return m_fixedTimestep; }
 

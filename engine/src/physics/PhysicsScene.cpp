@@ -56,6 +56,10 @@ bool PhysicsScene::Update(const float deltaTime, const float timeScale) {
     return true;
 }
 
+void PhysicsScene::SetSimulationEventCallback(physx::PxSimulationEventCallback *callback) {
+    m_scene->setSimulationEventCallback(callback);
+}
+
 physx::PxController *PhysicsScene::CreateController(const physx::PxVec3 &position, float radius, float height, PhysicsLayer queryLayer) {
     physx::PxCapsuleControllerDesc desc;
     desc.position = {position.x, position.y, position.z};

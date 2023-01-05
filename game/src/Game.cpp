@@ -9,6 +9,7 @@
 
 #include "Globals.h"
 #include "map/LoadEntities.h"
+#include "actors/ATriggerTest.h"
 
 void Game::Init(GLFWwindow *window) {
     ZoneScoped;
@@ -26,6 +27,9 @@ void Game::Init(GLFWwindow *window) {
 
     m_physicsScene = std::make_unique<PhysicsScene>(m_physicsSystem.get());
     g_PhysicsScene = m_physicsScene.get();
+
+    m_physicsCallback = std::make_unique<PhysicsSimulationEventCallback>();
+    m_physicsScene->SetSimulationEventCallback(m_physicsCallback.get());
 
     m_scene = std::make_unique<Scene>();
     g_Scene = m_scene.get();
@@ -58,6 +62,8 @@ void Game::Init(GLFWwindow *window) {
     });
 
     LoadEntities(m_startMap);
+
+    g_Scene->CreateActor<ATriggerTest>();
 }
 
 void Game::Shutdown() {
@@ -71,6 +77,8 @@ void Game::Shutdown() {
 
     g_Scene = nullptr;
     m_scene.reset();
+
+    m_physicsCallback.reset();
 
     g_PhysicsScene = nullptr;
     m_physicsScene.reset();
