@@ -1,0 +1,6 @@
+{
+  "albedo": "textures/ball/albedo.png",
+  "normal": "textures/ball/normal.png",
+  "mra": "textures/ball/mra.png",
+  "emissive": "textures/ball/emissive.png"
+}

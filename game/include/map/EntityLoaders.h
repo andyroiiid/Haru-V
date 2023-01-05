@@ -21,3 +21,5 @@ void LoadFuncPhys(const MapData::Entity &entity);
 void LoadLightPoint(const MapData::Entity &entity);
 
 void LoadPropTestModel(const MapData::Entity &entity);
+
+void LoadPropPowerSphere(const MapData::Entity &entity);

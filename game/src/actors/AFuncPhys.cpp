@@ -10,7 +10,6 @@
 #include <physics/PhysicsScene.h>
 
 #include "Globals.h"
-#include "actors/APlayer.h"
 
 AFuncPhys::AFuncPhys(const std::vector<MapData::Brush> &brushes)
         : m_brushes(brushes) {
@@ -38,15 +37,4 @@ void AFuncPhys::FixedUpdate(float fixedDeltaTime) {
 
 void AFuncPhys::Draw() {
     m_brushes.Draw(m_modelMatrix);
-}
-
-void AFuncPhys::Use(APlayer *player, const physx::PxRaycastHit &hit) {
-    const glm::vec3 &playerPosition = player->GetTransform().GetPosition();
-    const physx::PxVec3 &hitPosition = hit.position;
-    const physx::PxVec3 force = physx::PxVec3{
-            hitPosition.x - playerPosition.x,
-            hitPosition.y - playerPosition.y,
-            hitPosition.z - playerPosition.z,
-    }.getNormalized() * 10.0f;
-    physx::PxRigidBodyExt::addForceAtPos(*m_rigidbody, force, hitPosition, physx::PxForceMode::eIMPULSE);
 }

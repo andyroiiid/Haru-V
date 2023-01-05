@@ -17,6 +17,7 @@
 #include "actors/AFuncPhys.h"
 #include "actors/ALightPoint.h"
 #include "actors/APropTestModel.h"
+#include "actors/APropPowerSphere.h"
 
 static void Register(Actor *actor, const MapData::Entity &entity) {
     std::string name;
@@ -122,4 +123,13 @@ void LoadPropTestModel(const MapData::Entity &entity) {
             "materials/" + model + ".json",
             origin
     );
+}
+
+void LoadPropPowerSphere(const MapData::Entity &entity) {
+    ZoneScoped;
+
+    glm::vec3 origin;
+    DebugCheckCritical(entity.GetPropertyVector("origin", origin), "prop_power_sphere doesn't have a valid origin!");
+
+    g_Scene->CreateActor<APropPowerSphere>(origin);
 }

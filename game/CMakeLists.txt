@@ -26,6 +26,7 @@ add_executable(game
         include/actors/APlayerNoClip.h
         include/actors/APlayer.h
         include/actors/APropTestModel.h
+        include/actors/APropPowerSphere.h
 
         src/actors/Scene.cpp
         src/actors/AWorldSpawn.cpp
@@ -37,6 +38,7 @@ add_executable(game
         src/actors/APlayerNoClip.cpp
         src/actors/APlayer.cpp
         src/actors/APropTestModel.cpp
+        src/actors/APropPowerSphere.cpp
 
         include/map/MapData.h
         include/map/Brushes.h

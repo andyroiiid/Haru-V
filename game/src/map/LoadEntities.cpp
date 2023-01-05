@@ -25,7 +25,8 @@ static const std::map<std::string, EntityLoader> s_EntityLoaders{
         {"func_button",       LoadFuncButton},
         {"func_phys",         LoadFuncPhys},
         {"light_point",       LoadLightPoint},
-        {"prop_test_model",   LoadPropTestModel}
+        {"prop_test_model",   LoadPropTestModel},
+        {"prop_power_sphere", LoadPropPowerSphere}
 };
 
 static void LoadEntity(const MapData::Entity &entity) {
