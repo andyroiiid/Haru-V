@@ -133,7 +133,8 @@ private:
     VulkanPipeline m_skyboxPipeline;
     VulkanPipeline m_combinePipeline;
     VulkanPipeline m_baseForwardPipeline;
-    VulkanPipeline m_postProcessingPipeline;
+
+    VulkanPipeline m_toneMappingPipeline;
 
     VulkanMesh m_skyboxCube;
     VulkanMesh m_fullScreenQuad;

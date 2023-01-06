@@ -177,13 +177,13 @@ void Renderer::CreatePipelines() {
         0
     );
 
-    m_postProcessingPipeline = VulkanPipeline(
+    m_toneMappingPipeline = VulkanPipeline(
         m_device,
         compiler,
         {m_deferredContext.GetForwardTextureSetLayout()},
         {},
         VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
-        "pipelines/post_processing.json",
+        "pipelines/tone_mapping.json",
         {NO_BLEND},
         m_device.GetPrimaryRenderPass(),
         0
@@ -205,14 +205,14 @@ void Renderer::CreateFullScreenQuad() {
 Renderer::~Renderer() {
     m_device.WaitIdle();
 
-    m_fullScreenQuad         = {};
-    m_skyboxCube             = {};
-    m_shadowPipeline         = {};
-    m_basePipeline           = {};
-    m_skyboxPipeline         = {};
-    m_combinePipeline        = {};
-    m_baseForwardPipeline    = {};
-    m_postProcessingPipeline = {};
+    m_fullScreenQuad      = {};
+    m_skyboxCube          = {};
+    m_shadowPipeline      = {};
+    m_basePipeline        = {};
+    m_skyboxPipeline      = {};
+    m_combinePipeline     = {};
+    m_baseForwardPipeline = {};
+    m_toneMappingPipeline = {};
     m_device.FreeDescriptorSet(m_iblTextureSet);
     m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
     m_uniformBufferSet = {};
@@ -450,14 +450,14 @@ void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBegi
 
     cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
 
-    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_postProcessingPipeline.Get());
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_toneMappingPipeline.Get());
 
     cmd.setViewport(0, viewport);
     cmd.setScissor(0, scissor);
 
     cmd.bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics,
-        m_postProcessingPipeline.GetLayout(),
+        m_toneMappingPipeline.GetLayout(),
         0,
         {m_deferredContext.GetForwardTextureSet(bufferingIndex)},
         {}
