@@ -1,3 +1,6 @@
+#ifndef UTILS_GLSL
+#define UTILS_GLSL
+
 const float PI              = 3.141592653589793;
 const float TWO_PI          = 6.283185307179586;
 const float ONE_OVER_PI     = 0.3183098861837907;
@@ -25,3 +28,5 @@ vec2 SampleSphericalMap(vec3 v)
 vec4 RGBMToLinear(vec4 value) {
     return vec4(value.rgb * value.a * 6.0f, 1.0);
 }
+
+#endif

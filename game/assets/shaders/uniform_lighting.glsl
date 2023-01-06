@@ -1,3 +1,6 @@
+#ifndef UNIFORM_LIGHTING_GLSL
+#define UNIFORM_LIGHTING_GLSL
+
 struct PointLightData {
     vec3 Position;
     float Radius;
@@ -15,3 +18,5 @@ layout (set = 0, binding = 1) uniform LightingUniformData {
     mat4 uShadowMatrices[4];
     PointLightData uPointLights[128];
 };
+
+#endif
