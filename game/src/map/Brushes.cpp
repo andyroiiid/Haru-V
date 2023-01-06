@@ -5,6 +5,7 @@
 #include "map/Brushes.h"
 
 #include <PxRigidActor.h>
+#include <core/Debug.h>
 #include <foundation/PxAllocator.h>
 #include <physics/PhysicsScene.h>
 #include <physics/PhysicsSystem.h>
@@ -27,10 +28,22 @@ static glm::vec3 CalculateCenter(const std::vector<MapData::Brush> &brushes) {
     return sum / numVertices;
 }
 
-Brushes::Brushes(const std::vector<MapData::Brush> &brushes, PhysicsLayer layer)
-    : m_center(CalculateCenter(brushes)) {
-    CreateMeshes(brushes);
-    CreateColliders(brushes, layer);
+Brushes::Brushes(const std::vector<MapData::Brush> &brushes, BrushType type, PhysicsLayer layer)
+    : m_type(type)
+    , m_center(CalculateCenter(brushes)) {
+    switch (type) {
+    case BrushType::Normal:
+    case BrushType::Trigger:
+        CreateMeshes(brushes);
+        CreateColliders(brushes, layer);
+        break;
+    case BrushType::NoCollision:
+        CreateMeshes(brushes);
+        break;
+    case BrushType::NoMesh:
+        CreateColliders(brushes, layer);
+        break;
+    }
 }
 
 void Brushes::CreateMeshes(const std::vector<MapData::Brush> &brushes) {
@@ -59,6 +72,16 @@ void Brushes::CreateMeshes(const std::vector<MapData::Brush> &brushes) {
         }
     }
     for (const auto &[texture, vertices]: textureToVertices) {
+        if (texture == "trigger") {
+            if (m_type != BrushType::Trigger) {
+                DebugWarning("Trigger faces should only be used on trigger brushes!");
+            }
+        } else {
+            if (m_type == BrushType::Trigger) {
+                DebugWarning("Trigger brushes should only contain trigger faces!");
+            }
+        }
+
         m_meshes.emplace_back(
             g_Renderer->CreateMesh(vertices), //
             g_Renderer->LoadPbrMaterial("materials/" + texture + ".json")
@@ -85,7 +108,11 @@ void Brushes::CreateColliders(const std::vector<MapData::Brush> &brushes, Physic
         physx::PxConvexMesh *brushCollider = g_PhysicsSystem->CreateConvexMesh(collider.size(), collider.data());
         m_colliders.push_back(brushCollider);
 
-        physx::PxShape *brushShape = g_PhysicsScene->CreateShape(physx::PxConvexMeshGeometry(brushCollider), true);
+        physx::PxShape *brushShape = g_PhysicsScene->CreateShape(
+            physx::PxConvexMeshGeometry(brushCollider), //
+            true,
+            m_type == BrushType::Trigger
+        );
         brushShape->setQueryFilterData(filterData);
         m_shapes.push_back(brushShape);
     }

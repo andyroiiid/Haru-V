@@ -56,7 +56,7 @@ public:
 
     physx::PxController *CreateController(const physx::PxVec3 &position, float radius, float height, PhysicsLayer queryLayer = PHYSICS_LAYER_1);
 
-    physx::PxShape *CreateShape(const physx::PxGeometry &geometry, bool isExclusive);
+    physx::PxShape *CreateShape(const physx::PxGeometry &geometry, bool isExclusive, bool isTrigger);
 
     physx::PxRigidStatic *CreateStatic(const physx::PxTransform &transform);
 

@@ -61,6 +61,10 @@ public:
 
     virtual void Use(APlayer *player, const physx::PxRaycastHit &hit) {}
 
+    virtual void OnTriggerEnter(Actor *other) {}
+
+    virtual void OnTriggerExit(Actor *other) {}
+
     [[nodiscard]] bool IsPendingDestroy() const { return m_pendingDestroy; }
 
     void Destroy() { m_pendingDestroy = true; }

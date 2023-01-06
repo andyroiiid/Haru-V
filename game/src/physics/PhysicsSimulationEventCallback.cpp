@@ -26,11 +26,26 @@ void PhysicsSimulationEventCallback::onContact(
 
 void PhysicsSimulationEventCallback::onTrigger(physx::PxTriggerPair *pairs, physx::PxU32 count) {
     for (int i = 0; i < count; i++) {
-        const physx::PxTriggerPair &pair         = pairs[i];
-        auto                        triggerActor = static_cast<Actor *>(pair.triggerActor->userData);
-        auto                        otherActor   = static_cast<Actor *>(pair.otherActor->userData);
-        const char                 *event        = pair.status == physx::PxPairFlag::eNOTIFY_TOUCH_FOUND ? "enters" : "exits";
-        DebugInfo("{} {} {}", otherActor->GetActorClassName(), event, triggerActor->GetActorClassName());
+        const physx::PxTriggerPair &pair = pairs[i];
+        if (pair.flags == physx::PxTriggerPairFlag::eREMOVED_SHAPE_OTHER || pair.flags == physx::PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER) {
+            // ignore events caused by shape removal
+            continue;
+        }
+
+        auto triggerActor = static_cast<Actor *>(pair.triggerActor->userData);
+        auto otherActor   = static_cast<Actor *>(pair.otherActor->userData);
+
+        switch (pair.status) {
+        case physx::PxPairFlag::eNOTIFY_TOUCH_FOUND:
+            triggerActor->OnTriggerEnter(otherActor);
+            break;
+        case physx::PxPairFlag::eNOTIFY_TOUCH_LOST:
+            triggerActor->OnTriggerExit(otherActor);
+            break;
+        default:
+            DebugError("Invalid trigger pair status {}", pair.status);
+            break;
+        }
     }
 }
 

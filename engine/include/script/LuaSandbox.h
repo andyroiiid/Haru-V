@@ -29,10 +29,12 @@ public:
 
     void CallGlobalFunction(const std::string &name);
 
+    void CallGlobalFunction(const std::string &name, const std::string &arg);
+
     void DoFile(const std::string &filename);
 
 private:
-    void PCall();
+    void PCall(int nArgs, int nResults);
 
     lua_State *L = nullptr;
 };

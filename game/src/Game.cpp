@@ -8,7 +8,6 @@
 #include <tracy/Tracy.hpp>
 
 #include "Globals.h"
-#include "actors/ATriggerTest.h"
 #include "map/LoadEntities.h"
 
 void Game::Init(GLFWwindow *window) {
@@ -62,8 +61,6 @@ void Game::Init(GLFWwindow *window) {
     });
 
     LoadEntities(m_startMap);
-
-    g_Scene->CreateActor<ATriggerTest>();
 }
 
 void Game::Shutdown() {

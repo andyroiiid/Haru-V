@@ -16,6 +16,7 @@
 #include "actors/APlayer.h"
 #include "actors/APropPowerSphere.h"
 #include "actors/APropTestModel.h"
+#include "actors/ATriggerPlayer.h"
 #include "actors/AWorldSpawn.h"
 #include "actors/Scene.h"
 
@@ -87,6 +88,15 @@ void LoadFuncPhys(const MapData::Entity &entity) {
     ZoneScoped;
 
     g_Scene->CreateActor<AFuncPhys>(entity.Brushes);
+}
+
+void LoadTriggerPlayer(const MapData::Entity &entity) {
+    ZoneScoped;
+
+    std::string event;
+    DebugCheckCritical(entity.GetPropertyString("event", event), "trigger_player doesn't have a valid event!");
+
+    g_Scene->CreateActor<ATriggerPlayer>(entity.Brushes, event);
 }
 
 void LoadLightPoint(const MapData::Entity &entity) {

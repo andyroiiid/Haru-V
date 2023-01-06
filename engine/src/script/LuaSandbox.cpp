@@ -86,7 +86,21 @@ void LuaSandbox::CallGlobalFunction(const std::string &name) {
         return;
     }
 
-    PCall();
+    PCall(0, 0);
+}
+
+void LuaSandbox::CallGlobalFunction(const std::string &name, const std::string &arg) {
+    const int type = lua_getglobal(L, name.c_str());
+
+    if (type != LUA_TFUNCTION) {
+        DebugError("{} is not a Lua function.", name);
+        lua_pop(L, 1);
+        return;
+    }
+
+    lua_pushstring(L, arg.c_str());
+
+    PCall(1, 0);
 }
 
 void LuaSandbox::DoFile(const std::string &filename) {
@@ -100,11 +114,11 @@ void LuaSandbox::DoFile(const std::string &filename) {
         return;
     }
 
-    PCall();
+    PCall(0, 0);
 }
 
-void LuaSandbox::PCall() {
-    if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+void LuaSandbox::PCall(int nArgs, int nResults) {
+    if (lua_pcall(L, nArgs, nResults, 0) != LUA_OK) {
         DebugError("Failed to execute Lua script: {}", lua_tostring(L, -1));
         lua_pop(L, 1);
         return;

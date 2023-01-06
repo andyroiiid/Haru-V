@@ -10,8 +10,8 @@
 
 #include "Globals.h"
 
-AFuncBrush::AFuncBrush(const std::vector<MapData::Brush> &brushes)
-    : m_brushes(brushes) {
+AFuncBrush::AFuncBrush(const std::vector<MapData::Brush> &brushes, BrushType type, PhysicsLayer layer)
+    : m_brushes(brushes, type, layer) {
     const glm::vec3 &center = m_brushes.GetCenter();
 
     GetTransform().SetPosition(center);

@@ -78,8 +78,14 @@ physx::PxController *PhysicsScene::CreateController(const physx::PxVec3 &positio
     return controller;
 }
 
-physx::PxShape *PhysicsScene::CreateShape(const physx::PxGeometry &geometry, bool isExclusive) {
-    return m_physics->createShape(geometry, *m_defaultMaterial, isExclusive);
+physx::PxShape *PhysicsScene::CreateShape(const physx::PxGeometry &geometry, bool isExclusive, bool isTrigger) {
+    return m_physics->createShape(
+        geometry,
+        *m_defaultMaterial,
+        isExclusive,
+        isTrigger ? physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eTRIGGER_SHAPE :
+                    physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE
+    );
 }
 
 physx::PxRigidStatic *PhysicsScene::CreateStatic(const physx::PxTransform &transform) {

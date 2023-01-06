@@ -16,7 +16,7 @@ class AFuncBrush : public Actor {
 public:
     DEFINE_ACTOR_CLASS(AFuncBrush)
 
-    explicit AFuncBrush(const std::vector<MapData::Brush> &brushes);
+    explicit AFuncBrush(const std::vector<MapData::Brush> &brushes, BrushType type = BrushType::Normal, PhysicsLayer layer = PHYSICS_LAYER_0);
 
     ~AFuncBrush() override;
 
