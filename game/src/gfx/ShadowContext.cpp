@@ -11,10 +11,13 @@ ShadowContext::ShadowContext(VulkanBase &device)
 }
 
 void ShadowContext::CreateRenderPass() {
+    VulkanRenderPassOptions options;
+    options.ShaderReadsDepth = true;
+
     m_renderPass = m_device->CreateRenderPass(
         {}, //
         vk::Format::eD32Sfloat,
-        true
+        options
     );
 
     vk::DescriptorSetLayoutBinding bindings[]{

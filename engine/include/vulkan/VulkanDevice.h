@@ -21,6 +21,12 @@ struct VulkanPipelineOptions {
     vk::CompareOp         DepthCompareOp   = vk::CompareOp::eLess;
 };
 
+struct VulkanRenderPassOptions {
+    bool ForPresentation  = false;
+    bool PreserveDepth    = false;
+    bool ShaderReadsDepth = false;
+};
+
 class VulkanDevice {
 public:
     VulkanDevice();
@@ -68,8 +74,7 @@ public:
     vk::RenderPass CreateRenderPass(
         const std::initializer_list<vk::Format> &colorAttachmentFormats,
         vk::Format                               depthStencilAttachmentFormat = vk::Format::eUndefined,
-        bool                                     shaderReadsDepth             = false,
-        bool                                     forPresent                   = false
+        const VulkanRenderPassOptions           &options                      = {}
     );
 
     void DestroyRenderPass(vk::RenderPass renderPass);

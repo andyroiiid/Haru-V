@@ -7,6 +7,7 @@
 #include <vulkan/VulkanBase.h>
 
 #include "gfx/DeferredFramebuffer.h"
+#include "gfx/ForwardFramebuffer.h"
 
 class DeferredContext {
 public:
@@ -34,16 +35,30 @@ public:
 
     void Swap(DeferredContext &other) noexcept;
 
-    [[nodiscard]] const vk::RenderPass &GetRenderPass() const { return m_renderPass; }
-
-    [[nodiscard]] const vk::DescriptorSetLayout &GetTextureSetLayout() const { return m_textureSetLayout; }
-
     [[nodiscard]] const vk::Extent2D &GetExtent() const { return m_extent; }
 
-    [[nodiscard]] const vk::DescriptorSet &GetTextureSet(uint32_t bufferingIndex) const { return m_framebuffers[bufferingIndex].GetTextureSet(); }
+    [[nodiscard]] const vk::RenderPass &GetDeferredRenderPass() const { return m_deferredRenderPass; }
 
-    [[nodiscard]] const vk::RenderPassBeginInfo *GetRenderPassBeginInfo(uint32_t bufferingIndex) const {
-        return &m_renderPassBeginInfos[bufferingIndex];
+    [[nodiscard]] const vk::DescriptorSetLayout &GetDeferredTextureSetLayout() const { return m_deferredTextureSetLayout; }
+
+    [[nodiscard]] const vk::DescriptorSet &GetDeferredTextureSet(uint32_t bufferingIndex) const {
+        return m_deferredFramebuffers[bufferingIndex].GetTextureSet();
+    }
+
+    [[nodiscard]] const vk::RenderPassBeginInfo *GetDeferredRenderPassBeginInfo(uint32_t bufferingIndex) const {
+        return &m_deferredRenderPassBeginInfo[bufferingIndex];
+    }
+
+    [[nodiscard]] const vk::RenderPass &GetForwardRenderPass() const { return m_forwardRenderPass; }
+
+    [[nodiscard]] const vk::DescriptorSetLayout &GetForwardTextureSetLayout() const { return m_forwardTextureSetLayout; }
+
+    [[nodiscard]] const vk::DescriptorSet &GetForwardTextureSet(uint32_t bufferingIndex) const {
+        return m_forwardFramebuffers[bufferingIndex].GetTextureSet();
+    }
+
+    [[nodiscard]] const vk::RenderPassBeginInfo *GetForwardRenderPassBeginInfo(uint32_t bufferingIndex) const {
+        return &m_forwardRenderPassBeginInfo[bufferingIndex];
     }
 
     void CheckFramebuffersOutOfDate();
@@ -57,11 +72,16 @@ private:
 
     VulkanBase *m_device = nullptr;
 
-    vk::RenderPass          m_renderPass;
-    vk::DescriptorSetLayout m_textureSetLayout;
-    vk::Sampler             m_sampler;
+    vk::Extent2D m_extent;
+    vk::Sampler  m_sampler;
 
-    vk::Extent2D                         m_extent;
-    std::vector<DeferredFramebuffer>     m_framebuffers;
-    std::vector<vk::RenderPassBeginInfo> m_renderPassBeginInfos;
+    vk::RenderPass          m_deferredRenderPass;
+    vk::DescriptorSetLayout m_deferredTextureSetLayout;
+    vk::RenderPass          m_forwardRenderPass;
+    vk::DescriptorSetLayout m_forwardTextureSetLayout;
+
+    std::vector<DeferredFramebuffer>     m_deferredFramebuffers;
+    std::vector<vk::RenderPassBeginInfo> m_deferredRenderPassBeginInfo;
+    std::vector<ForwardFramebuffer>      m_forwardFramebuffers;
+    std::vector<vk::RenderPassBeginInfo> m_forwardRenderPassBeginInfo;
 };

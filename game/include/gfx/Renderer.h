@@ -101,7 +101,9 @@ private:
 
     void DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
-    void DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingIndex);
+    void DrawDeferred(vk::CommandBuffer cmd, uint32_t bufferingIndex);
+
+    void DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
     void DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
@@ -126,6 +128,7 @@ private:
     VulkanPipeline m_basePipeline;
     VulkanPipeline m_skyboxPipeline;
     VulkanPipeline m_combinePipeline;
+    VulkanPipeline m_postProcessingPipeline;
 
     VulkanMesh m_skyboxCube;
     VulkanMesh m_fullScreenQuad;

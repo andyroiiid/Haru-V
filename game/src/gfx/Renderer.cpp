@@ -116,7 +116,7 @@ void Renderer::CreatePipelines() {
         VertexBase::GetPipelineVertexInputStateCreateInfo(),
         "shaders/base.json",
         {NO_BLEND, NO_BLEND, NO_BLEND, NO_BLEND},
-        m_deferredContext.GetRenderPass(),
+        m_deferredContext.GetDeferredRenderPass(),
         0
     );
 
@@ -128,7 +128,7 @@ void Renderer::CreatePipelines() {
         VertexPositionOnly::GetPipelineVertexInputStateCreateInfo(),
         "shaders/skybox.json",
         {NO_BLEND, NO_BLEND, NO_BLEND, NO_BLEND},
-        m_deferredContext.GetRenderPass(),
+        m_deferredContext.GetDeferredRenderPass(),
         0
     );
 
@@ -136,12 +136,24 @@ void Renderer::CreatePipelines() {
         m_device,
         compiler,
         {m_uniformBufferSet.GetDescriptorSetLayout(),
-         m_deferredContext.GetTextureSetLayout(),
+         m_deferredContext.GetDeferredTextureSetLayout(),
          m_iblTextureSetLayout,
          m_shadowContext.GetTextureSetLayout()},
         {},
         VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
         "shaders/combine.json",
+        {NO_BLEND},
+        m_deferredContext.GetForwardRenderPass(),
+        0
+    );
+
+    m_postProcessingPipeline = VulkanPipeline(
+        m_device,
+        compiler,
+        {m_deferredContext.GetForwardTextureSetLayout()},
+        {},
+        VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
+        "shaders/post_processing.json",
         {NO_BLEND},
         m_device.GetPrimaryRenderPass(),
         0
@@ -163,12 +175,13 @@ void Renderer::CreateFullScreenQuad() {
 Renderer::~Renderer() {
     m_device.WaitIdle();
 
-    m_fullScreenQuad  = {};
-    m_skyboxCube      = {};
-    m_shadowPipeline  = {};
-    m_basePipeline    = {};
-    m_skyboxPipeline  = {};
-    m_combinePipeline = {};
+    m_fullScreenQuad         = {};
+    m_skyboxCube             = {};
+    m_shadowPipeline         = {};
+    m_basePipeline           = {};
+    m_skyboxPipeline         = {};
+    m_combinePipeline        = {};
+    m_postProcessingPipeline = {};
     m_device.FreeDescriptorSet(m_iblTextureSet);
     m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
     m_uniformBufferSet = {};
@@ -223,7 +236,8 @@ void Renderer::FinishDrawing() {
     m_uniformBufferSet.UpdateAllBuffers(frameInfo.BufferingIndex, {&m_rendererUniformData, &m_lightingUniformData});
 
     DrawToShadowMaps(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
-    DrawToDeferredTextures(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
+    DrawDeferred(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
+    DrawForward(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
     DrawToScreen(frameInfo.PrimaryRenderPassBeginInfo, frameInfo.CommandBuffer, frameInfo.BufferingIndex);
 
     m_device.EndFrame();
@@ -260,8 +274,8 @@ void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) 
     cmd.endRenderPass();
 }
 
-void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
-    cmd.beginRenderPass(m_deferredContext.GetRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
+void Renderer::DrawDeferred(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+    cmd.beginRenderPass(m_deferredContext.GetDeferredRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_basePipeline.Get());
 
@@ -313,8 +327,8 @@ void Renderer::DrawToDeferredTextures(vk::CommandBuffer cmd, uint32_t bufferingI
     cmd.endRenderPass();
 }
 
-void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex) {
-    cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
+void Renderer::DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+    cmd.beginRenderPass(m_deferredContext.GetForwardRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_combinePipeline.Get());
 
@@ -327,12 +341,33 @@ void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBegi
         m_combinePipeline.GetLayout(),
         0,
         {m_uniformBufferSet.GetDescriptorSet(),
-         m_deferredContext.GetTextureSet(bufferingIndex),
+         m_deferredContext.GetDeferredTextureSet(bufferingIndex),
          m_iblTextureSet,
          m_shadowContext.GetTextureSet(bufferingIndex)},
         m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
 
+    m_fullScreenQuad.BindAndDraw(cmd);
+
+    cmd.endRenderPass();
+}
+
+void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+    cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
+
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_postProcessingPipeline.Get());
+
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_device.GetSwapchainExtent());
+    cmd.setViewport(0, viewport);
+    cmd.setScissor(0, scissor);
+
+    cmd.bindDescriptorSets(
+        vk::PipelineBindPoint::eGraphics,
+        m_postProcessingPipeline.GetLayout(),
+        0,
+        {m_deferredContext.GetForwardTextureSet(bufferingIndex)},
+        {}
+    );
     m_fullScreenQuad.BindAndDraw(cmd);
 
     cmd.endRenderPass();

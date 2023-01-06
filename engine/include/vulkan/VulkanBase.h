@@ -27,7 +27,6 @@ class VulkanBase : public VulkanDevice {
 public:
     static constexpr vk::Format         SURFACE_FORMAT      = vk::Format::eB8G8R8A8Unorm;
     static constexpr vk::ColorSpaceKHR  SURFACE_COLOR_SPACE = vk::ColorSpaceKHR::eSrgbNonlinear;
-    static constexpr vk::Format         DEPTH_FORMAT        = vk::Format::eD32Sfloat;
     static constexpr vk::PresentModeKHR PRESENT_MODE        = vk::PresentModeKHR::eFifo;
 
     explicit VulkanBase(GLFWwindow *window);
@@ -103,8 +102,6 @@ private:
     vk::Extent2D               m_swapchainExtent;
     vk::SwapchainKHR           m_swapchain;
     std::vector<vk::ImageView> m_swapchainImageViews;
-    std::vector<VulkanImage>   m_depthImages;
-    std::vector<vk::ImageView> m_depthImageViews;
 
     vk::RenderPass m_primaryRenderPass;
 

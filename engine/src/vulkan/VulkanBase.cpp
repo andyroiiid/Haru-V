@@ -74,31 +74,31 @@ void VulkanBase::CreateSurfaceSwapchainAndImageViews() {
     DebugCheckCriticalVk(swapchainImagesResult, "Failed to get Vulkan swapchain images.");
     for (const vk::Image &image: swapchainImages) {
         m_swapchainImageViews.push_back(CreateImageView(image, SURFACE_FORMAT, vk::ImageAspectFlagBits::eColor));
-        VulkanImage depthImage =
-            CreateImage(DEPTH_FORMAT, m_swapchainExtent, vk::ImageUsageFlagBits::eDepthStencilAttachment, 0, VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE);
-        m_depthImageViews.push_back(CreateImageView(depthImage.Get(), DEPTH_FORMAT, vk::ImageAspectFlagBits::eDepth));
-        m_depthImages.push_back(std::move(depthImage));
     }
 }
 
 void VulkanBase::CreatePrimaryRenderPass() {
-    m_primaryRenderPass = CreateRenderPass({SURFACE_FORMAT}, DEPTH_FORMAT, false, true);
+    VulkanRenderPassOptions options;
+    options.ForPresentation = true;
+
+    m_primaryRenderPass = CreateRenderPass(
+        {SURFACE_FORMAT}, //
+        vk::Format::eUndefined,
+        options
+    );
 }
 
 void VulkanBase::CreatePrimaryFramebuffers() {
     const size_t numSwapchainImages = m_swapchainImageViews.size();
     for (int i = 0; i < numSwapchainImages; i++) {
-        vk::ImageView attachmentViews[]{m_swapchainImageViews[i], m_depthImageViews[i]};
-        m_primaryFramebuffers.push_back(CreateFramebuffer(m_primaryRenderPass, attachmentViews, m_swapchainExtent));
+        m_primaryFramebuffers.push_back(CreateFramebuffer(m_primaryRenderPass, m_swapchainImageViews[i], m_swapchainExtent));
     }
 
     const vk::Rect2D renderArea{
         {0, 0},
         m_swapchainExtent
     };
-    static const vk::ClearValue clearValues[]{
-        {vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}},
-        {vk::ClearDepthStencilValue{1.0f, 0}}};
+    static const vk::ClearValue clearValues{vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}};
 
     vk::RenderPassBeginInfo beginInfo(m_primaryRenderPass, {}, renderArea, clearValues);
     for (const vk::Framebuffer &framebuffer: m_primaryFramebuffers) {
@@ -108,11 +108,6 @@ void VulkanBase::CreatePrimaryFramebuffers() {
 }
 
 void VulkanBase::CleanupSurfaceSwapchainAndImageViews() {
-    for (const vk::ImageView &imageView: m_depthImageViews) {
-        m_device.destroy(imageView);
-    }
-    m_depthImageViews.clear();
-    m_depthImages.clear();
     for (const vk::ImageView &imageView: m_swapchainImageViews) {
         m_device.destroy(imageView);
     }

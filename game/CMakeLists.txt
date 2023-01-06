@@ -2,14 +2,16 @@ add_executable(game
         include/gfx/ShadowMaps.h
         include/gfx/ShadowContext.h
         include/gfx/DeferredFramebuffer.h
+        include/gfx/ForwardFramebuffer.h
         include/gfx/DeferredContext.h
         include/gfx/PbrMaterialCache.h
         include/gfx/MeshUtilities.h
         include/gfx/Renderer.h
 
-        src/gfx/ShadowMaps.cpp
         src/gfx/ShadowContext.cpp
         src/gfx/DeferredFramebuffer.cpp
+        src/gfx/ForwardFramebuffer.cpp
+        src/gfx/ShadowMaps.cpp
         src/gfx/DeferredContext.cpp
         src/gfx/PbrMaterialCache.cpp
         src/gfx/MeshUtilities.cpp

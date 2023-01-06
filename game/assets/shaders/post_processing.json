@@ -1,0 +1,5 @@
+{
+  "vertex": "shaders/fullscreen.vert",
+  "fragment": "shaders/post_processing.frag",
+  "topology": "triangle_strip"
+}

@@ -315,8 +315,7 @@ void VulkanDevice::DestroySampler(vk::Sampler sampler) {
 vk::RenderPass VulkanDevice::CreateRenderPass(
     const std::initializer_list<vk::Format> &colorAttachmentFormats,
     vk::Format                               depthStencilAttachmentFormat,
-    bool                                     shaderReadsDepth,
-    bool                                     forPresent
+    const VulkanRenderPassOptions           &options
 ) {
     std::vector<vk::AttachmentDescription> attachments;
     std::vector<vk::AttachmentReference>   colorAttachmentRefs;
@@ -333,7 +332,7 @@ vk::RenderPass VulkanDevice::CreateRenderPass(
             vk::AttachmentLoadOp::eDontCare,
             vk::AttachmentStoreOp::eDontCare,
             vk::ImageLayout::eUndefined,
-            forPresent ? vk::ImageLayout::ePresentSrcKHR : vk::ImageLayout::eShaderReadOnlyOptimal
+            options.ForPresentation ? vk::ImageLayout::ePresentSrcKHR : vk::ImageLayout::eShaderReadOnlyOptimal
         );
 
         colorAttachmentRefs.emplace_back(attachmentIndex++, vk::ImageLayout::eColorAttachmentOptimal);
@@ -344,12 +343,12 @@ vk::RenderPass VulkanDevice::CreateRenderPass(
             vk::AttachmentDescriptionFlags{},
             depthStencilAttachmentFormat,
             vk::SampleCountFlagBits::e1,
-            vk::AttachmentLoadOp::eClear,
+            options.PreserveDepth ? vk::AttachmentLoadOp::eLoad : vk::AttachmentLoadOp::eClear,
             vk::AttachmentStoreOp::eStore,
             vk::AttachmentLoadOp::eDontCare,
             vk::AttachmentStoreOp::eDontCare,
-            vk::ImageLayout::eUndefined,
-            shaderReadsDepth ? vk::ImageLayout::eShaderReadOnlyOptimal : vk::ImageLayout::eDepthStencilAttachmentOptimal
+            options.PreserveDepth ? vk::ImageLayout::eDepthStencilAttachmentOptimal : vk::ImageLayout::eUndefined,
+            options.ShaderReadsDepth ? vk::ImageLayout::eShaderReadOnlyOptimal : vk::ImageLayout::eDepthStencilAttachmentOptimal
         );
 
         depthStencilAttachmentRef = {attachmentIndex, vk::ImageLayout::eDepthStencilAttachmentOptimal};

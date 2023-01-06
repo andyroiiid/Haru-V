@@ -161,15 +161,6 @@ float ReadShadowMap(vec4 viewSpacePos, vec4 worldPos)
     return shadowCoord.z <= -1.0 || shadowCoord.z >= 1.0 ? 0.0 : ShadowPCF(shadowCoord.xyz, layer);
 }
 
-vec3 ToneMapping(vec3 color) {
-    const vec3 A = vec3(2.51);
-    const vec3 B = vec3(0.03);
-    const vec3 C = vec3(2.43);
-    const vec3 D = vec3(0.59);
-    const vec3 E = vec3(0.14);
-    return color * fma(color, A, B) / fma(color, fma(color, C, D), E);
-}
-
 // from Real Shading in Unreal Engine 4 by Brian Karis, Epic Games
 float PointLightFalloff(float distance, float radius) {
     float A = distance / radius;
@@ -223,7 +214,7 @@ void main() {
 
     const vec3 ibl = IBL(N, NdotV, R, F0, metallic, roughness, albedo, ambientOcclusion) * 0.5;
 
-    const vec3 color = ToneMapping(ibl + Lo + emissive);
+    const vec3 color = ibl + Lo + emissive;
 
     fColor = vec4(color, 1);
 }

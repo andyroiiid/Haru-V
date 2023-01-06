@@ -43,6 +43,8 @@ public:
 
     [[nodiscard]] const vk::DescriptorSet &GetTextureSet() const { return m_textureSet; }
 
+    [[nodiscard]] const vk::ImageView &GetDepthAttachmentView() const { return m_depthAttachmentView; }
+
 private:
     void CreateAttachments(const vk::Extent2D &extent, const vk::ArrayProxyNoTemporaries<vk::Format> &colorFormats);
 
