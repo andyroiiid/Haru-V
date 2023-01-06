@@ -1,4 +1,5 @@
 {
   "vertex": "shaders/base.vert",
-  "fragment": "shaders/base_forward.frag"
+  "fragment": "shaders/base_forward.frag",
+  "depth_write": false
 }

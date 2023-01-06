@@ -28,7 +28,9 @@ void main() {
     const vec3 worldNormal = normalize(vWorldNormal);
     const vec3 emissive = texture(uEmissive, vTexCoord).rgb;
 
-    const vec3 albedo = texture(uAlbedo, vTexCoord).rgb;
+    const vec4 albedoAlpha = texture(uAlbedo, vTexCoord);
+    const vec3 albedo = albedoAlpha.rgb;
+    const float alpha = albedoAlpha.a;
     const vec3 mra = texture(uMRA, vTexCoord).rgb;
     const float metallic = mra.r;
     const float roughness = mra.g;
@@ -59,7 +61,7 @@ void main() {
 
     const vec3 ibl = IBL(N, NdotV, R, F0, metallic, roughness, albedo, ambientOcclusion) * 0.5;
 
-    const vec3 color = ibl + Lo + emissive;
+    const vec3 color = Lo * alpha + ibl + emissive;
 
-    fColor = vec4(color, 1);
+    fColor = vec4(color, alpha);
 }

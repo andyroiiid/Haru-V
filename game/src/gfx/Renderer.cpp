@@ -85,6 +85,17 @@ void Renderer::CreatePipelines() {
         vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
     );
 
+    const vk::PipelineColorBlendAttachmentState ALPHA_BLEND(
+        VK_TRUE,
+        vk::BlendFactor::eSrcAlpha,
+        vk::BlendFactor::eOneMinusSrcAlpha,
+        vk::BlendOp::eAdd,
+        vk::BlendFactor::eOne,
+        vk::BlendFactor::eZero,
+        vk::BlendOp::eAdd,
+        vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
+    );
+
     ShaderCompiler compiler("shader_includes/");
 
     m_shadowPipeline = VulkanPipeline(
@@ -161,7 +172,7 @@ void Renderer::CreatePipelines() {
         },
         VertexBase::GetPipelineVertexInputStateCreateInfo(),
         "pipelines/base_forward.json",
-        {NO_BLEND},
+        {ALPHA_BLEND},
         m_deferredContext.GetForwardRenderPass(),
         0
     );
