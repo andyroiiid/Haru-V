@@ -1,6 +1,6 @@
 #version 450
 
-#include <shaders/utils.glsl>
+#include <utils.glsl>
 
 layout (location = 0) in vec3 vWorldPosition;
 layout (location = 1) in vec3 vWorldNormal;

@@ -1,9 +1,9 @@
 #version 450
 
-#include <shaders/utils.glsl>
+#include <utils.glsl>
 
 #define IBL_TEXTURE_SET 1
-#include <shaders/ibl.glsl>
+#include <ibl.glsl>
 
 layout (location = 0) in vec3 vDirection;
 

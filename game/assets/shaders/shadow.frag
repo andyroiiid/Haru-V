@@ -1,6 +1,6 @@
 #version 450
 
-#include <shaders/uniform_lighting.glsl>
+#include <uniform_lighting.glsl>
 
 layout (location = 0) in vec3 gWorldNormal;
 

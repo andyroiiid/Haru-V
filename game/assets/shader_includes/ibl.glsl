@@ -1,7 +1,7 @@
 #ifndef IBL_GLSL
 #define IBL_GLSL
 
-#include <shaders/pbr.glsl>
+#include <pbr.glsl>
 
 layout (set = IBL_TEXTURE_SET, binding = 0) uniform sampler2D uBrdfLut;
 layout (set = IBL_TEXTURE_SET, binding = 1) uniform sampler2D uSkybox;

@@ -85,7 +85,7 @@ void Renderer::CreatePipelines() {
         vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
     );
 
-    ShaderCompiler compiler;
+    ShaderCompiler compiler("shader_includes/");
 
     m_shadowPipeline = VulkanPipeline(
         m_device,
@@ -97,7 +97,7 @@ void Renderer::CreatePipelines() {
             {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)} //
         },
         VertexBase::GetPipelineVertexInputStateCreateInfo(),
-        "shaders/shadow.json",
+        "pipelines/shadow.json",
         {},
         m_shadowContext.GetRenderPass(),
         0
@@ -114,7 +114,7 @@ void Renderer::CreatePipelines() {
             {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)} //
         },
         VertexBase::GetPipelineVertexInputStateCreateInfo(),
-        "shaders/base.json",
+        "pipelines/base.json",
         {NO_BLEND, NO_BLEND, NO_BLEND, NO_BLEND},
         m_deferredContext.GetDeferredRenderPass(),
         0
@@ -126,7 +126,7 @@ void Renderer::CreatePipelines() {
         {m_uniformBufferSet.GetDescriptorSetLayout(), m_iblTextureSetLayout},
         {},
         VertexPositionOnly::GetPipelineVertexInputStateCreateInfo(),
-        "shaders/skybox.json",
+        "pipelines/skybox.json",
         {NO_BLEND, NO_BLEND, NO_BLEND, NO_BLEND},
         m_deferredContext.GetDeferredRenderPass(),
         0
@@ -141,7 +141,7 @@ void Renderer::CreatePipelines() {
          m_shadowContext.GetTextureSetLayout()},
         {},
         VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
-        "shaders/combine.json",
+        "pipelines/combine.json",
         {NO_BLEND},
         m_deferredContext.GetForwardRenderPass(),
         0
@@ -153,7 +153,7 @@ void Renderer::CreatePipelines() {
         {m_deferredContext.GetForwardTextureSetLayout()},
         {},
         VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
-        "shaders/post_processing.json",
+        "pipelines/post_processing.json",
         {NO_BLEND},
         m_device.GetPrimaryRenderPass(),
         0

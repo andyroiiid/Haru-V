@@ -1,7 +1,7 @@
 #ifndef CSM_GLSL
 #define CSM_GLSL
 
-#include <shaders/uniform_lighting.glsl>
+#include <uniform_lighting.glsl>
 
 layout (set = CSM_TEXTURE_SET, binding = 0) uniform sampler2DArrayShadow uShadowMap;
 

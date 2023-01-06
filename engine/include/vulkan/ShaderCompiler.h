@@ -10,7 +10,7 @@ struct ShaderIncluder;
 
 class ShaderCompiler {
 public:
-    ShaderCompiler();
+    explicit ShaderCompiler(const std::string &includesDir);
 
     ~ShaderCompiler();
 

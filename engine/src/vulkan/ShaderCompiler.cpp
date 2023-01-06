@@ -12,6 +12,9 @@
 #include "file/FileSystem.h"
 
 struct ShaderIncluder : glslang::TShader::Includer {
+    explicit ShaderIncluder(std::string includesDir)
+        : m_includesDir(std::move(includesDir)) {}
+
     IncludeResult *includeLocal(const char *, const char *, size_t) override {
         // relative paths are not supported yet
         return nullptr;
@@ -26,19 +29,21 @@ private:
         auto pair = m_headerFiles.find(headerName);
         if (pair == m_headerFiles.end()) {
             DebugInfo("Loading shader header file <{}> into cache.", headerName);
-            pair = m_headerFiles.emplace(headerName, FileSystem::Read(headerName)).first;
+            pair = m_headerFiles.emplace(headerName, FileSystem::Read(m_includesDir + headerName)).first;
         }
         auto &content = pair->second;
         return new IncludeResult(headerName, content.c_str(), content.length(), nullptr);
     }
 
+    std::string m_includesDir;
+
     std::map<std::string, std::string> m_headerFiles;
 };
 
-ShaderCompiler::ShaderCompiler() {
+ShaderCompiler::ShaderCompiler(const std::string &includesDir) {
     DebugInfo("glslang version: {}", glslang::GetGlslVersionString());
     DebugCheckCritical(glslang::InitializeProcess(), "Failed to initialize glslang.");
-    m_includer = std::make_unique<ShaderIncluder>();
+    m_includer = std::make_unique<ShaderIncluder>(includesDir);
 }
 
 ShaderCompiler::~ShaderCompiler() {

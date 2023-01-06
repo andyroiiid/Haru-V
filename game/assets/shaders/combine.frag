@@ -1,15 +1,15 @@
 #version 450
 
-#include <shaders/uniform_renderer.glsl>
-#include <shaders/uniform_lighting.glsl>
-#include <shaders/utils.glsl>
-#include <shaders/pbr.glsl>
+#include <uniform_renderer.glsl>
+#include <uniform_lighting.glsl>
+#include <utils.glsl>
+#include <pbr.glsl>
 
 #define IBL_TEXTURE_SET 2
-#include <shaders/ibl.glsl>
+#include <ibl.glsl>
 
 #define CSM_TEXTURE_SET 3
-#include <shaders/csm.glsl>
+#include <csm.glsl>
 
 layout (location = 0) in vec2 vTexCoord;
 

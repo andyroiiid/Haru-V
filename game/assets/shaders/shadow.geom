@@ -1,6 +1,6 @@
 #version 450
 
-#include <shaders/uniform_lighting.glsl>
+#include <uniform_lighting.glsl>
 
 layout (triangles, invocations = 4) in;
 layout (triangle_strip, max_vertices = 3) out;
