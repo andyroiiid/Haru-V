@@ -3,5 +3,6 @@
   "normal": "textures/power_sphere/normal.png",
   "mra": "textures/power_sphere/mra.png",
   "emissive": "textures/power_sphere/emissive.png",
-  "transparent": true
+  "transparent": true,
+  "shadow": true
 }

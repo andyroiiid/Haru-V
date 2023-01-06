@@ -11,6 +11,7 @@
 struct PbrMaterial {
     vk::DescriptorSet DescriptorSet;
     bool              Transparent = false;
+    bool              Shadow      = true;
 };
 
 class PbrMaterialCache {

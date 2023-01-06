@@ -22,4 +22,5 @@ PbrMaterialConfig::PbrMaterialConfig(const std::string &jsonFilename) {
     MRA         = json.GetString("mra");
     Emissive    = json.GetString("emissive");
     Transparent = json.GetBoolean("transparent", false);
+    Shadow      = json.GetBoolean("shadow", !Transparent);
 }

@@ -1,0 +1,8 @@
+{
+  "albedo": "textures/dev/trigger.png",
+  "normal": "textures/dev/normal.png",
+  "mra": "textures/dev/m0r1a1.png",
+  "emissive": "textures/dev/black.png",
+  "transparent": true,
+  "shadow": false
+}

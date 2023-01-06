@@ -40,7 +40,10 @@ PbrMaterial *PbrMaterialCache::LoadMaterial(const std::string &filename) {
         m_textureCache.LoadTexture(config.MRA)->BindToDescriptorSet(textureSet, 2);
         m_textureCache.LoadTexture(config.Emissive)->BindToDescriptorSet(textureSet, 3);
 
-        const PbrMaterial material{textureSet, config.Transparent};
+        const PbrMaterial material{
+            textureSet, //
+            config.Transparent,
+            config.Shadow};
 
         pair = m_materials.emplace(filename, material).first;
     }

@@ -22,6 +22,7 @@ struct PbrMaterialConfig {
     std::string MRA;
     std::string Emissive;
     bool        Transparent;
+    bool        Shadow;
 
     explicit PbrMaterialConfig(const std::string &jsonFilename);
 };

@@ -293,6 +293,10 @@ void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) 
     );
 
     for (const DrawCall &drawCall: m_deferredDrawCalls) {
+        if (!drawCall.Material->Shadow) {
+            continue;
+        }
+
         cmd.pushConstants(
             m_shadowPipeline.GetLayout(), //
             vk::ShaderStageFlagBits::eVertex,
@@ -304,6 +308,10 @@ void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) 
     }
 
     for (const DrawCall &drawCall: m_forwardDrawCalls) {
+        if (!drawCall.Material->Shadow) {
+            continue;
+        }
+
         cmd.pushConstants(
             m_shadowPipeline.GetLayout(), //
             vk::ShaderStageFlagBits::eVertex,
