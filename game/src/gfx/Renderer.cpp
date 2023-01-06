@@ -380,7 +380,7 @@ void Renderer::DrawDeferred(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
 }
 
 void Renderer::DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
-    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_device.GetSwapchainExtent());
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
 
     cmd.beginRenderPass(m_deferredContext.GetForwardRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
 

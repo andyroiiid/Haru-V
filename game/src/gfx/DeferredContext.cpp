@@ -6,7 +6,6 @@
 
 DeferredContext::DeferredContext(VulkanBase &device)
     : m_device(&device) {
-    m_extent  = m_device->GetSwapchainExtent();
     m_sampler = m_device->CreateSampler(vk::Filter::eNearest, vk::SamplerAddressMode::eClampToEdge);
 
     CreateRenderPass();
@@ -46,6 +45,8 @@ void DeferredContext::CreateRenderPass() {
 }
 
 void DeferredContext::CreateFramebuffers() {
+    m_extent = m_device->GetSwapchainExtent();
+
     const size_t numBuffering = m_device->GetNumBuffering();
 
     const vk::Rect2D renderArea{
