@@ -147,6 +147,25 @@ void Renderer::CreatePipelines() {
         0
     );
 
+    m_baseForwardPipeline = VulkanPipeline(
+        m_device,
+        compiler,
+        {
+            m_uniformBufferSet.GetDescriptorSetLayout(),
+            m_pbrMaterialCache.GetDescriptorSetLayout(),
+            m_iblTextureSetLayout,
+            m_shadowContext.GetTextureSetLayout()
+    },
+        {
+            {vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4)} //
+        },
+        VertexBase::GetPipelineVertexInputStateCreateInfo(),
+        "pipelines/base_forward.json",
+        {NO_BLEND},
+        m_deferredContext.GetForwardRenderPass(),
+        0
+    );
+
     m_postProcessingPipeline = VulkanPipeline(
         m_device,
         compiler,
@@ -181,6 +200,7 @@ Renderer::~Renderer() {
     m_basePipeline           = {};
     m_skyboxPipeline         = {};
     m_combinePipeline        = {};
+    m_baseForwardPipeline    = {};
     m_postProcessingPipeline = {};
     m_device.FreeDescriptorSet(m_iblTextureSet);
     m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
@@ -244,11 +264,12 @@ void Renderer::FinishDrawing() {
 }
 
 void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_shadowContext.GetExtent(), false);
+
     cmd.beginRenderPass(m_shadowContext.GetRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_shadowPipeline.Get());
 
-    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_shadowContext.GetExtent(), false);
     cmd.setViewport(0, viewport);
     cmd.setScissor(0, scissor);
 
@@ -260,7 +281,18 @@ void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) 
         m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
 
-    for (const DrawCall &drawCall: m_drawCalls) {
+    for (const DrawCall &drawCall: m_deferredDrawCalls) {
+        cmd.pushConstants(
+            m_shadowPipeline.GetLayout(), //
+            vk::ShaderStageFlagBits::eVertex,
+            0,
+            sizeof(glm::mat4),
+            glm::value_ptr(drawCall.ModelMatrix)
+        );
+        drawCall.Mesh->BindAndDraw(cmd);
+    }
+
+    for (const DrawCall &drawCall: m_forwardDrawCalls) {
         cmd.pushConstants(
             m_shadowPipeline.GetLayout(), //
             vk::ShaderStageFlagBits::eVertex,
@@ -275,11 +307,12 @@ void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) 
 }
 
 void Renderer::DrawDeferred(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
+
     cmd.beginRenderPass(m_deferredContext.GetDeferredRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_basePipeline.Get());
 
-    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
     cmd.setViewport(0, viewport);
     cmd.setScissor(0, scissor);
 
@@ -291,7 +324,7 @@ void Renderer::DrawDeferred(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
         m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
 
-    for (const DrawCall &drawCall: m_drawCalls) {
+    for (const DrawCall &drawCall: m_deferredDrawCalls) {
         cmd.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics, //
             m_basePipeline.GetLayout(),
@@ -308,7 +341,7 @@ void Renderer::DrawDeferred(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
         );
         drawCall.Mesh->BindAndDraw(cmd);
     }
-    m_drawCalls.clear();
+    m_deferredDrawCalls.clear();
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_skyboxPipeline.Get());
 
@@ -328,11 +361,12 @@ void Renderer::DrawDeferred(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
 }
 
 void Renderer::DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_device.GetSwapchainExtent());
+
     cmd.beginRenderPass(m_deferredContext.GetForwardRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_combinePipeline.Get());
 
-    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_device.GetSwapchainExtent());
     cmd.setViewport(0, viewport);
     cmd.setScissor(0, scissor);
 
@@ -349,15 +383,56 @@ void Renderer::DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
 
     m_fullScreenQuad.BindAndDraw(cmd);
 
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_baseForwardPipeline.Get());
+
+    cmd.setViewport(0, viewport);
+    cmd.setScissor(0, scissor);
+
+    cmd.bindDescriptorSets(
+        vk::PipelineBindPoint::eGraphics,
+        m_baseForwardPipeline.GetLayout(),
+        0,
+        m_uniformBufferSet.GetDescriptorSet(),
+        m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+    );
+
+    cmd.bindDescriptorSets(
+        vk::PipelineBindPoint::eGraphics,
+        m_baseForwardPipeline.GetLayout(),
+        2,
+        {m_iblTextureSet, m_shadowContext.GetTextureSet(bufferingIndex)},
+        {}
+    );
+
+    for (const DrawCall &drawCall: m_forwardDrawCalls) {
+        cmd.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics, //
+            m_baseForwardPipeline.GetLayout(),
+            1,
+            drawCall.Material->DescriptorSet,
+            {}
+        );
+        cmd.pushConstants(
+            m_baseForwardPipeline.GetLayout(), //
+            vk::ShaderStageFlagBits::eVertex,
+            0,
+            sizeof(glm::mat4),
+            glm::value_ptr(drawCall.ModelMatrix)
+        );
+        drawCall.Mesh->BindAndDraw(cmd);
+    }
+    m_forwardDrawCalls.clear();
+
     cmd.endRenderPass();
 }
 
 void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_device.GetSwapchainExtent());
+
     cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
 
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_postProcessingPipeline.Get());
 
-    const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_device.GetSwapchainExtent());
     cmd.setViewport(0, viewport);
     cmd.setScissor(0, scissor);
 

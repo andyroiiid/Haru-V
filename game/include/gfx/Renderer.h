@@ -82,8 +82,12 @@ public:
 
     void DrawPointLight(const glm::vec3 &position, const glm::vec3 &color, float radius) { m_pointLights.emplace_back(position, radius, color); }
 
-    void Draw(const VulkanMesh *mesh, const glm::mat4 &modelMatrix, const PbrMaterial *material) {
-        m_drawCalls.emplace_back(mesh, modelMatrix, material);
+    void Draw(const VulkanMesh *mesh, const glm::mat4 &modelMatrix, const PbrMaterial *material, bool forward = false) {
+        if (forward) {
+            m_forwardDrawCalls.emplace_back(mesh, modelMatrix, material);
+        } else {
+            m_deferredDrawCalls.emplace_back(mesh, modelMatrix, material);
+        }
     }
 
     void FinishDrawing();
@@ -128,6 +132,7 @@ private:
     VulkanPipeline m_basePipeline;
     VulkanPipeline m_skyboxPipeline;
     VulkanPipeline m_combinePipeline;
+    VulkanPipeline m_baseForwardPipeline;
     VulkanPipeline m_postProcessingPipeline;
 
     VulkanMesh m_skyboxCube;
@@ -146,5 +151,6 @@ private:
             , Material(material) {}
     };
 
-    std::vector<DrawCall> m_drawCalls;
+    std::vector<DrawCall> m_deferredDrawCalls;
+    std::vector<DrawCall> m_forwardDrawCalls;
 };
