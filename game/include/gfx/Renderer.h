@@ -82,8 +82,8 @@ public:
 
     void DrawPointLight(const glm::vec3 &position, const glm::vec3 &color, float radius) { m_pointLights.emplace_back(position, radius, color); }
 
-    void Draw(const VulkanMesh *mesh, const glm::mat4 &modelMatrix, const PbrMaterial *material, bool forward = false) {
-        if (forward) {
+    void Draw(const VulkanMesh *mesh, const glm::mat4 &modelMatrix, const PbrMaterial *material) {
+        if (material->Transparent) {
             m_forwardDrawCalls.emplace_back(mesh, modelMatrix, material);
         } else {
             m_deferredDrawCalls.emplace_back(mesh, modelMatrix, material);

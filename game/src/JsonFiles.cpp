@@ -17,8 +17,9 @@ GameConfig::GameConfig(const std::string &jsonFilename) {
 
 PbrMaterialConfig::PbrMaterialConfig(const std::string &jsonFilename) {
     JsonFile json(jsonFilename);
-    Albedo   = json.GetString("albedo");
-    Normal   = json.GetString("normal");
-    MRA      = json.GetString("mra");
-    Emissive = json.GetString("emissive");
+    Albedo      = json.GetString("albedo");
+    Normal      = json.GetString("normal");
+    MRA         = json.GetString("mra");
+    Emissive    = json.GetString("emissive");
+    Transparent = json.GetBoolean("transparent", false);
 }

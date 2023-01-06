@@ -38,7 +38,7 @@ void APropPowerSphere::FixedUpdate(float fixedDeltaTime) {
 }
 
 void APropPowerSphere::Draw() {
-    g_Renderer->Draw(m_mesh, m_modelMatrix, m_material, true);
+    g_Renderer->Draw(m_mesh, m_modelMatrix, m_material);
     g_Renderer->DrawPointLight(GetTransform().GetPosition(), {0.5f, 0.2f, 0.0f}, 2.0f);
 }
 

@@ -2,5 +2,6 @@
   "albedo": "textures/power_sphere/albedo.png",
   "normal": "textures/power_sphere/normal.png",
   "mra": "textures/power_sphere/mra.png",
-  "emissive": "textures/power_sphere/emissive.png"
+  "emissive": "textures/power_sphere/emissive.png",
+  "transparent": true
 }
