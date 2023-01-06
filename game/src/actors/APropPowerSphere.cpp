@@ -16,7 +16,10 @@
 APropPowerSphere::APropPowerSphere(const glm::vec3 &position) {
     GetTransform().SetPosition(position);
 
-    m_rigidbody = g_PhysicsScene->CreateDynamic(physx::PxTransform{position.x, position.y, position.z}, physx::PxSphereGeometry(0.5f));
+    m_rigidbody = g_PhysicsScene->CreateDynamic(
+        physx::PxTransform{position.x, position.y, position.z}, //
+        physx::PxSphereGeometry(0.5f)
+    );
     m_rigidbody->setLinearDamping(0.1f);
     m_rigidbody->setAngularDamping(0.5f);
 

@@ -17,6 +17,7 @@
 #include "actors/APropPowerSphere.h"
 #include "actors/APropTestModel.h"
 #include "actors/ATriggerPlayer.h"
+#include "actors/ATriggerPowerSphere.h"
 #include "actors/AWorldSpawn.h"
 #include "actors/Scene.h"
 
@@ -97,6 +98,15 @@ void LoadTriggerPlayer(const MapData::Entity &entity) {
     DebugCheckCritical(entity.GetPropertyString("event", event), "trigger_player doesn't have a valid event!");
 
     g_Scene->CreateActor<ATriggerPlayer>(entity.Brushes, event);
+}
+
+void LoadTriggerPowerSphere(const MapData::Entity &entity) {
+    ZoneScoped;
+
+    std::string event;
+    DebugCheckCritical(entity.GetPropertyString("event", event), "trigger_power_sphere doesn't have a valid event!");
+
+    g_Scene->CreateActor<ATriggerPowerSphere>(entity.Brushes, event);
 }
 
 void LoadLightPoint(const MapData::Entity &entity) {

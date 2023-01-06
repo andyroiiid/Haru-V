@@ -18,16 +18,17 @@ void LoadEntities(const std::string &mapFilename) {
 typedef void (*EntityLoader)(const MapData::Entity &entity);
 
 static const std::map<std::string, EntityLoader> s_EntityLoaders{
-    {"worldspawn",        LoadWorldSpawn     },
-    {"info_player_start", LoadInfoPlayerStart},
-    {"func_brush",        LoadFuncBrush      },
-    {"func_move",         LoadFuncMove       },
-    {"func_button",       LoadFuncButton     },
-    {"func_phys",         LoadFuncPhys       },
-    {"trigger_player",    LoadTriggerPlayer  },
-    {"light_point",       LoadLightPoint     },
-    {"prop_test_model",   LoadPropTestModel  },
-    {"prop_power_sphere", LoadPropPowerSphere}
+    {"worldspawn",           LoadWorldSpawn        },
+    {"info_player_start",    LoadInfoPlayerStart   },
+    {"func_brush",           LoadFuncBrush         },
+    {"func_move",            LoadFuncMove          },
+    {"func_button",          LoadFuncButton        },
+    {"func_phys",            LoadFuncPhys          },
+    {"trigger_player",       LoadTriggerPlayer     },
+    {"trigger_power_sphere", LoadTriggerPowerSphere},
+    {"light_point",          LoadLightPoint        },
+    {"prop_test_model",      LoadPropTestModel     },
+    {"prop_power_sphere",    LoadPropPowerSphere   }
 };
 
 static void LoadEntity(const MapData::Entity &entity) {

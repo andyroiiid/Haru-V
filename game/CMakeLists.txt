@@ -25,10 +25,11 @@ add_executable(game
         include/actors/Scene.h
         include/actors/AWorldSpawn.h
         include/actors/AFuncBrush.h
-        include/actors/ATriggerPlayer.h
         include/actors/AFuncMove.h
         include/actors/AFuncButton.h
         include/actors/AFuncPhys.h
+        include/actors/ATriggerPlayer.h
+        include/actors/ATriggerPowerSphere.h
         include/actors/ALightPoint.h
         include/actors/APlayerNoClip.h
         include/actors/APlayer.h
@@ -38,10 +39,11 @@ add_executable(game
         src/actors/Scene.cpp
         src/actors/AWorldSpawn.cpp
         src/actors/AFuncBrush.cpp
-        src/actors/ATriggerPlayer.cpp
-        src/actors/AFuncMove.cpp
         src/actors/AFuncButton.cpp
         src/actors/AFuncPhys.cpp
+        src/actors/ATriggerPlayer.cpp
+        src/actors/ATriggerPowerSphere.cpp
+        src/actors/AFuncMove.cpp
         src/actors/ALightPoint.cpp
         src/actors/APlayerNoClip.cpp
         src/actors/APlayer.cpp
