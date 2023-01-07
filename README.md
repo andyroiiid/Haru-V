@@ -53,3 +53,11 @@ A Vulkan-based rewrite of [Haru Engine](https://github.com/andyroiiid/haru).
     - stb_image.h for image loading
 - [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
     - OBJ model loading
+- [PhysX](https://github.com/NVIDIA-Omniverse/PhysX)
+    - Physics engine
+- [lua](https://github.com/lua/lua)
+    - Scripting language
+- [FMOD](https://www.fmod.com/)
+    - Sound system
+- [Tracy](https://github.com/wolfpld/tracy)
+    - Profiler
