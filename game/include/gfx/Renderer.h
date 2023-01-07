@@ -22,9 +22,11 @@
 struct GLFWwindow;
 
 struct alignas(256) RendererUniformData {
-    glm::mat4 Projection;
-    glm::mat4 View;
-    glm::vec3 CameraPosition;
+    glm::mat4              Projection;
+    glm::mat4              View;
+    glm::vec3              CameraPosition;
+    [[maybe_unused]] float Padding;
+    glm::vec4              ScreenInfo;
 };
 
 struct alignas(16) PointLightData {
@@ -43,14 +45,14 @@ struct alignas(16) PointLightData {
 };
 
 struct alignas(256) LightingUniformData {
-    glm::vec3                  LightDirection;
-    int32_t                    NumPointLights;
-    glm::vec3                  LightColor;
-    [[maybe_unused]] float     Padding1;
-    glm::vec3                  CascadeShadowMapSplits;
-    [[maybe_unused]] float     Padding2;
-    [[maybe_unused]] glm::mat4 ShadowMatrices[4];
-    PointLightData             PointLights[128];
+    glm::vec3              LightDirection;
+    int32_t                NumPointLights;
+    glm::vec3              LightColor;
+    [[maybe_unused]] float Padding0;
+    glm::vec3              CascadeShadowMapSplits;
+    [[maybe_unused]] float Padding1;
+    glm::mat4              ShadowMatrices[4];
+    PointLightData         PointLights[128];
 };
 
 class Renderer {

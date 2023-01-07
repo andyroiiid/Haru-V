@@ -193,7 +193,7 @@ void Renderer::CreatePipelines() {
     m_presentPipeline = VulkanPipeline(
         m_device,
         compiler,
-        {m_toneMappingContext.GetTextureSetLayout()},
+        {m_uniformBufferSet.GetDescriptorSetLayout(), m_toneMappingContext.GetTextureSetLayout()},
         {},
         VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
         "pipelines/present.json",
@@ -261,6 +261,14 @@ void Renderer::FinishDrawing() {
     const VulkanFrameInfo frameInfo = m_device.BeginFrame();
 
     m_deferredContext.CheckFramebuffersOutOfDate();
+    m_toneMappingContext.CheckFramebuffersOutOfDate();
+
+    const vk::Extent2D &size = m_device.GetSwapchainExtent();
+
+    m_rendererUniformData.ScreenInfo.x = static_cast<float>(size.width);
+    m_rendererUniformData.ScreenInfo.y = static_cast<float>(size.height);
+    m_rendererUniformData.ScreenInfo.z = 1.0f / m_rendererUniformData.ScreenInfo.x;
+    m_rendererUniformData.ScreenInfo.w = 1.0f / m_rendererUniformData.ScreenInfo.y;
 
     // update shadow data
     constexpr float     shadowNear = 0.01f;
@@ -496,9 +504,10 @@ void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBegi
         vk::PipelineBindPoint::eGraphics,
         m_presentPipeline.GetLayout(),
         0,
-        {m_toneMappingContext.GetTextureSet(bufferingIndex)},
-        {}
+        {m_uniformBufferSet.GetDescriptorSet(), m_toneMappingContext.GetTextureSet(bufferingIndex)},
+        m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
     );
+
     m_fullScreenQuad.BindAndDraw(cmd);
 
     cmd.endRenderPass();
