@@ -16,6 +16,7 @@
 
 #include "gfx/DeferredContext.h"
 #include "gfx/PbrMaterialCache.h"
+#include "gfx/PostProcessingContext.h"
 #include "gfx/ShadowContext.h"
 
 struct GLFWwindow;
@@ -109,6 +110,8 @@ private:
 
     void DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
+    void ToneMapping(vk::CommandBuffer cmd, uint32_t bufferingIndex);
+
     void DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
     VulkanBase       m_device;
@@ -116,8 +119,9 @@ private:
     PbrMaterialCache m_pbrMaterialCache;
     MeshCache        m_meshCache;
 
-    ShadowContext   m_shadowContext;
-    DeferredContext m_deferredContext;
+    ShadowContext         m_shadowContext;
+    DeferredContext       m_deferredContext;
+    PostProcessingContext m_toneMappingContext;
 
     ShadowMatrixCalculator m_shadowMatrixCalculator;
 
@@ -128,13 +132,22 @@ private:
     vk::DescriptorSetLayout m_iblTextureSetLayout;
     vk::DescriptorSet       m_iblTextureSet;
 
+    // shadow pass
     VulkanPipeline m_shadowPipeline;
+
+    // deferred pass
     VulkanPipeline m_basePipeline;
     VulkanPipeline m_skyboxPipeline;
+
+    // forward pass
     VulkanPipeline m_combinePipeline;
     VulkanPipeline m_baseForwardPipeline;
 
+    // post-processing
     VulkanPipeline m_toneMappingPipeline;
+
+    // presentation
+    VulkanPipeline m_presentPipeline;
 
     VulkanMesh m_skyboxCube;
     VulkanMesh m_fullScreenQuad;

@@ -11,7 +11,7 @@ A Vulkan-based rewrite of [Haru Engine](https://github.com/andyroiiid/haru).
     - [x] Deferred Rendering Pipeline
     - [x] Physically Based Lighting
     - [x] Cascade Shadow Map
-    - [ ] FXAA Integration
+    - [x] FXAA Integration
 - Level Editing
     - [x] Modified TrenchBroom: https://github.com/andyroiiid/TrenchBroom-Haru
     - [x] Custom level format (see docs/haru.hexpat)

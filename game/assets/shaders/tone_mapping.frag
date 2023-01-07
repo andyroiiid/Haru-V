@@ -15,8 +15,14 @@ vec3 ToneMapping(vec3 color) {
     return color * fma(color, A, B) / fma(color, fma(color, C, D), E);
 }
 
+float Luma(vec3 color) {
+    return dot(color, vec3(0.299, 0.587, 0.114));
+}
+
 void main() {
-    vec3 color = texture(uScreen, vTexCoord).rgb;
-    color = ToneMapping(color);
-    fColor = vec4(color, 1.0);
+    // tone map and encode gamma corrected luma into alpha channel (so that FXAA can use)
+    vec4 color = texture(uScreen, vTexCoord);
+    color.rgb = ToneMapping(color.rgb);
+    color.a = sqrt(Luma(color.rgb));
+    fColor = color;
 }
