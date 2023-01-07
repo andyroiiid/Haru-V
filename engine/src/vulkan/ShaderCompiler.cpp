@@ -96,6 +96,11 @@ std::vector<uint32_t> ShaderCompiler::Compile(vk::ShaderStageFlagBits stage, con
     if (!shader.parse(GetDefaultResources(), 100, false, EShMsgDefault, *m_includer)) {
         DebugError("Failed to parse {} shader: {}", stageName, shader.getInfoLog());
         return {};
+    } else {
+        const char *infoLog = shader.getInfoLog();
+        if (std::strlen(infoLog)) {
+            DebugWarning("Shader compilation warning: {}", infoLog);
+        }
     }
 
     glslang::TProgram program;
