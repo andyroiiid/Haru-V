@@ -6,6 +6,28 @@ layout (location = 0) out vec4 fColor;
 
 layout (set = 0, binding = 0) uniform sampler2D uScreen;
 
+vec2 AdjustLength(const vec2 v, float power) {
+    const float l = length(v);
+    return normalize(v) * pow(l, power);
+}
+
+vec3 ChromaticAberration(sampler2D tex, vec2 uv, float lengthAdjust, float ammount) {
+    const vec2 dist = AdjustLength(uv - 0.5, lengthAdjust);
+
+    const vec2 aberration = ammount * dist;
+
+    return vec3(
+    texture(tex, uv - aberration).r,
+    texture(tex, uv).g,
+    texture(tex, uv + aberration).b
+    );
+}
+
+float Vignette(vec2 uv, float intensity, float extent) {
+    uv *= 1.0 - uv.yx;
+    return pow(uv.x * uv.y * intensity, extent);
+}
+
 vec3 ToneMapping(vec3 color) {
     const vec3 A = vec3(2.51);
     const vec3 B = vec3(0.03);
@@ -20,9 +42,10 @@ float Luma(vec3 color) {
 }
 
 void main() {
-    // tone map and encode gamma corrected luma into alpha channel (so that FXAA can use)
-    vec4 color = texture(uScreen, vTexCoord);
-    color.rgb = ToneMapping(color.rgb);
-    color.a = sqrt(Luma(color.rgb));
-    fColor = color;
+    vec3 color = ChromaticAberration(uScreen, vTexCoord, 1.5, 0.005);
+
+    color *= Vignette(vTexCoord, 20.0, 0.2);
+
+    // encode gamma corrected luma into alpha channel (so that FXAA can use)
+    fColor = vec4(ToneMapping(color), sqrt(Luma(color)));
 }
