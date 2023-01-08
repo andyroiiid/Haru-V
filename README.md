@@ -28,6 +28,7 @@ A Vulkan-based rewrite of [Haru Engine](https://github.com/andyroiiid/haru).
     - [x] [FMOD](https://fmod.com/) Integration
 - Physics
     - [x] PhysX 5 Integration
+    - [x] Rigidbody movement extrapolation/interpolation
 
 ## Dependencies
 
