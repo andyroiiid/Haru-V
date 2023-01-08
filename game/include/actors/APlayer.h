@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <PxQueryReport.h>
+
 #include "actors/Actor.h"
 
 namespace physx {
@@ -25,6 +27,10 @@ public:
     void Draw() override;
 
 private:
+    physx::PxRaycastHit EyeRayCast();
+
+    void UpdateInteract();
+
     void UpdateGround();
 
     void CalcHorizontalAcceleration(const glm::vec3 &direction, float acceleration, float drag);
@@ -60,6 +66,7 @@ private:
 
     bool m_prevSpace = false;
 
-    bool   m_prevLmb  = false;
-    Actor *m_hitActor = nullptr;
+    bool m_prevLmb = false;
+
+    Actor *m_prevEyeTarget = nullptr;
 };

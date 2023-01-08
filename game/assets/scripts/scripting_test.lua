@@ -1,13 +1,23 @@
-function button1()
-    signal("door1", "open")
+function button1(event)
+    if event == "release" then
+        signal("door1", "open")
+    end
 end
 
-function button2()
-    signal("door1", "close")
+function button2(event)
+    if event == "release" then
+        signal("door1", "close")
+    end
 end
 
-function button3()
-    signal("door1", "toggle")
+function button3(event)
+    if event == "press" then
+        signal("door1", "open")
+    elseif event == "release" then
+        signal("door1", "close")
+    else
+        print("unknown event " .. event)
+    end
 end
 
 function trigger1(event)

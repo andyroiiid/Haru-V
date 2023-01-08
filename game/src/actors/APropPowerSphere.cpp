@@ -39,6 +39,10 @@ void APropPowerSphere::Update(float deltaTime) {
 
     m_translationMatrix = GetTransform().SetPosition(m_position + m_velocity * timeError).GetTranslationMatrix();
     m_rotation          = glm::slerp(m_rotation, m_currentRotation, glm::min(1.0f, 30.0f * deltaTime));
+
+    if (m_isCharging) {
+        m_chargePower += glm::min(deltaTime * 2.0f, 10.0f);
+    }
 }
 
 void APropPowerSphere::FixedUpdate(float fixedDeltaTime) {
@@ -54,17 +58,35 @@ void APropPowerSphere::FixedUpdate(float fixedDeltaTime) {
 
 void APropPowerSphere::Draw() {
     g_Renderer->Draw(m_mesh, m_translationMatrix * glm::mat4_cast(m_rotation), m_material);
-    g_Renderer->DrawPointLight(GetTransform().GetPosition(), {0.5f, 0.2f, 0.0f}, 2.0f);
+    g_Renderer->DrawPointLight(GetTransform().GetPosition(), glm::vec3{0.5f, 0.2f, 0.0f} * m_chargePower, 2.0f);
 }
 
-void APropPowerSphere::Use(APlayer *player, const physx::PxRaycastHit &hit) {
-    const glm::vec3     &playerPosition = player->GetTransform().GetPosition();
-    const physx::PxVec3 &hitPosition    = hit.position;
-    physx::PxVec3        force{
-        hitPosition.x - playerPosition.x,
+void APropPowerSphere::StartUse(APlayer *player, const physx::PxRaycastHit &hit) {
+    m_isCharging = true;
+
+    // increase damping to stop the sphere
+    m_rigidbody->setLinearDamping(5.0f);
+    m_rigidbody->setAngularDamping(5.0f);
+}
+
+void APropPowerSphere::ContinueUse(APlayer *player, const physx::PxRaycastHit &hit) {
+    m_chargePosition = hit.position;
+}
+
+void APropPowerSphere::StopUse(APlayer *player) {
+    const glm::vec3 &playerPosition = player->GetTransform().GetPosition();
+    physx::PxVec3    force{
+        m_chargePosition.x - playerPosition.x,
         0.0f, // no vertical force
-        hitPosition.z - playerPosition.z,
+        m_chargePosition.z - playerPosition.z,
     };
-    force = force.getNormalized() * 2.0f;
-    physx::PxRigidBodyExt::addForceAtPos(*m_rigidbody, force, hitPosition, physx::PxForceMode::eIMPULSE);
+    force = force.getNormalized() * m_chargePower;
+    physx::PxRigidBodyExt::addForceAtPos(*m_rigidbody, force, m_chargePosition, physx::PxForceMode::eIMPULSE);
+
+    m_isCharging  = false;
+    m_chargePower = 0.0f;
+
+    // reset damping
+    m_rigidbody->setLinearDamping(0.1f);
+    m_rigidbody->setAngularDamping(0.5f);
 }

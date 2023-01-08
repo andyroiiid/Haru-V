@@ -6,6 +6,8 @@
 
 #include "actors/Actor.h"
 
+#include <foundation/PxVec3.h>
+
 namespace physx {
 class PxRigidDynamic;
 } // namespace physx
@@ -28,7 +30,11 @@ public:
 
     void Draw() override;
 
-    void Use(APlayer *player, const physx::PxRaycastHit &hit) override;
+    void StartUse(APlayer *player, const physx::PxRaycastHit &hit) override;
+
+    void ContinueUse(APlayer *player, const physx::PxRaycastHit &hit) override;
+
+    void StopUse(APlayer *player) override;
 
 private:
     physx::PxRigidDynamic *m_rigidbody;
@@ -43,4 +49,8 @@ private:
 
     VulkanMesh  *m_mesh;
     PbrMaterial *m_material;
+
+    bool          m_isCharging  = false;
+    float         m_chargePower = 0.0f;
+    physx::PxVec3 m_chargePosition;
 };

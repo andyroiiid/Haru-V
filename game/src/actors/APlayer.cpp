@@ -42,6 +42,68 @@ static inline float GetKeyAxis(GLFWwindow *window, int posKey, int negKey) {
     return value;
 }
 
+physx::PxRaycastHit APlayer::EyeRayCast() {
+    const Transform &transform = GetTransform();
+    const glm::vec3  position  = transform.GetPosition();
+    const glm::vec3  forward   = transform.GetForwardVector();
+
+    const physx::PxVec3 origin{position.x, position.y, position.z};
+    const physx::PxVec3 unitDir{forward.x, forward.y, forward.z};
+    return g_PhysicsScene->Raycast(origin, unitDir, INTERACTION_DISTANCE, PHYSICS_LAYER_0).block;
+}
+
+static Actor *GetActor(const physx::PxRaycastHit &hit) {
+    physx::PxActor *actor = hit.actor;
+    return actor ? static_cast<Actor *>(actor->userData) : nullptr;
+}
+
+void APlayer::UpdateInteract() {
+    // eye raycast
+    const physx::PxRaycastHit hit = EyeRayCast();
+
+    // try to acquire current target
+    Actor * const eyeTarget = GetActor(hit);
+
+    // use input
+    const bool currLmb = g_Mouse->IsButtonDown(MouseButton::Left);
+
+    if (!m_prevLmb) {
+        if (currLmb) {
+            // lmb press
+            if (eyeTarget) {
+                eyeTarget->StartUse(this, hit);
+            }
+        }
+    } else {
+        if (!currLmb) {
+            // lmb release
+            if (m_prevEyeTarget) {
+                m_prevEyeTarget->StopUse(this);
+            }
+        } else {
+            // lmb hold
+            if (eyeTarget == m_prevEyeTarget) {
+                // still looking at the same object (might be null)
+                if (eyeTarget) {
+                    eyeTarget->ContinueUse(this, hit);
+                }
+            } else {
+                // target changed
+                if (m_prevEyeTarget) {
+                    m_prevEyeTarget->StopUse(this);
+                }
+                if (eyeTarget) {
+                    eyeTarget->StartUse(this, hit);
+                }
+            }
+        }
+    }
+
+    m_prevLmb = currLmb;
+
+    m_prevEyeTarget = eyeTarget;
+}
+
 void APlayer::Update(const float deltaTime) {
     Transform &transform = GetTransform();
 
@@ -82,32 +144,7 @@ void APlayer::Update(const float deltaTime) {
         m_prevSpace = currSpace;
     }
 
-    // raycast for current target
-    {
-        bool currLmb = g_Mouse->IsButtonDown(MouseButton::Left);
-
-        const glm::vec3 position = transform.GetPosition();
-        const glm::vec3 forward  = transform.GetForwardVector();
-
-        const physx::PxVec3    origin{position.x, position.y, position.z};
-        const physx::PxVec3    unitDir{forward.x, forward.y, forward.z};
-        physx::PxRaycastBuffer buffer = g_PhysicsScene->Raycast(origin, unitDir, INTERACTION_DISTANCE, PHYSICS_LAYER_0);
-
-        m_hitActor = nullptr;
-        if (buffer.hasBlock) {
-            const physx::PxRaycastHit &hit = buffer.block;
-
-            if (hit.actor) {
-                m_hitActor = static_cast<Actor *>(hit.actor->userData);
-
-                if (!m_prevLmb && currLmb && m_hitActor) {
-                    m_hitActor->Use(this, hit);
-                }
-            }
-        }
-
-        m_prevLmb = currLmb;
-    }
+    UpdateInteract();
 }
 
 void APlayer::UpdateGround() {

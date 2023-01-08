@@ -14,9 +14,9 @@ public:
         : AFuncMove(brushes, moveSpeed, moveTime)
         , m_event(std::move(event)) {}
 
-    void FixedUpdate(float fixedDeltaTime) override;
+    void StartUse(APlayer *player, const physx::PxRaycastHit &hit) override;
 
-    void Use(APlayer *player, const physx::PxRaycastHit &hit) override;
+    void StopUse(APlayer *player) override;
 
 private:
     std::string m_event;

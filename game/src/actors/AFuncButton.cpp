@@ -8,20 +8,13 @@
 
 #include "Globals.h"
 
-void AFuncButton::FixedUpdate(float fixedDeltaTime) {
-    AFuncMove::FixedUpdate(fixedDeltaTime);
-
-    if (IsOpen()) {
-        Close();
-    }
+void AFuncButton::StartUse(APlayer *player, const physx::PxRaycastHit &hit) {
+    Open();
+    g_Lua->CallGlobalFunction(m_event, "press");
 }
 
-void AFuncButton::Use(APlayer *player, const physx::PxRaycastHit &hit) {
-    if (!IsClosed()) {
-        return;
-    }
+void AFuncButton::StopUse(APlayer *player) {
+    Close();
+    g_Lua->CallGlobalFunction(m_event, "release");
 
-    Open();
-
-    g_Lua->CallGlobalFunction(m_event);
 }

@@ -59,7 +59,11 @@ public:
 
     virtual void LuaSignal(lua_State *L) {}
 
-    virtual void Use(APlayer *player, const physx::PxRaycastHit &hit) {}
+    virtual void StartUse(APlayer *player, const physx::PxRaycastHit &hit) {}
+
+    virtual void ContinueUse(APlayer *player, const physx::PxRaycastHit &hit) {}
+
+    virtual void StopUse(APlayer *player) {}
 
     virtual void OnTriggerEnter(Actor *other) {}
 
