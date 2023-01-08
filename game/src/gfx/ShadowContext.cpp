@@ -34,7 +34,7 @@ void ShadowContext::CreateRenderPass() {
 }
 
 void ShadowContext::CreateFramebuffers() {
-    m_extent                  = vk::Extent2D{2048, 2048};
+    m_extent                  = vk::Extent2D{4096, 4096};
     const size_t numBuffering = m_device->GetNumBuffering();
 
     const vk::Rect2D renderArea{
