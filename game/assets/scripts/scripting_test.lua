@@ -1,34 +1,76 @@
-function button1(event)
-    if event == "release" then
-        signal("door1", "open")
+signals = {}
+
+function signals.dummy()
+end
+
+function signals.open(target)
+    signal(target, "open")
+end
+
+function signals.close(target)
+    signal(target, "close")
+end
+
+function signals.device(callbacks)
+    return function(event)
+        local callback = callbacks[event]
+        if callback then
+            callback()
+        else
+            print("unknown event " .. event)
+        end
     end
 end
 
-function button2(event)
-    if event == "release" then
-        signal("door1", "close")
-    end
+function signals.button(onPress, onRelease)
+    return signals.device {
+        press = onPress or signals.dummy,
+        release = onRelease or signals.dummy
+    }
 end
 
-function button3(event)
-    if event == "press" then
-        signal("door1", "open")
-    elseif event == "release" then
-        signal("door1", "close")
-    else
-        print("unknown event " .. event)
-    end
+function signals.buttonPress(onPress)
+    return signals.button(onPress, nil)
 end
 
-function trigger1(event)
-    if event == "enter" then
-        signal("door1", "open")
-    elseif event == "exit" then
-        signal("door1", "close")
-    else
-        print("unknown event " .. event)
-    end
+function signals.buttonRelease(onRelease)
+    return signals.button(nil, onRelease)
 end
+
+function signals.trigger(onEnter, onExit)
+    return signals.device {
+        enter = onEnter or signals.dummy,
+        exit = onExit or signals.dummy
+    }
+end
+
+function signals.triggerEnter(onEnter)
+    return signals.trigger(onEnter, nil)
+end
+
+function signals.triggerExit(onExit)
+    return signals.trigger(nil, onExit)
+end
+
+button1 = signals.buttonRelease(function()
+    signals.open "door1"
+end)
+
+button2 = signals.buttonRelease(function()
+    signals.close "door1"
+end)
+
+button3 = signals.button(function()
+    signals.open "door1"
+end, function()
+    signals.close "door1"
+end)
+
+trigger1 = signals.trigger(function()
+    signals.open "door1"
+end, function()
+    signals.close "door1"
+end)
 
 load_audio_bank("audio/Master.bank")
 load_audio_bank("audio/Master.strings.bank")
