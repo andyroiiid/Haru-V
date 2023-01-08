@@ -109,7 +109,7 @@ void Game::Update(float deltaTime) {
         glfwSetWindowShouldClose(g_Window, GLFW_TRUE);
     }
 
-    g_SlowMotion = g_Mouse->IsButtonDown(MouseButton::Right);
+    g_SlowMotion = glfwGetKey(g_Window, GLFW_KEY_TAB);
 
     const float timeScale = g_SlowMotion ? 0.2f : 1.0f;
     if (m_physicsScene->Update(deltaTime, timeScale)) {

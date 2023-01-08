@@ -67,6 +67,7 @@ private:
     bool m_prevSpace = false;
 
     bool m_prevLmb = false;
+    bool m_prevRmb = false;
 
     Actor *m_prevEyeTarget = nullptr;
 };

@@ -41,7 +41,8 @@ void APropPowerSphere::Update(float deltaTime) {
     m_rotation          = glm::slerp(m_rotation, m_currentRotation, glm::min(1.0f, 30.0f * deltaTime));
 
     if (m_isCharging) {
-        m_chargePower += glm::min(deltaTime * 2.0f, 10.0f);
+        m_chargePower += deltaTime * 5.0f;
+        m_chargePower = glm::clamp(m_chargePower, 0.0f, 10.0f);
     }
 }
 
@@ -58,15 +59,11 @@ void APropPowerSphere::FixedUpdate(float fixedDeltaTime) {
 
 void APropPowerSphere::Draw() {
     g_Renderer->Draw(m_mesh, m_translationMatrix * glm::mat4_cast(m_rotation), m_material);
-    g_Renderer->DrawPointLight(GetTransform().GetPosition(), glm::vec3{0.5f, 0.2f, 0.0f} * m_chargePower, 2.0f);
+    g_Renderer->DrawPointLight(GetTransform().GetPosition(), glm::vec3{0.5f, 0.2f, 0.0f}, 4.0f);
 }
 
 void APropPowerSphere::StartUse(APlayer *player, const physx::PxRaycastHit &hit) {
     m_isCharging = true;
-
-    // increase damping to stop the sphere
-    m_rigidbody->setLinearDamping(5.0f);
-    m_rigidbody->setAngularDamping(5.0f);
 }
 
 void APropPowerSphere::ContinueUse(APlayer *player, const physx::PxRaycastHit &hit) {
@@ -85,7 +82,15 @@ void APropPowerSphere::StopUse(APlayer *player) {
 
     m_isCharging  = false;
     m_chargePower = 0.0f;
+}
 
+void APropPowerSphere::StartAltUse(APlayer *player, const physx::PxRaycastHit &hit) {
+    // increase damping to stop the sphere
+    m_rigidbody->setLinearDamping(5.0f);
+    m_rigidbody->setAngularDamping(5.0f);
+}
+
+void APropPowerSphere::StopAltUse(APlayer *player) {
     // reset damping
     m_rigidbody->setLinearDamping(0.1f);
     m_rigidbody->setAngularDamping(0.5f);

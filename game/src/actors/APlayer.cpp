@@ -66,6 +66,7 @@ void APlayer::UpdateInteract() {
 
     // use input
     const bool currLmb = g_Mouse->IsButtonDown(MouseButton::Left);
+    const bool currRmb = g_Mouse->IsButtonDown(MouseButton::Right);
 
     if (!m_prevLmb) {
         if (currLmb) {
@@ -99,7 +100,40 @@ void APlayer::UpdateInteract() {
         }
     }
 
+    if (!m_prevRmb) {
+        if (currRmb) {
+            // rmb press
+            if (eyeTarget) {
+                eyeTarget->StartAltUse(this, hit);
+            }
+        }
+    } else {
+        if (!currRmb) {
+            // rmb release
+            if (m_prevEyeTarget) {
+                m_prevEyeTarget->StopAltUse(this);
+            }
+        } else {
+            // rmb hold
+            if (eyeTarget == m_prevEyeTarget) {
+                // still looking at the same object (might be null)
+                if (eyeTarget) {
+                    eyeTarget->ContinueAltUse(this, hit);
+                }
+            } else {
+                // target changed
+                if (m_prevEyeTarget) {
+                    m_prevEyeTarget->StopAltUse(this);
+                }
+                if (eyeTarget) {
+                    eyeTarget->StartAltUse(this, hit);
+                }
+            }
+        }
+    }
+
     m_prevLmb = currLmb;
+    m_prevRmb = currRmb;
 
     m_prevEyeTarget = eyeTarget;
 }

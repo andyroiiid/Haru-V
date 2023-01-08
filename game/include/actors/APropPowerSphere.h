@@ -36,6 +36,10 @@ public:
 
     void StopUse(APlayer *player) override;
 
+    void StartAltUse(APlayer *player, const physx::PxRaycastHit &hit) override;
+
+    void StopAltUse(APlayer *player) override;
+
 private:
     physx::PxRigidDynamic *m_rigidbody;
 

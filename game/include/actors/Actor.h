@@ -65,6 +65,12 @@ public:
 
     virtual void StopUse(APlayer *player) {}
 
+    virtual void StartAltUse(APlayer *player, const physx::PxRaycastHit &hit) {}
+
+    virtual void ContinueAltUse(APlayer *player, const physx::PxRaycastHit &hit) {}
+
+    virtual void StopAltUse(APlayer *player) {}
+
     virtual void OnTriggerEnter(Actor *other) {}
 
     virtual void OnTriggerExit(Actor *other) {}
