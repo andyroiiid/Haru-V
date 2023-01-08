@@ -8,6 +8,8 @@
 #include <extensions/PxRigidBodyExt.h>
 #include <foundation/PxAllocator.h>
 #include <physics/PhysicsScene.h>
+#include <physics/PhysicsSystem.h>
+#include <physics/PhysicsUtilities.h>
 
 #include "Globals.h"
 #include "actors/APlayer.h"
@@ -21,10 +23,13 @@ APropPowerSphere::APropPowerSphere(const glm::vec3 &position) {
         physx::PxTransform{position.x, position.y, position.z}, //
         physx::PxSphereGeometry(0.5f)
     );
-    m_rigidbody->setLinearDamping(0.1f);
+    m_rigidbody->setLinearDamping(0.0f);
     m_rigidbody->setAngularDamping(0.5f);
 
     m_rigidbody->userData = this;
+
+    m_physicsMaterial = g_PhysicsSystem->CreateMaterial(0.8f, 0.8f, 1.0f);
+    PhysicsSetActorMaterial(m_rigidbody, m_physicsMaterial);
 
     m_mesh     = g_Renderer->LoadObjMesh("models/power_sphere.obj");
     m_material = g_Renderer->LoadPbrMaterial("materials/power_sphere.json");
@@ -32,6 +37,7 @@ APropPowerSphere::APropPowerSphere(const glm::vec3 &position) {
 
 APropPowerSphere::~APropPowerSphere() {
     PX_RELEASE(m_rigidbody)
+    PX_RELEASE(m_physicsMaterial)
 }
 
 void APropPowerSphere::Update(float deltaTime) {
@@ -86,12 +92,16 @@ void APropPowerSphere::StopUse(APlayer *player) {
 
 void APropPowerSphere::StartAltUse(APlayer *player, const physx::PxRaycastHit &hit) {
     // increase damping to stop the sphere
-    m_rigidbody->setLinearDamping(5.0f);
-    m_rigidbody->setAngularDamping(5.0f);
+    m_rigidbody->setLinearDamping(10.0f);
+    m_rigidbody->setAngularDamping(10.0f);
+}
+
+void APropPowerSphere::ContinueAltUse(APlayer *player, const physx::PxRaycastHit &hit) {
+    m_chargePower = 0.0f;
 }
 
 void APropPowerSphere::StopAltUse(APlayer *player) {
     // reset damping
-    m_rigidbody->setLinearDamping(0.1f);
+    m_rigidbody->setLinearDamping(0.0f);
     m_rigidbody->setAngularDamping(0.5f);
 }

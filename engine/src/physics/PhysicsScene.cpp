@@ -16,7 +16,7 @@ PhysicsScene::PhysicsScene(PhysicsSystem *physicsSystem)
     m_defaultCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
     DebugCheckCritical(m_defaultCpuDispatcher, "Failed to create default PhysX CPU dispatcher.");
 
-    m_defaultMaterial = m_physics->createMaterial(0.8f, 0.4f, 0.2f);
+    m_defaultMaterial = m_physics->createMaterial(0.8f, 0.8f, 0.25f);
     DebugCheckCritical(m_defaultMaterial, "Failed to create default PhysX material.");
 
     physx::PxSceneDesc sceneDesc(m_physics->getTolerancesScale());

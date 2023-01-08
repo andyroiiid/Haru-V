@@ -4,18 +4,7 @@
 
 #include "physics/PhysicsLayer.h"
 
-#include <PxPhysicsAPI.h>
-#include <vector>
-
-template<class Func>
-static std::vector<physx::PxShape *> ForEachActorShape(physx::PxRigidActor *actor, Func &&func) {
-    std::vector<physx::PxShape *> shapes(actor->getNbShapes());
-    actor->getShapes(shapes.data(), shapes.size());
-    for (physx::PxShape *shape: shapes) {
-        func(shape);
-    }
-    return shapes;
-}
+#include "physics/PhysicsUtilities.h"
 
 //void PhysicsSetSimulationLayer(physx::PxRigidActor *actor, PhysicsLayer layer) {
 //    const physx::PxFilterData filterData = PhysicsFilterDataFromLayer(layer);
@@ -26,5 +15,5 @@ static std::vector<physx::PxShape *> ForEachActorShape(physx::PxRigidActor *acto
 
 void PhysicsSetQueryLayer(physx::PxRigidActor *actor, PhysicsLayer layer) {
     const physx::PxFilterData filterData = PhysicsFilterDataFromLayer(layer);
-    ForEachActorShape(actor, [&filterData](physx::PxShape *shape) { shape->setQueryFilterData(filterData); });
+    PhysicsForEachActorShape(actor, [&filterData](physx::PxShape *shape) { shape->setQueryFilterData(filterData); });
 }

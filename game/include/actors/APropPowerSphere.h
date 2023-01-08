@@ -10,6 +10,7 @@
 
 namespace physx {
 class PxRigidDynamic;
+class PxMaterial;
 } // namespace physx
 
 class VulkanMesh;
@@ -38,10 +39,13 @@ public:
 
     void StartAltUse(APlayer *player, const physx::PxRaycastHit &hit) override;
 
+    void ContinueAltUse(APlayer *player, const physx::PxRaycastHit &hit) override;
+
     void StopAltUse(APlayer *player) override;
 
 private:
     physx::PxRigidDynamic *m_rigidbody;
+    physx::PxMaterial     *m_physicsMaterial;
 
     glm::mat4 m_translationMatrix{1.0f};
 

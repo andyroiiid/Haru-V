@@ -17,6 +17,8 @@ class PxPhysics;
 
 class PxCooking;
 
+class PxMaterial;
+
 class PxConvexMesh;
 
 class PxTriangleMesh;
@@ -35,6 +37,8 @@ public:
     PhysicsSystem(PhysicsSystem &&) = delete;
 
     PhysicsSystem &operator=(PhysicsSystem &&) = delete;
+
+    physx::PxMaterial *CreateMaterial(physx::PxReal staticFriction, physx::PxReal dynamicFriction, physx::PxReal restitution);
 
     physx::PxConvexMesh *CreateConvexMesh(
         physx::PxU32         count,

@@ -53,6 +53,7 @@ add_library(engine
         src/math/ShadowMatrixCalculator.cpp
 
         include/physics/PhysicsErrorCallback.h
+        include/physics/PhysicsUtilities.h
         include/physics/PhysicsLayer.h
         include/physics/PhysicsSystem.h
         include/physics/PhysicsScene.h

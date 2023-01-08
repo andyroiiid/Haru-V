@@ -45,13 +45,17 @@ PhysicsSystem::~PhysicsSystem() {
     PX_RELEASE(m_foundation)
 }
 
+physx::PxMaterial *PhysicsSystem::CreateMaterial(physx::PxReal staticFriction, physx::PxReal dynamicFriction, physx::PxReal restitution) {
+    return m_physics->createMaterial(staticFriction, dynamicFriction, restitution);
+}
+
 physx::PxConvexMesh *PhysicsSystem::CreateConvexMesh(physx::PxU32 count, const physx::PxVec3 *vertices, physx::PxU16 vertexLimit) {
     physx::PxConvexMeshDesc desc;
     desc.points.count  = count;
     desc.points.stride = sizeof(physx::PxVec3);
     desc.points.data   = vertices;
-    desc.flags         = physx::PxConvexFlag::eCOMPUTE_CONVEX | physx::PxConvexFlag::eDISABLE_MESH_VALIDATION |
-                 physx::PxConvexFlag::eFAST_INERTIA_COMPUTATION;
+    desc.flags =
+        physx::PxConvexFlag::eCOMPUTE_CONVEX | physx::PxConvexFlag::eDISABLE_MESH_VALIDATION | physx::PxConvexFlag::eFAST_INERTIA_COMPUTATION;
     desc.vertexLimit = vertexLimit;
 
     physx::PxDefaultMemoryOutputStream buffer;
