@@ -9,8 +9,12 @@ int main() {
     FileSystem::Mount("game", "/");
     {
         const GameConfig gameConfig("game.json");
-        Window           window(gameConfig.Name, gameConfig.Width, gameConfig.Height, gameConfig.Maximized);
-        Game             game(gameConfig.StartMap);
+
+        Window window(gameConfig.Name, gameConfig.Width, gameConfig.Height, gameConfig.Maximized);
+        Game   game;
+
+        game.ScheduleMapLoad(gameConfig.StartMap);
+
         window.MainLoop(&game);
     }
     FileSystem::Shutdown();

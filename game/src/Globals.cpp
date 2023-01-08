@@ -6,6 +6,8 @@
 
 GLFWwindow *g_Window = nullptr;
 
+Game *g_Game = nullptr;
+
 Renderer *g_Renderer = nullptr;
 
 Mouse *g_Mouse = nullptr;

@@ -5,6 +5,7 @@
 #include "Game.h"
 
 #include <GLFW/glfw3.h>
+#include <core/Debug.h>
 #include <tracy/Tracy.hpp>
 
 #include "Globals.h"
@@ -15,6 +16,8 @@ void Game::Init(GLFWwindow *window) {
 
     g_Window = window;
 
+    g_Game = this;
+
     m_renderer = std::make_unique<Renderer>(window);
     g_Renderer = m_renderer.get();
 
@@ -24,61 +27,19 @@ void Game::Init(GLFWwindow *window) {
     m_physicsSystem = std::make_unique<PhysicsSystem>();
     g_PhysicsSystem = m_physicsSystem.get();
 
-    m_physicsScene = std::make_unique<PhysicsScene>(m_physicsSystem.get());
-    g_PhysicsScene = m_physicsScene.get();
-
     m_physicsCallback = std::make_unique<PhysicsSimulationEventCallback>();
-    m_physicsScene->SetSimulationEventCallback(m_physicsCallback.get());
-
-    m_scene = std::make_unique<Scene>();
-    g_Scene = m_scene.get();
 
     m_audio = std::make_unique<AudioSystem>();
     g_Audio = m_audio.get();
-
-    m_lua = std::make_unique<LuaSandbox>();
-    g_Lua = m_lua.get();
-
-    m_lua->SetGlobalFunction("signal", [](lua_State *L) {
-        const std::string name  = luaL_checkstring(L, 1);
-        Actor            *actor = g_Scene->FindActorWithName(name);
-        if (actor != nullptr) {
-            actor->LuaSignal(L);
-        }
-        return 0;
-    });
-
-    m_lua->SetGlobalFunction("load_audio_bank", [](lua_State *L) {
-        const std::string bank = luaL_checkstring(L, 1);
-        g_Audio->LoadBank(bank);
-        return 0;
-    });
-
-    m_lua->SetGlobalFunction("play_audio_one_shot", [](lua_State *L) {
-        const std::string path = luaL_checkstring(L, 1);
-        g_Audio->PlayOneShot(path);
-        return 0;
-    });
-
-    LoadEntities(m_startMap);
 }
 
 void Game::Shutdown() {
-    m_renderer->WaitDeviceIdle();
-
-    g_Lua = nullptr;
-    m_lua.reset();
+    CleanupMap();
 
     g_Audio = nullptr;
     m_audio.reset();
 
-    g_Scene = nullptr;
-    m_scene.reset();
-
     m_physicsCallback.reset();
-
-    g_PhysicsScene = nullptr;
-    m_physicsScene.reset();
 
     g_PhysicsSystem = nullptr;
     m_physicsSystem.reset();
@@ -89,7 +50,63 @@ void Game::Shutdown() {
     g_Renderer = nullptr;
     m_renderer.reset();
 
+    g_Game = nullptr;
+
     g_Window = nullptr;
+}
+
+void Game::LoadMap(const std::string &mapName) {
+    DebugInfo("Loading map {}.", mapName);
+
+    m_mouse->Recalibrate();
+    m_audio->StopAllEvents();
+
+    m_physicsScene = std::make_unique<PhysicsScene>(m_physicsSystem.get());
+    g_PhysicsScene = m_physicsScene.get();
+
+    m_physicsScene->SetSimulationEventCallback(m_physicsCallback.get());
+
+    m_scene = std::make_unique<Scene>();
+    g_Scene = m_scene.get();
+
+    m_lua = std::make_unique<LuaSandbox>();
+    g_Lua = m_lua.get();
+
+    m_lua->SetGlobalFunction("loadMap", [](lua_State *L) {
+        const std::string mapName = luaL_checkstring(L, 1);
+        g_Game->ScheduleMapLoad(mapName);
+        return 0;
+    });
+
+    m_lua->SetGlobalFunction("signal", [](lua_State *L) {
+        const std::string name  = luaL_checkstring(L, 1);
+        Actor            *actor = g_Scene->FindActorWithName(name);
+        if (actor != nullptr) {
+            actor->LuaSignal(L);
+        }
+        return 0;
+    });
+
+    m_lua->SetGlobalFunction("playAudio", [](lua_State *L) {
+        const std::string path = luaL_checkstring(L, 1);
+        g_Audio->PlayOneShot(path);
+        return 0;
+    });
+
+    LoadEntities(mapName);
+}
+
+void Game::CleanupMap() {
+    m_renderer->WaitDeviceIdle();
+
+    g_Lua = nullptr;
+    m_lua.reset();
+
+    g_Scene = nullptr;
+    m_scene.reset();
+
+    g_PhysicsScene = nullptr;
+    m_physicsScene.reset();
 }
 
 void Game::Frame(float deltaTime) {
@@ -101,6 +118,12 @@ void Game::Frame(float deltaTime) {
 
 void Game::Update(float deltaTime) {
     ZoneScoped;
+
+    if (!m_nextMap.empty()) {
+        CleanupMap();
+        LoadMap(m_nextMap);
+        m_nextMap.clear();
+    }
 
     m_mouse->Update();
     m_audio->Update();

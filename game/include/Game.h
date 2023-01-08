@@ -17,28 +17,33 @@
 
 class Game : public App {
 public:
-    explicit Game(std::string startMap)
-        : m_startMap(std::move(startMap)) {}
-
     void Init(GLFWwindow *window) override;
 
     void Shutdown() override;
 
     void Frame(float deltaTime) override;
 
+    void ScheduleMapLoad(const std::string &mapName) { m_nextMap = mapName; }
+
 private:
+    void LoadMap(const std::string &mapName);
+
+    void CleanupMap();
+
     void Update(float deltaTime);
 
     void Draw();
 
-    std::string m_startMap;
+    std::string m_nextMap;
 
     std::unique_ptr<Renderer>                       m_renderer;
     std::unique_ptr<Mouse>                          m_mouse;
     std::unique_ptr<PhysicsSystem>                  m_physicsSystem;
-    std::unique_ptr<PhysicsScene>                   m_physicsScene;
     std::unique_ptr<PhysicsSimulationEventCallback> m_physicsCallback;
-    std::unique_ptr<Scene>                          m_scene;
     std::unique_ptr<AudioSystem>                    m_audio;
-    std::unique_ptr<LuaSandbox>                     m_lua;
+
+    // recreated per map
+    std::unique_ptr<PhysicsScene> m_physicsScene;
+    std::unique_ptr<Scene>        m_scene;
+    std::unique_ptr<LuaSandbox>   m_lua;
 };

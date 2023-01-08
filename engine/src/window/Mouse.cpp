@@ -13,8 +13,13 @@ static glm::vec2 GetMousePosition(GLFWwindow *window) {
 }
 
 Mouse::Mouse(GLFWwindow *window)
-    : m_window(window)
-    , m_position(GetMousePosition(window)) {
+    : m_window(window) {
+    Recalibrate();
+}
+
+void Mouse::Recalibrate() {
+    m_position      = GetMousePosition(m_window);
+    m_deltaPosition = {};
 }
 
 void Mouse::SetEnabled(bool enable) {

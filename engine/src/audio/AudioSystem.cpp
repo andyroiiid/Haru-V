@@ -24,16 +24,20 @@ AudioSystem::AudioSystem() {
     DebugCheckCriticalFMOD(FMOD::Studio::System::create(&m_system), "Failed to create FMOD system: {}");
     DebugCheckCriticalFMOD(m_system->initialize(512, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, nullptr), "Failed to initialize FMOD system: {}");
     DebugInfo("FMOD {:x}.{:x}.{:x}", FMOD_VERSION >> 16, (FMOD_VERSION >> 8) & 0xFF, FMOD_VERSION & 0xFF);
+
+    m_masterBank        = LoadBank("audio/Master.bank");
+    m_masterStringsBank = LoadBank("audio/Master.strings.bank");
+
+    DebugCheckCriticalFMOD(m_system->getBus("bus:/", &m_masterBus), "Failed to get master FMOD bus: {}");
 }
 
 AudioSystem::~AudioSystem() {
+    UnloadBank(m_masterStringsBank);
+    UnloadBank(m_masterBank);
+
     if (m_system) {
         DebugCheckCriticalFMOD(m_system->release(), "Failed to release FMOD system: {}");
     }
-}
-
-void AudioSystem::Update() {
-    DebugCheckFMOD(m_system->update(), "Failed to update FMOD system.");
 }
 
 FMOD::Studio::Bank *AudioSystem::LoadBank(const std::string &bankFilename) {
@@ -51,6 +55,14 @@ FMOD::Studio::Bank *AudioSystem::LoadBank(const std::string &bankFilename) {
 
 void AudioSystem::UnloadBank(FMOD::Studio::Bank *bank) { // NOLINT(readability-convert-member-functions-to-static)
     DebugCheckFMOD(bank->unload(), "Failed to unload FMOD bank: {}");
+}
+
+void AudioSystem::Update() {
+    DebugCheckFMOD(m_system->update(), "Failed to update FMOD system.");
+}
+
+void AudioSystem::StopAllEvents() {
+    DebugCheckFMOD(m_masterBus->stopAllEvents(FMOD_STUDIO_STOP_ALLOWFADEOUT), "Failed to stop all FMOD events.");
 }
 
 FMOD::Studio::EventDescription *AudioSystem::FindEvent(const std::string &path) {

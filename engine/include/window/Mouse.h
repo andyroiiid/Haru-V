@@ -28,6 +28,8 @@ public:
 
     Mouse &operator=(Mouse &&) = delete;
 
+    void Recalibrate();
+
     void SetEnabled(bool enable);
 
     void Update();
@@ -41,6 +43,6 @@ public:
 private:
     GLFWwindow *m_window = nullptr;
 
-    glm::vec2 m_position;
+    glm::vec2 m_position{};
     glm::vec2 m_deltaPosition{};
 };

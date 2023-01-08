@@ -54,6 +54,7 @@ end
 
 button1 = signals.buttonRelease(function()
     signals.open "door1"
+    loadMap "maps/scripting_test.haru"
 end)
 
 button2 = signals.buttonRelease(function()
@@ -72,6 +73,4 @@ end, function()
     signals.close "door1"
 end)
 
-load_audio_bank("audio/Master.bank")
-load_audio_bank("audio/Master.strings.bank")
-play_audio_one_shot("event:/ambience/wind_calm")
+playAudio "event:/ambience/wind_calm"
