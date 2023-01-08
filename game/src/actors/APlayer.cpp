@@ -47,13 +47,15 @@ void APlayer::Update(const float deltaTime) {
 
     // sync position
     {
-        const physx::PxVec3 position  = toVec3(m_controller->getPosition());
-        const float         timeError = glm::min(g_PhysicsScene->GetFixedTimestep(), g_PhysicsScene->GetFixedUpdateTimeError());
+        const glm::vec3     lastPosition = transform.GetPosition();
+        const physx::PxVec3 position     = toVec3(m_controller->getPosition());
+        const float         timeError    = glm::min(g_PhysicsScene->GetFixedTimestep(), g_PhysicsScene->GetFixedUpdateTimeError());
         const glm::vec3     predictedPosition{
             position.x + m_velocity.x * timeError,
             position.y + m_velocity.y * timeError,
             position.z + m_velocity.z * timeError};
-        transform.SetPosition(predictedPosition + glm::vec3{0.0f, CAPSULE_HALF_HEIGHT, 0.0f});
+        const glm::vec3 targetPosition = predictedPosition + glm::vec3{0.0f, CAPSULE_HALF_HEIGHT, 0.0f};
+        transform.SetPosition(glm::mix(lastPosition, targetPosition, glm::min(1.0f, 30.0f * deltaTime)));
     }
 
     // turn

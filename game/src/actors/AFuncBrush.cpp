@@ -15,6 +15,7 @@ AFuncBrush::AFuncBrush(const std::vector<MapData::Brush> &brushes, BrushType typ
     const glm::vec3 &center = m_brushes.GetCenter();
 
     GetTransform().SetPosition(center);
+    m_position = center;
 
     m_rigidbody = g_PhysicsScene->CreateStatic(physx::PxTransform{center.x, center.y, center.z});
     m_brushes.AttachToRigidActor(m_rigidbody);
@@ -26,15 +27,25 @@ AFuncBrush::~AFuncBrush() {
     PX_RELEASE(m_rigidbody)
 }
 
+void AFuncBrush::Update(float deltaTime) {
+    const float timeError = glm::min(g_PhysicsScene->GetFixedTimestep(), g_PhysicsScene->GetFixedUpdateTimeError());
+
+    m_translationMatrix = GetTransform().SetPosition(m_position + m_velocity * timeError).GetTranslationMatrix();
+}
+
 void AFuncBrush::FixedUpdate(float fixedDeltaTime) {
     const physx::PxTransform transform = m_rigidbody->getGlobalPose();
-    const glm::vec3          position{transform.p.x, transform.p.y, transform.p.z};
-    const glm::quat          rotation{transform.q.w, transform.q.x, transform.q.y, transform.q.z};
-    m_modelMatrix = GetTransform().SetPosition(position).GetTranslationMatrix() * mat4_cast(rotation);
+
+    const glm::vec3 lastPosition = m_position;
+
+    m_position = {transform.p.x, transform.p.y, transform.p.z};
+    m_velocity = (m_position - lastPosition) / fixedDeltaTime;
+
+    m_rotationMatrix = glm::mat4_cast(glm::quat{transform.q.w, transform.q.x, transform.q.y, transform.q.z});
 }
 
 void AFuncBrush::Draw() {
-    m_brushes.Draw(m_modelMatrix);
+    m_brushes.Draw(m_translationMatrix * m_rotationMatrix);
 }
 
 void AFuncBrush::Move(const glm::vec3 &deltaPosition) {

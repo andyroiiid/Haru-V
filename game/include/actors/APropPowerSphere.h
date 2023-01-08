@@ -22,6 +22,8 @@ public:
 
     ~APropPowerSphere() override;
 
+    void Update(float deltaTime) override;
+
     void FixedUpdate(float fixedDeltaTime) override;
 
     void Draw() override;
@@ -31,7 +33,13 @@ public:
 private:
     physx::PxRigidDynamic *m_rigidbody;
 
-    glm::mat4 m_modelMatrix{1.0f};
+    glm::mat4 m_translationMatrix{1.0f};
+
+    glm::vec3 m_position{};
+    glm::vec3 m_velocity{};
+
+    glm::quat m_rotation{};
+    glm::quat m_currentRotation{};
 
     VulkanMesh  *m_mesh;
     PbrMaterial *m_material;

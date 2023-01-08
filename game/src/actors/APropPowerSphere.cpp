@@ -15,6 +15,7 @@
 
 APropPowerSphere::APropPowerSphere(const glm::vec3 &position) {
     GetTransform().SetPosition(position);
+    m_position = position;
 
     m_rigidbody = g_PhysicsScene->CreateDynamic(
         physx::PxTransform{position.x, position.y, position.z}, //
@@ -33,15 +34,26 @@ APropPowerSphere::~APropPowerSphere() {
     PX_RELEASE(m_rigidbody)
 }
 
+void APropPowerSphere::Update(float deltaTime) {
+    const float timeError = glm::min(g_PhysicsScene->GetFixedTimestep(), g_PhysicsScene->GetFixedUpdateTimeError());
+
+    m_translationMatrix = GetTransform().SetPosition(m_position + m_velocity * timeError).GetTranslationMatrix();
+    m_rotation          = glm::slerp(m_rotation, m_currentRotation, glm::min(1.0f, 30.0f * deltaTime));
+}
+
 void APropPowerSphere::FixedUpdate(float fixedDeltaTime) {
     const physx::PxTransform transform = m_rigidbody->getGlobalPose();
-    const glm::vec3          position{transform.p.x, transform.p.y, transform.p.z};
-    const glm::quat          rotation{transform.q.w, transform.q.x, transform.q.y, transform.q.z};
-    m_modelMatrix = GetTransform().SetPosition(position).GetTranslationMatrix() * mat4_cast(rotation);
+
+    const glm::vec3 lastPosition = m_position;
+
+    m_position = {transform.p.x, transform.p.y, transform.p.z};
+    m_velocity = (m_position - lastPosition) / fixedDeltaTime;
+
+    m_currentRotation = {transform.q.w, transform.q.x, transform.q.y, transform.q.z};
 }
 
 void APropPowerSphere::Draw() {
-    g_Renderer->Draw(m_mesh, m_modelMatrix, m_material);
+    g_Renderer->Draw(m_mesh, m_translationMatrix * glm::mat4_cast(m_rotation), m_material);
     g_Renderer->DrawPointLight(GetTransform().GetPosition(), {0.5f, 0.2f, 0.0f}, 2.0f);
 }
 
