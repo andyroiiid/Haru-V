@@ -103,18 +103,21 @@ void LuaSandbox::CallGlobalFunction(const std::string &name, const std::string &
     PCall(1, 0);
 }
 
-void LuaSandbox::DoFile(const std::string &filename) {
-    DebugInfo("Executing Lua script {}", filename);
+void LuaSandbox::DoString(const std::string &source, const std::string &name) {
+    DebugInfo("Executing Lua script {}", name);
 
-    const std::string code = FileSystem::Read(filename);
-
-    if (luaL_loadbuffer(L, code.data(), code.size(), filename.c_str()) != LUA_OK) {
+    if (luaL_loadbuffer(L, source.data(), source.size(), name.c_str()) != LUA_OK) {
         DebugError("Failed to load Lua script: {}", lua_tostring(L, -1));
         lua_pop(L, 1);
         return;
     }
 
     PCall(0, 0);
+}
+
+void LuaSandbox::DoFile(const std::string &filename) {
+    const std::string source = FileSystem::Read(filename);
+    DoString(source, filename);
 }
 
 void LuaSandbox::PCall(int nArgs, int nResults) {

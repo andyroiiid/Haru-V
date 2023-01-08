@@ -31,6 +31,8 @@ public:
 
     void CallGlobalFunction(const std::string &name, const std::string &arg);
 
+    void DoString(const std::string &source, const std::string &name);
+
     void DoFile(const std::string &filename);
 
 private:
