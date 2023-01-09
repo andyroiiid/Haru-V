@@ -6,6 +6,8 @@
 
 #include <string>
 
+#include "audio/AudioInstance.h"
+
 namespace FMOD::Studio {
 class System;
 
@@ -34,11 +36,18 @@ public:
 
     void StopAllEvents();
 
+    void SetListener3DAttributes(
+        const glm::vec3 &position,
+        const glm::vec3 &velocity = {0.0f, 0.0f, 0.0f},
+        const glm::vec3 &forward  = {0.0f, 0.0f, 1.0f},
+        const glm::vec3 &up       = {0.0f, 1.0f, 0.0f}
+    );
+
     FMOD::Studio::EventDescription *FindEvent(const std::string &path);
 
-    void PlayOneShot(FMOD::Studio::EventDescription *event);
+    AudioInstance CreateInstance(const std::string &path) { return AudioInstance(FindEvent(path)); }
 
-    void PlayOneShot(const std::string &path) { PlayOneShot(FindEvent(path)); }
+    void PlayOneShot(const std::string &path) { CreateInstance(path).Start(); }
 
 private:
     FMOD::Studio::Bank *LoadBank(const std::string &bankFilename);

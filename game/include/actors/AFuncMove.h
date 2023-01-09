@@ -4,16 +4,15 @@
 
 #pragma once
 
+#include <audio/AudioInstance.h>
+
 #include "actors/AFuncBrush.h"
 
 class AFuncMove : public AFuncBrush {
 public:
     DEFINE_ACTOR_CLASS(AFuncMove)
 
-    AFuncMove(const std::vector<MapData::Brush> &brushes, const glm::vec3 &moveSpeed, float moveTime)
-        : AFuncBrush(brushes)
-        , m_moveSpeed(moveSpeed)
-        , m_moveTime(moveTime) {}
+    AFuncMove(const std::vector<MapData::Brush> &brushes, const glm::vec3 &moveSpeed, float moveTime, const std::string &moveSound = "");
 
     void FixedUpdate(float fixedDeltaTime) override;
 
@@ -44,4 +43,6 @@ private:
 
     glm::vec3 m_moveSpeed{0.0f, 0.0f, 0.0f};
     float     m_moveTime = 0.0f;
+
+    AudioInstance m_audio;
 };

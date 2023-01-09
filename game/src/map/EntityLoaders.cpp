@@ -67,7 +67,7 @@ void LoadFuncMove(const MapData::Entity &entity) {
     float moveTime;
     DebugCheckCritical(entity.GetPropertyFloat("move_time", moveTime), "func_move doesn't have a valid move_time!");
 
-    Register(g_Scene->CreateActor<AFuncMove>(entity.Brushes, moveSpeed, moveTime), entity);
+    Register(g_Scene->CreateActor<AFuncMove>(entity.Brushes, moveSpeed, moveTime, "event:/device/func_move/move_stone"), entity);
 }
 
 void LoadFuncButton(const MapData::Entity &entity) {

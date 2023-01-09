@@ -4,21 +4,10 @@
 
 #include "audio/AudioSystem.h"
 
-#include <fmod_errors.h>
 #include <fmod_studio.hpp>
 
-#include "core/Debug.h"
+#include "audio/DebugFMOD.h"
 #include "file/FileSystem.h"
-
-template<typename... Args>
-bool DebugCheckFMOD(const FMOD_RESULT result, const spdlog::format_string_t<Args...> &failMessage, Args... args) {
-    return DebugCheck(result == FMOD_OK, failMessage, args..., FMOD_ErrorString(result));
-}
-
-template<typename... Args>
-void DebugCheckCriticalFMOD(const FMOD_RESULT result, const spdlog::format_string_t<Args...> &failMessage, Args... args) {
-    DebugCheckCritical(result == FMOD_OK, failMessage, args..., FMOD_ErrorString(result));
-}
 
 AudioSystem::AudioSystem() {
     DebugCheckCriticalFMOD(FMOD::Studio::System::create(&m_system), "Failed to create FMOD system: {}");
@@ -58,31 +47,25 @@ void AudioSystem::UnloadBank(FMOD::Studio::Bank *bank) { // NOLINT(readability-c
 }
 
 void AudioSystem::Update() {
-    DebugCheckFMOD(m_system->update(), "Failed to update FMOD system.");
+    DebugCheckFMOD(m_system->update(), "Failed to update FMOD system: {}");
 }
 
 void AudioSystem::StopAllEvents() {
-    DebugCheckFMOD(m_masterBus->stopAllEvents(FMOD_STUDIO_STOP_ALLOWFADEOUT), "Failed to stop all FMOD events.");
+    DebugCheckFMOD(m_masterBus->stopAllEvents(FMOD_STUDIO_STOP_ALLOWFADEOUT), "Failed to stop all FMOD events: {}");
+}
+
+void AudioSystem::SetListener3DAttributes(const glm::vec3 &position, const glm::vec3 &velocity, const glm::vec3 &forward, const glm::vec3 &up) {
+    const FMOD_3D_ATTRIBUTES attributes{
+        {position.x, position.y, position.z},
+        {velocity.x, velocity.y, velocity.z},
+        {forward.x,  forward.y,  forward.z },
+        {up.x,       up.y,       up.z      }
+    };
+    DebugCheckFMOD(m_system->setListenerAttributes(0, &attributes), "Failed to set 3d attributes on FMOD listener: {}");
 }
 
 FMOD::Studio::EventDescription *AudioSystem::FindEvent(const std::string &path) {
     FMOD::Studio::EventDescription *event = nullptr;
     DebugCheckFMOD(m_system->getEvent(path.c_str(), &event), "Cannot find FMOD event {}: {}", path);
     return event;
-}
-
-void AudioSystem::PlayOneShot(FMOD::Studio::EventDescription *event) { // NOLINT(readability-convert-member-functions-to-static)
-    FMOD::Studio::EventInstance *instance = nullptr;
-
-    if (!DebugCheckFMOD(event->createInstance(&instance), "Failed to create FMOD event instance: {}")) {
-        return;
-    }
-
-    if (!DebugCheckFMOD(instance->start(), "Failed to start FMOD event instance: {}")) {
-        return;
-    }
-
-    if (!DebugCheckFMOD(instance->release(), "Failed to release FMOD event instance: {}")) {
-        return;
-    }
 }

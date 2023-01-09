@@ -4,8 +4,19 @@
 
 #include "actors/AFuncMove.h"
 
-#include <core/Debug.h>
+#include <audio/AudioSystem.h>
 #include <lua.hpp>
+
+#include "Globals.h"
+
+AFuncMove::AFuncMove(const std::vector<MapData::Brush> &brushes, const glm::vec3 &moveSpeed, float moveTime, const std::string &moveSound)
+    : AFuncBrush(brushes)
+    , m_moveSpeed(moveSpeed)
+    , m_moveTime(moveTime) {
+    if (!moveSound.empty()) {
+        m_audio = g_Audio->CreateInstance(moveSound);
+    }
+}
 
 void AFuncMove::FixedUpdate(float fixedDeltaTime) {
     AFuncBrush::FixedUpdate(fixedDeltaTime);
@@ -16,6 +27,7 @@ void AFuncMove::FixedUpdate(float fixedDeltaTime) {
         Move(m_moveSpeed * moveTime);
         m_remainingTime -= moveTime;
         if (m_remainingTime <= 0.0f) {
+            m_audio.Stop();
             m_state = State::Open;
         }
         break;
@@ -25,6 +37,7 @@ void AFuncMove::FixedUpdate(float fixedDeltaTime) {
         Move(-m_moveSpeed * moveTime);
         m_remainingTime -= moveTime;
         if (m_remainingTime <= 0.0f) {
+            m_audio.Stop();
             m_state = State::Close;
         }
         break;
@@ -32,6 +45,8 @@ void AFuncMove::FixedUpdate(float fixedDeltaTime) {
     default:
         break;
     }
+
+    m_audio.Set3DAttributes(GetTransform().GetPosition());
 }
 
 void AFuncMove::LuaSignal(lua_State *L) {
@@ -50,6 +65,7 @@ void AFuncMove::LuaSignal(lua_State *L) {
 void AFuncMove::Open() {
     switch (m_state) {
     case State::Close:
+        m_audio.Start();
         m_state         = State::MovingOpen;
         m_remainingTime = m_moveTime;
         break;
@@ -65,6 +81,7 @@ void AFuncMove::Open() {
 void AFuncMove::Close() {
     switch (m_state) {
     case State::Open:
+        m_audio.Start();
         m_state         = State::MovingClose;
         m_remainingTime = m_moveTime;
         break;

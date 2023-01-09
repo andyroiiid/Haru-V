@@ -6,6 +6,7 @@
 
 #include <GLFW/glfw3.h>
 #include <PxRigidDynamic.h>
+#include <audio/AudioSystem.h>
 #include <characterkinematic/PxController.h>
 #include <foundation/PxAllocator.h>
 #include <physics/PhysicsScene.h>
@@ -179,6 +180,8 @@ void APlayer::Update(const float deltaTime) {
     }
 
     UpdateInteract();
+
+    g_Audio->SetListener3DAttributes(transform.GetPosition(), m_velocity, transform.GetHorizontalForwardVector());
 }
 
 void APlayer::UpdateGround() {

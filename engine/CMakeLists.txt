@@ -62,7 +62,10 @@ add_library(engine
         src/physics/PhysicsSystem.cpp
         src/physics/PhysicsScene.cpp
 
+        include/audio/DebugFMOD.h
+        include/audio/AudioInstance.h
         include/audio/AudioSystem.h
+        src/audio/AudioInstance.cpp
         src/audio/AudioSystem.cpp
 
         include/script/LuaSandbox.h
