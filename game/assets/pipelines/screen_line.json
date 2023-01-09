@@ -1,0 +1,5 @@
+{
+  "vertex": "shaders/screen_line.vert",
+  "fragment": "shaders/screen_line.frag",
+  "topology": "line_list"
+}

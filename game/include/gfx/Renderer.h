@@ -70,6 +70,11 @@ public:
 
     Renderer &operator=(Renderer &&) = delete;
 
+    [[nodiscard]] glm::vec2 GetScreenExtent() const {
+        const vk::Extent2D &swapchainExtent = m_device.GetSwapchainExtent();
+        return {swapchainExtent.width, swapchainExtent.height};
+    }
+
     void WaitDeviceIdle() { m_device.WaitIdle(); }
 
     VulkanMesh CreateMesh(const std::vector<VertexBase> &vertices) { return {m_device, vertices.size(), sizeof(VertexBase), vertices.data()}; }
@@ -94,6 +99,8 @@ public:
         }
     }
 
+    void DrawScreenLine(const glm::vec2 &p0, const glm::vec2 &p1, const glm::vec4 &color) { m_screenLineDrawCalls.emplace_back(p0, p1, color); }
+
     void FinishDrawing();
 
 private:
@@ -106,6 +113,8 @@ private:
     void CreateSkyboxCube();
 
     void CreateFullScreenQuad();
+
+    void CreateScreenPrimitiveMeshes();
 
     void DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
@@ -151,9 +160,11 @@ private:
 
     // presentation
     VulkanPipeline m_presentPipeline;
+    VulkanPipeline m_screenLinePipeline;
 
     VulkanMesh m_skyboxCube;
     VulkanMesh m_fullScreenQuad;
+    VulkanMesh m_screenLineMesh;
 
     std::vector<PointLightData> m_pointLights;
 
@@ -170,4 +181,17 @@ private:
 
     std::vector<DrawCall> m_deferredDrawCalls;
     std::vector<DrawCall> m_forwardDrawCalls;
+
+    struct ScreenLineDrawCall {
+        glm::vec2 P0;
+        glm::vec2 P1;
+        glm::vec4 Color;
+
+        ScreenLineDrawCall(const glm::vec2 &p0, const glm::vec2 &p1, const glm::vec4 &color)
+            : P0(p0)
+            , P1(p1)
+            , Color(color) {}
+    };
+
+    std::vector<ScreenLineDrawCall> m_screenLineDrawCalls;
 };

@@ -22,6 +22,7 @@ Renderer::Renderer(GLFWwindow *window)
     CreatePipelines();
     CreateSkyboxCube();
     CreateFullScreenQuad();
+    CreateScreenPrimitiveMeshes();
 }
 
 void Renderer::CreateUniformBuffers() {
@@ -201,6 +202,22 @@ void Renderer::CreatePipelines() {
         m_device.GetPrimaryRenderPass(),
         0
     );
+
+    m_screenLinePipeline = VulkanPipeline(
+        m_device,
+        compiler,
+        {
+            m_uniformBufferSet.GetDescriptorSetLayout()
+    },
+        {
+            {vk::ShaderStageFlagBits::eVertex, 0, sizeof(ScreenLineDrawCall)} //
+        },
+        VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
+        "pipelines/screen_line.json",
+        {ALPHA_BLEND},
+        m_device.GetPrimaryRenderPass(),
+        0
+    );
 }
 
 void Renderer::CreateSkyboxCube() {
@@ -215,9 +232,18 @@ void Renderer::CreateFullScreenQuad() {
     m_fullScreenQuad = VulkanMesh(m_device, vertices.size(), sizeof(VertexCanvas), vertices.data());
 }
 
+void Renderer::CreateScreenPrimitiveMeshes() {
+    static const VertexCanvas lineVertices[2]{
+        {{0.0f, 0.0f}, {0.0f, 0.0f}},
+        {{1.0f, 1.0f}, {1.0f, 1.0f}}
+    };
+    m_screenLineMesh = VulkanMesh(m_device, 2, sizeof(VertexCanvas), lineVertices);
+}
+
 Renderer::~Renderer() {
     m_device.WaitIdle();
 
+    m_screenLineMesh         = {};
     m_fullScreenQuad         = {};
     m_skyboxCube             = {};
     m_shadowPipeline         = {};
@@ -227,6 +253,7 @@ Renderer::~Renderer() {
     m_baseForwardPipeline    = {};
     m_postProcessingPipeline = {};
     m_presentPipeline        = {};
+    m_screenLinePipeline     = {};
     m_device.FreeDescriptorSet(m_iblTextureSet);
     m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
     m_uniformBufferSet = {};
@@ -524,6 +551,31 @@ void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBegi
     );
 
     m_fullScreenQuad.BindAndDraw(cmd);
+
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_screenLinePipeline.Get());
+
+    cmd.setViewport(0, viewport);
+    cmd.setScissor(0, scissor);
+
+    cmd.bindDescriptorSets(
+        vk::PipelineBindPoint::eGraphics,
+        m_screenLinePipeline.GetLayout(),
+        0,
+        {m_uniformBufferSet.GetDescriptorSet()},
+        m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+    );
+
+    for (const ScreenLineDrawCall &screenLineDrawCall: m_screenLineDrawCalls) {
+        cmd.pushConstants(
+            m_screenLinePipeline.GetLayout(), //
+            vk::ShaderStageFlagBits::eVertex,
+            0,
+            sizeof(ScreenLineDrawCall),
+            &screenLineDrawCall
+        );
+        m_screenLineMesh.BindAndDraw(cmd);
+    }
+    m_screenLineDrawCalls.clear();
 
     cmd.endRenderPass();
 }

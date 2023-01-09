@@ -245,6 +245,46 @@ void APlayer::FixedUpdate(float fixedDeltaTime) {
 
 void APlayer::Draw() {
     const Transform &transform = GetTransform();
-
     g_Renderer->SetCameraData(transform.GetPosition(), transform.GetInverseMatrix(), glm::radians(60.0f), 0.01f, 100.0f);
+
+    DrawReticle();
+}
+
+static void DrawReticleStandard(const glm::vec2 &position, float gap, float max, const glm::vec4 &color) {
+    g_Renderer->DrawScreenLine(position + glm::vec2{gap, 0}, position + glm::vec2{max, 0}, color);
+    g_Renderer->DrawScreenLine(position + glm::vec2{-gap, 0}, position + glm::vec2{-max, 0}, color);
+    g_Renderer->DrawScreenLine(position + glm::vec2{0, gap}, position + glm::vec2{0, max}, color);
+    g_Renderer->DrawScreenLine(position + glm::vec2{0, -gap}, position + glm::vec2{0, -max}, color);
+}
+
+static void DrawReticleDiagonal(const glm::vec2 &position, float gap, float max, const glm::vec4 &color) {
+    g_Renderer->DrawScreenLine(position + glm::vec2{gap, gap}, position + glm::vec2{max, max}, color);
+    g_Renderer->DrawScreenLine(position + glm::vec2{-gap, gap}, position + glm::vec2{-max, max}, color);
+    g_Renderer->DrawScreenLine(position + glm::vec2{gap, -gap}, position + glm::vec2{max, -max}, color);
+    g_Renderer->DrawScreenLine(position + glm::vec2{-gap, -gap}, position + glm::vec2{-max, -max}, color);
+}
+
+void APlayer::DrawReticle() {
+    const glm::vec2 screenCenter = g_Renderer->GetScreenExtent() * 0.5f;
+
+    glm::vec4 color;
+    if (m_prevLmb) {
+        if (m_prevRmb) {
+            color = {1.0f, 1.0f, 0.0f, 1.0f};
+        } else {
+            color = {0.0f, 1.0f, 0.0f, 1.0f};
+        }
+    } else {
+        if (m_prevRmb) {
+            color = {1.0f, 0.0f, 0.0f, 1.0f};
+        } else {
+            color = {1.0f, 1.0f, 1.0f, 1.0f};
+        }
+    }
+
+    if (m_prevEyeTarget) {
+        DrawReticleDiagonal(screenCenter, 4.0f, 18.0f, color);
+    } else {
+        DrawReticleStandard(screenCenter, 4.0f, 18.0f, color);
+    }
 }
