@@ -113,7 +113,7 @@ private:
 
     void DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
-    void ToneMapping(vk::CommandBuffer cmd, uint32_t bufferingIndex);
+    void PostProcess(vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
     void DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
@@ -147,7 +147,7 @@ private:
     VulkanPipeline m_baseForwardPipeline;
 
     // post-processing
-    VulkanPipeline m_toneMappingPipeline;
+    VulkanPipeline m_postProcessingPipeline;
 
     // presentation
     VulkanPipeline m_presentPipeline;

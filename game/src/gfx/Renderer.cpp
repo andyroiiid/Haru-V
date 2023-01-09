@@ -178,13 +178,13 @@ void Renderer::CreatePipelines() {
         0
     );
 
-    m_toneMappingPipeline = VulkanPipeline(
+    m_postProcessingPipeline = VulkanPipeline(
         m_device,
         compiler,
         {m_deferredContext.GetForwardTextureSetLayout()},
         {},
         VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
-        "pipelines/tone_mapping.json",
+        "pipelines/post_processing.json",
         {NO_BLEND},
         m_toneMappingContext.GetRenderPass(),
         0
@@ -218,15 +218,15 @@ void Renderer::CreateFullScreenQuad() {
 Renderer::~Renderer() {
     m_device.WaitIdle();
 
-    m_fullScreenQuad      = {};
-    m_skyboxCube          = {};
-    m_shadowPipeline      = {};
-    m_basePipeline        = {};
-    m_skyboxPipeline      = {};
-    m_combinePipeline     = {};
-    m_baseForwardPipeline = {};
-    m_toneMappingPipeline = {};
-    m_presentPipeline     = {};
+    m_fullScreenQuad         = {};
+    m_skyboxCube             = {};
+    m_shadowPipeline         = {};
+    m_basePipeline           = {};
+    m_skyboxPipeline         = {};
+    m_combinePipeline        = {};
+    m_baseForwardPipeline    = {};
+    m_postProcessingPipeline = {};
+    m_presentPipeline        = {};
     m_device.FreeDescriptorSet(m_iblTextureSet);
     m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
     m_uniformBufferSet = {};
@@ -306,7 +306,7 @@ void Renderer::FinishDrawing() {
     DrawToShadowMaps(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
     DrawDeferred(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
     DrawForward(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
-    ToneMapping(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
+    PostProcess(frameInfo.CommandBuffer, frameInfo.BufferingIndex);
     DrawToScreen(frameInfo.PrimaryRenderPassBeginInfo, frameInfo.CommandBuffer, frameInfo.BufferingIndex);
 
     m_device.EndFrame();
@@ -483,19 +483,19 @@ void Renderer::DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     cmd.endRenderPass();
 }
 
-void Renderer::ToneMapping(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+void Renderer::PostProcess(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_toneMappingContext.GetExtent());
 
     cmd.beginRenderPass(m_toneMappingContext.GetRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
 
-    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_toneMappingPipeline.Get());
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_postProcessingPipeline.Get());
 
     cmd.setViewport(0, viewport);
     cmd.setScissor(0, scissor);
 
     cmd.bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics,
-        m_toneMappingPipeline.GetLayout(),
+        m_postProcessingPipeline.GetLayout(),
         0,
         {m_deferredContext.GetForwardTextureSet(bufferingIndex)},
         {}
