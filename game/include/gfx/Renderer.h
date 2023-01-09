@@ -18,6 +18,7 @@
 #include "gfx/PbrMaterialCache.h"
 #include "gfx/PostProcessingContext.h"
 #include "gfx/ShadowContext.h"
+#include "gfx/SingleTextureMaterialCache.h"
 
 struct GLFWwindow;
 
@@ -83,6 +84,10 @@ public:
 
     PbrMaterial *LoadPbrMaterial(const std::string &materialFilename) { return m_pbrMaterialCache.LoadMaterial(materialFilename); }
 
+    SingleTextureMaterial *LoadSingleTextureMaterial(const std::string &materialFilename) {
+        return m_singleTextureMaterialCache.LoadMaterial(materialFilename);
+    }
+
     void SetCameraData(const glm::vec3 &cameraPosition, const glm::mat4 &view, float fov, float near, float far);
 
     void SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor);
@@ -97,6 +102,17 @@ public:
         } else {
             m_deferredDrawCalls.emplace_back(mesh, modelMatrix, material);
         }
+    }
+
+    void DrawScreenRect(
+        const glm::vec2       &pMin,
+        const glm::vec2       &pMax,
+        const glm::vec2       &uvMin,
+        const glm::vec2       &uvMax,
+        const glm::vec4       &color,
+        SingleTextureMaterial *texture
+    ) {
+        m_screenRectDrawCalls.emplace_back(pMin, pMax, uvMin, uvMax, color, texture);
     }
 
     void DrawScreenLine(const glm::vec2 &p0, const glm::vec2 &p1, const glm::vec4 &color) { m_screenLineDrawCalls.emplace_back(p0, p1, color); }
@@ -126,10 +142,11 @@ private:
 
     void DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex);
 
-    VulkanBase       m_device;
-    TextureCache     m_textureCache;
-    PbrMaterialCache m_pbrMaterialCache;
-    MeshCache        m_meshCache;
+    VulkanBase                 m_device;
+    TextureCache               m_textureCache;
+    PbrMaterialCache           m_pbrMaterialCache;
+    SingleTextureMaterialCache m_singleTextureMaterialCache;
+    MeshCache                  m_meshCache;
 
     ShadowContext         m_shadowContext;
     DeferredContext       m_deferredContext;
@@ -160,10 +177,12 @@ private:
 
     // presentation
     VulkanPipeline m_presentPipeline;
+    VulkanPipeline m_screenRectPipeline;
     VulkanPipeline m_screenLinePipeline;
 
     VulkanMesh m_skyboxCube;
     VulkanMesh m_fullScreenQuad;
+    VulkanMesh m_screenRectMesh;
     VulkanMesh m_screenLineMesh;
 
     std::vector<PointLightData> m_pointLights;
@@ -181,6 +200,34 @@ private:
 
     std::vector<DrawCall> m_deferredDrawCalls;
     std::vector<DrawCall> m_forwardDrawCalls;
+
+    struct ScreenRectDrawCall {
+        glm::vec2              PMin;
+        glm::vec2              PMax;
+        glm::vec2              UvMin;
+        glm::vec2              UvMax;
+        glm::vec4              Color;
+        SingleTextureMaterial *Texture;
+
+        ScreenRectDrawCall(
+            const glm::vec2       &pMin,
+            const glm::vec2       &pMax,
+            const glm::vec2       &uvMin,
+            const glm::vec2       &uvMax,
+            const glm::vec4       &color,
+            SingleTextureMaterial *texture
+        )
+            : PMin(pMin)
+            , PMax(pMax)
+            , UvMin(uvMin)
+            , UvMax(uvMax)
+            , Color(color)
+            , Texture(texture) {}
+    };
+
+    static constexpr size_t SCREEN_RECT_DRAW_CALL_DATA_SIZE = sizeof(ScreenRectDrawCall) - sizeof(SingleTextureMaterial *);
+
+    std::vector<ScreenRectDrawCall> m_screenRectDrawCalls;
 
     struct ScreenLineDrawCall {
         glm::vec2 P0;

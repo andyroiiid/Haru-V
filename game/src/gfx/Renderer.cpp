@@ -13,6 +13,7 @@ Renderer::Renderer(GLFWwindow *window)
     : m_device(window)
     , m_textureCache(m_device)
     , m_pbrMaterialCache(m_device, m_textureCache)
+    , m_singleTextureMaterialCache(m_device, m_textureCache)
     , m_meshCache(m_device) {
     m_shadowContext      = ShadowContext(m_device);
     m_deferredContext    = DeferredContext(m_device);
@@ -203,6 +204,21 @@ void Renderer::CreatePipelines() {
         0
     );
 
+    m_screenRectPipeline = VulkanPipeline(
+        m_device,
+        compiler,
+        {
+            m_uniformBufferSet.GetDescriptorSetLayout(),
+            m_singleTextureMaterialCache.GetDescriptorSetLayout()
+    },
+        {{vk::ShaderStageFlagBits::eVertex, 0, SCREEN_RECT_DRAW_CALL_DATA_SIZE}},
+        VertexCanvas::GetPipelineVertexInputStateCreateInfo(),
+        "pipelines/screen_rect.json",
+        {ALPHA_BLEND},
+        m_device.GetPrimaryRenderPass(),
+        0
+    );
+
     m_screenLinePipeline = VulkanPipeline(
         m_device,
         compiler,
@@ -233,6 +249,14 @@ void Renderer::CreateFullScreenQuad() {
 }
 
 void Renderer::CreateScreenPrimitiveMeshes() {
+    static const VertexCanvas rectVertices[4]{
+        {{0.0f, 0.0f}, {0.0f, 0.0f}},
+        {{1.0f, 0.0f}, {1.0f, 0.0f}},
+        {{0.0f, 1.0f}, {0.0f, 1.0f}},
+        {{1.0f, 1.0f}, {1.0f, 1.0f}}
+    };
+    m_screenRectMesh = VulkanMesh(m_device, 4, sizeof(VertexCanvas), rectVertices);
+
     static const VertexCanvas lineVertices[2]{
         {{0.0f, 0.0f}, {0.0f, 0.0f}},
         {{1.0f, 1.0f}, {1.0f, 1.0f}}
@@ -243,6 +267,7 @@ void Renderer::CreateScreenPrimitiveMeshes() {
 Renderer::~Renderer() {
     m_device.WaitIdle();
 
+    m_screenRectMesh         = {};
     m_screenLineMesh         = {};
     m_fullScreenQuad         = {};
     m_skyboxCube             = {};
@@ -253,6 +278,7 @@ Renderer::~Renderer() {
     m_baseForwardPipeline    = {};
     m_postProcessingPipeline = {};
     m_presentPipeline        = {};
+    m_screenRectPipeline     = {};
     m_screenLinePipeline     = {};
     m_device.FreeDescriptorSet(m_iblTextureSet);
     m_device.DestroyDescriptorSetLayout(m_iblTextureSetLayout);
@@ -537,45 +563,83 @@ void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBegi
 
     cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);
 
-    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_presentPipeline.Get());
+    {
+        cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_presentPipeline.Get());
 
-    cmd.setViewport(0, viewport);
-    cmd.setScissor(0, scissor);
+        cmd.setViewport(0, viewport);
+        cmd.setScissor(0, scissor);
 
-    cmd.bindDescriptorSets(
-        vk::PipelineBindPoint::eGraphics,
-        m_presentPipeline.GetLayout(),
-        0,
-        {m_uniformBufferSet.GetDescriptorSet(), m_toneMappingContext.GetTextureSet(bufferingIndex)},
-        m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
-    );
-
-    m_fullScreenQuad.BindAndDraw(cmd);
-
-    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_screenLinePipeline.Get());
-
-    cmd.setViewport(0, viewport);
-    cmd.setScissor(0, scissor);
-
-    cmd.bindDescriptorSets(
-        vk::PipelineBindPoint::eGraphics,
-        m_screenLinePipeline.GetLayout(),
-        0,
-        {m_uniformBufferSet.GetDescriptorSet()},
-        m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
-    );
-
-    for (const ScreenLineDrawCall &screenLineDrawCall: m_screenLineDrawCalls) {
-        cmd.pushConstants(
-            m_screenLinePipeline.GetLayout(), //
-            vk::ShaderStageFlagBits::eVertex,
+        cmd.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            m_presentPipeline.GetLayout(),
             0,
-            sizeof(ScreenLineDrawCall),
-            &screenLineDrawCall
+            {m_uniformBufferSet.GetDescriptorSet(), m_toneMappingContext.GetTextureSet(bufferingIndex)},
+            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
         );
-        m_screenLineMesh.BindAndDraw(cmd);
+
+        m_fullScreenQuad.BindAndDraw(cmd);
     }
-    m_screenLineDrawCalls.clear();
+
+    {
+        cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_screenRectPipeline.Get());
+
+        cmd.setViewport(0, viewport);
+        cmd.setScissor(0, scissor);
+
+        cmd.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            m_screenRectPipeline.GetLayout(),
+            0,
+            {m_uniformBufferSet.GetDescriptorSet()},
+            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+        );
+
+        for (const ScreenRectDrawCall &screenRectDrawCall: m_screenRectDrawCalls) {
+            cmd.bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics, //
+                m_screenRectPipeline.GetLayout(),
+                1,
+                screenRectDrawCall.Texture->DescriptorSet,
+                {}
+            );
+            cmd.pushConstants(
+                m_screenRectPipeline.GetLayout(), //
+                vk::ShaderStageFlagBits::eVertex,
+                0,
+                SCREEN_RECT_DRAW_CALL_DATA_SIZE,
+                &screenRectDrawCall
+            );
+            m_screenRectMesh.BindAndDraw(cmd);
+        }
+        m_screenRectDrawCalls.clear();
+    }
+
+    {
+        cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, m_screenLinePipeline.Get());
+
+        cmd.setViewport(0, viewport);
+        cmd.setScissor(0, scissor);
+
+        cmd.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,
+            m_screenLinePipeline.GetLayout(),
+            0,
+            {m_uniformBufferSet.GetDescriptorSet()},
+            m_uniformBufferSet.GetDynamicOffsets(bufferingIndex)
+        );
+
+        for (const ScreenLineDrawCall &screenLineDrawCall: m_screenLineDrawCalls) {
+            cmd.pushConstants(
+                m_screenLinePipeline.GetLayout(), //
+                vk::ShaderStageFlagBits::eVertex,
+                0,
+                sizeof(ScreenLineDrawCall),
+                &screenLineDrawCall
+            );
+            m_screenLineMesh.BindAndDraw(cmd);
+        }
+        m_screenLineDrawCalls.clear();
+    }
 
     cmd.endRenderPass();
 }

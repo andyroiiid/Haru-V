@@ -12,6 +12,8 @@ namespace physx {
 class PxController;
 } // namespace physx
 
+class SingleTextureMaterial;
+
 class APlayer final : public Actor {
 public:
     DEFINE_ACTOR_CLASS(APlayer)
@@ -72,4 +74,6 @@ private:
     bool m_prevRmb = false;
 
     Actor *m_prevEyeTarget = nullptr;
+
+    SingleTextureMaterial *m_testSprite = nullptr;
 };

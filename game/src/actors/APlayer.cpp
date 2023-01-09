@@ -27,6 +27,8 @@ APlayer::APlayer(const glm::vec3 &position, float yaw, float mouseSpeed) {
     m_previousPosition = position;
 
     g_Mouse->SetEnabled(false);
+
+    m_testSprite = g_Renderer->LoadSingleTextureMaterial("textures/dev/dev_2.png");
 }
 
 APlayer::~APlayer() {
@@ -287,4 +289,13 @@ void APlayer::DrawReticle() {
     } else {
         DrawReticleStandard(screenCenter, 4.0f, 18.0f, color);
     }
+
+    g_Renderer->DrawScreenRect(
+        {128.0f, 128.0f}, //
+        {256.0f, 256.0f},
+        {0.0f, 0.0f},
+        {1.0f, 1.0f},
+        {1.0f, 1.0f, 1.0f, 0.5f},
+        m_testSprite
+    );
 }

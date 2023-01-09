@@ -7,6 +7,7 @@ add_executable(game
         include/gfx/PostProcessingFramebuffer.h
         include/gfx/PostProcessingContext.h
         include/gfx/PbrMaterialCache.h
+        include/gfx/SingleTextureMaterialCache.h
         include/gfx/MeshUtilities.h
         include/gfx/Renderer.h
 
@@ -18,6 +19,7 @@ add_executable(game
         src/gfx/PostProcessingFramebuffer.cpp
         src/gfx/PostProcessingContext.cpp
         src/gfx/PbrMaterialCache.cpp
+        src/gfx/SingleTextureMaterialCache.cpp
         src/gfx/MeshUtilities.cpp
         src/gfx/Renderer.cpp
 
