@@ -45,7 +45,7 @@ void DeferredContext::CreateRenderPass() {
 }
 
 void DeferredContext::CreateFramebuffers() {
-    m_extent = m_device->GetSwapchainExtent();
+    m_extent = m_device->GetScaledExtent();
 
     const size_t numBuffering = m_device->GetNumBuffering();
 
@@ -152,7 +152,7 @@ void DeferredContext::Swap(DeferredContext &other) noexcept {
 }
 
 void DeferredContext::CheckFramebuffersOutOfDate() {
-    if (m_device->GetSwapchainExtent() == m_extent) {
+    if (m_device->GetScaledExtent() == m_extent) {
         return;
     }
 

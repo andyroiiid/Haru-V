@@ -27,6 +27,7 @@ struct alignas(256) RendererUniformData {
     glm::vec3              CameraPosition;
     [[maybe_unused]] float Padding;
     glm::vec4              ScreenInfo;
+    glm::vec4              ScaledScreenInfo;
 };
 
 struct alignas(16) PointLightData {

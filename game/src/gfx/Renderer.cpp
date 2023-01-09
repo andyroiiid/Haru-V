@@ -263,28 +263,43 @@ void Renderer::FinishDrawing() {
     m_deferredContext.CheckFramebuffersOutOfDate();
     m_toneMappingContext.CheckFramebuffersOutOfDate();
 
-    const vk::Extent2D &size = m_device.GetSwapchainExtent();
+    // update raw screen size
+    {
+        const vk::Extent2D &size           = m_device.GetSwapchainExtent();
+        m_rendererUniformData.ScreenInfo.x = static_cast<float>(size.width);
+        m_rendererUniformData.ScreenInfo.y = static_cast<float>(size.height);
+        m_rendererUniformData.ScreenInfo.z = 1.0f / m_rendererUniformData.ScreenInfo.x;
+        m_rendererUniformData.ScreenInfo.w = 1.0f / m_rendererUniformData.ScreenInfo.y;
+    }
 
-    m_rendererUniformData.ScreenInfo.x = static_cast<float>(size.width);
-    m_rendererUniformData.ScreenInfo.y = static_cast<float>(size.height);
-    m_rendererUniformData.ScreenInfo.z = 1.0f / m_rendererUniformData.ScreenInfo.x;
-    m_rendererUniformData.ScreenInfo.w = 1.0f / m_rendererUniformData.ScreenInfo.y;
+    // update scaled screen size (for world rendering)
+    {
+        const vk::Extent2D scaledSize            = m_device.GetScaledExtent();
+        m_rendererUniformData.ScaledScreenInfo.x = static_cast<float>(scaledSize.width);
+        m_rendererUniformData.ScaledScreenInfo.y = static_cast<float>(scaledSize.height);
+        m_rendererUniformData.ScaledScreenInfo.z = 1.0f / m_rendererUniformData.ScaledScreenInfo.x;
+        m_rendererUniformData.ScaledScreenInfo.w = 1.0f / m_rendererUniformData.ScaledScreenInfo.y;
+    }
 
     // update shadow data
-    constexpr float     shadowNear = 0.01f;
-    constexpr float     shadowFar  = 64.0f;
-    constexpr glm::vec3 csmSplits{8.0f, 16.0f, 32.0f};
-    m_lightingUniformData.CascadeShadowMapSplits = csmSplits;
-    m_lightingUniformData.ShadowMatrices[0]      = m_shadowMatrixCalculator.CalcShadowMatrix(shadowNear, csmSplits[0]);
-    m_lightingUniformData.ShadowMatrices[1]      = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[0], csmSplits[1]);
-    m_lightingUniformData.ShadowMatrices[2]      = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[1], csmSplits[2]);
-    m_lightingUniformData.ShadowMatrices[3]      = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[2], shadowFar);
+    {
+        constexpr float     shadowNear = 0.01f;
+        constexpr float     shadowFar  = 64.0f;
+        constexpr glm::vec3 csmSplits{8.0f, 16.0f, 32.0f};
+        m_lightingUniformData.CascadeShadowMapSplits = csmSplits;
+        m_lightingUniformData.ShadowMatrices[0]      = m_shadowMatrixCalculator.CalcShadowMatrix(shadowNear, csmSplits[0]);
+        m_lightingUniformData.ShadowMatrices[1]      = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[0], csmSplits[1]);
+        m_lightingUniformData.ShadowMatrices[2]      = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[1], csmSplits[2]);
+        m_lightingUniformData.ShadowMatrices[3]      = m_shadowMatrixCalculator.CalcShadowMatrix(csmSplits[2], shadowFar);
+    }
 
     // update point lights
-    const int numPointLights             = static_cast<int>(m_pointLights.size());
-    m_lightingUniformData.NumPointLights = numPointLights;
-    memcpy(m_lightingUniformData.PointLights, m_pointLights.data(), numPointLights * sizeof(PointLightData));
-    m_pointLights.clear();
+    {
+        const int numPointLights             = static_cast<int>(m_pointLights.size());
+        m_lightingUniformData.NumPointLights = numPointLights;
+        memcpy(m_lightingUniformData.PointLights, m_pointLights.data(), numPointLights * sizeof(PointLightData));
+        m_pointLights.clear();
+    }
 
     m_uniformBufferSet.UpdateAllBuffers(frameInfo.BufferingIndex, {&m_rendererUniformData, &m_lightingUniformData});
 

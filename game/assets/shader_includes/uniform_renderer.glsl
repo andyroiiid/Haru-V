@@ -7,6 +7,7 @@ layout (set = 0, binding = 0) uniform RendererUniformData {
     vec3 uCameraPosition;
     float RendererUniformDataPadding0;
     vec4 uScreenInfo;
+    vec4 uScaledScreenInfo;
 };
 
 #endif

@@ -45,6 +45,8 @@ public:
 
     [[nodiscard]] const vk::Extent2D &GetSwapchainExtent() const { return m_swapchainExtent; }
 
+    [[nodiscard]] vk::Extent2D GetScaledExtent() const { return m_swapchainExtent; }
+
     [[nodiscard]] size_t GetNumBuffering() const { return m_bufferingObjects.size(); }
 
     VulkanFrameInfo BeginFrame();

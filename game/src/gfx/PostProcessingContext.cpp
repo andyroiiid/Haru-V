@@ -24,7 +24,7 @@ void PostProcessingContext::CreateRenderPass() {
 }
 
 void PostProcessingContext::CreateFramebuffers() {
-    m_extent = m_device->GetSwapchainExtent();
+    m_extent = m_device->GetScaledExtent();
 
     const size_t numBuffering = m_device->GetNumBuffering();
 
@@ -87,7 +87,7 @@ void PostProcessingContext::Swap(PostProcessingContext &other) noexcept {
 }
 
 void PostProcessingContext::CheckFramebuffersOutOfDate() {
-    if (m_device->GetSwapchainExtent() == m_extent) {
+    if (m_device->GetScaledExtent() == m_extent) {
         return;
     }
 
