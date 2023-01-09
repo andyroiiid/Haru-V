@@ -10,6 +10,7 @@ add_executable(game
         include/gfx/SingleTextureMaterialCache.h
         include/gfx/MeshUtilities.h
         include/gfx/Renderer.h
+        include/gfx/BitmapTextRenderer.h
 
         src/gfx/ShadowMaps.cpp
         src/gfx/ShadowContext.cpp
@@ -22,6 +23,7 @@ add_executable(game
         src/gfx/SingleTextureMaterialCache.cpp
         src/gfx/MeshUtilities.cpp
         src/gfx/Renderer.cpp
+        src/gfx/BitmapTextRenderer.cpp
 
         include/physics/PhysicsSimulationEventCallback.h
 

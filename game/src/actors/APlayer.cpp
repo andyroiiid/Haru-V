@@ -27,8 +27,6 @@ APlayer::APlayer(const glm::vec3 &position, float yaw, float mouseSpeed) {
     m_previousPosition = position;
 
     g_Mouse->SetEnabled(false);
-
-    m_testSprite = g_Renderer->LoadSingleTextureMaterial("textures/dev/dev_2.png");
 }
 
 APlayer::~APlayer() {
@@ -285,17 +283,10 @@ void APlayer::DrawReticle() {
     }
 
     if (m_prevEyeTarget) {
-        DrawReticleDiagonal(screenCenter, 4.0f, 18.0f, color);
+        DrawReticleDiagonal(screenCenter, 6.0f, 18.0f, color);
+        m_textRenderer.DrawText(m_prevEyeTarget->GetActorClassName(), {100.0f, 100.0f});
     } else {
-        DrawReticleStandard(screenCenter, 4.0f, 18.0f, color);
+        DrawReticleStandard(screenCenter, 4.0f, 12.0f, color);
+        m_textRenderer.DrawText("No Target", {100.0f, 100.0f});
     }
-
-    g_Renderer->DrawScreenRect(
-        {128.0f, 128.0f}, //
-        {256.0f, 256.0f},
-        {0.0f, 0.0f},
-        {1.0f, 1.0f},
-        {1.0f, 1.0f, 1.0f, 0.5f},
-        m_testSprite
-    );
 }

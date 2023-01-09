@@ -7,12 +7,11 @@
 #include <PxQueryReport.h>
 
 #include "actors/Actor.h"
+#include "gfx/BitmapTextRenderer.h"
 
 namespace physx {
 class PxController;
 } // namespace physx
-
-class SingleTextureMaterial;
 
 class APlayer final : public Actor {
 public:
@@ -40,6 +39,11 @@ private:
     void UpdateAcceleration();
 
     void DrawReticle();
+
+    BitmapTextRenderer m_textRenderer{
+        "textures/bitmap_fonts/share_tech_mono.png",
+        {23.0f, 48.0f}
+    };
 
     static constexpr float CAPSULE_RADIUS      = 0.4f;
     static constexpr float CAPSULE_HALF_HEIGHT = 0.4f;
@@ -74,6 +78,4 @@ private:
     bool m_prevRmb = false;
 
     Actor *m_prevEyeTarget = nullptr;
-
-    SingleTextureMaterial *m_testSprite = nullptr;
 };
