@@ -270,28 +270,28 @@
 {
 "classname" "light_point"
 "origin" "480 192 32"
-"color" "5.0 5.0 5.0"
+"color" "1 1 1"
 "radius" "8"
 }
 // entity 7
 {
 "classname" "light_point"
 "origin" "480 64 32"
-"color" "5.0 0.0 0.0"
+"color" "1 0 0"
 "radius" "8"
 }
 // entity 8
 {
 "classname" "light_point"
 "origin" "480 -64 32"
-"color" "0.0 5.0 0.0"
+"color" "0 1 0"
 "radius" "8"
 }
 // entity 9
 {
 "classname" "light_point"
 "origin" "480 -192 32"
-"color" "0.0 0.0 5.0"
+"color" "0 0 1"
 "radius" "8"
 }
 // entity 10
@@ -341,8 +341,9 @@
 }
 // entity 19
 {
-"classname" "trigger_power_sphere"
+"classname" "trigger_multiple"
 "event" "trigger1"
+"type" "0"
 // brush 0
 {
 ( 256 64 32 ) ( 256 -64 32 ) ( 256 -64 0 ) trigger -16 0 0 1 1
@@ -351,5 +352,20 @@
 ( 256 64 32 ) ( 384 64 32 ) ( 384 -64 32 ) trigger 16 16 0 1 1
 ( 384 64 0 ) ( 384 64 32 ) ( 256 64 32 ) trigger 16 0 0 1 1
 ( 384 -64 32 ) ( 384 64 32 ) ( 384 64 0 ) trigger -16 0 0 1 1
+}
+}
+// entity 20
+{
+"classname" "trigger_once"
+"event" "trigger1_first"
+"type" "0"
+// brush 0
+{
+( 272 48 32 ) ( 272 -48 32 ) ( 272 -48 0 ) trigger 0 0 0 1 1
+( 272 -48 32 ) ( 368 -48 32 ) ( 368 -48 0 ) trigger 0 0 0 1 1
+( 368 -48 0 ) ( 368 48 0 ) ( 272 48 0 ) trigger 0 0 0 1 1
+( 272 48 32 ) ( 368 48 32 ) ( 368 -48 32 ) trigger 0 0 0 1 1
+( 368 48 0 ) ( 368 48 32 ) ( 272 48 32 ) trigger 0 0 0 1 1
+( 368 -48 32 ) ( 368 48 32 ) ( 368 48 0 ) trigger 0 0 0 1 1
 }
 }

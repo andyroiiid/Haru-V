@@ -23,3 +23,5 @@ extern class AudioSystem *g_Audio;
 extern class LuaSandbox *g_Lua;
 
 extern bool g_SlowMotion;
+
+extern bool g_ShowTriggers;

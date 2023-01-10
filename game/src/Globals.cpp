@@ -23,3 +23,5 @@ AudioSystem *g_Audio = nullptr;
 LuaSandbox *g_Lua = nullptr;
 
 bool g_SlowMotion = false;
+
+bool g_ShowTriggers = false;

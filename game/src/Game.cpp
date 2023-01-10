@@ -132,7 +132,8 @@ void Game::Update(float deltaTime) {
         glfwSetWindowShouldClose(g_Window, GLFW_TRUE);
     }
 
-    g_SlowMotion = glfwGetKey(g_Window, GLFW_KEY_TAB);
+    g_SlowMotion   = glfwGetKey(g_Window, GLFW_KEY_TAB);
+    g_ShowTriggers = glfwGetKey(g_Window, GLFW_KEY_CAPS_LOCK);
 
     const float timeScale = g_SlowMotion ? 0.2f : 1.0f;
     if (m_physicsScene->Update(deltaTime, timeScale)) {

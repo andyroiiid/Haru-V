@@ -59,7 +59,6 @@ void APropPowerSphere::FixedUpdate(float fixedDeltaTime) {
 
 void APropPowerSphere::Draw() {
     g_Renderer->Draw(m_mesh, m_translationMatrix * glm::mat4_cast(m_rotation), m_material);
-    g_Renderer->DrawPointLight(GetTransform().GetPosition(), glm::vec3{0.5f, 0.2f, 0.0f}, 4.0f);
 }
 
 void APropPowerSphere::EnableDamping() {

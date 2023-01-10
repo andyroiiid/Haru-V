@@ -73,4 +73,8 @@ end, function()
     signals.close "door1"
 end)
 
+trigger1_first = signals.triggerEnter(function()
+    print "First time entering the trigger"
+end)
+
 playAudio "event:/ambience/wind_calm"

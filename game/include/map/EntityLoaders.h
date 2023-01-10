@@ -18,9 +18,9 @@ void LoadFuncButton(const MapData::Entity &entity);
 
 void LoadFuncPhys(const MapData::Entity &entity);
 
-void LoadTriggerPlayer(const MapData::Entity &entity);
+void LoadTriggerOnce(const MapData::Entity &entity);
 
-void LoadTriggerPowerSphere(const MapData::Entity &entity);
+void LoadTriggerMultiple(const MapData::Entity &entity);
 
 void LoadLightPoint(const MapData::Entity &entity);
 
