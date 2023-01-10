@@ -13,8 +13,6 @@ struct PxRaycastHit;
 
 struct lua_State;
 
-class APlayer;
-
 #define DEFINE_ACTOR_CLASS(className)                                                                                                                \
     className(const className &)                             = delete;                                                                               \
     className &operator=(const className &)                  = delete;                                                                               \
@@ -59,17 +57,11 @@ public:
 
     virtual void LuaSignal(lua_State *L) {}
 
-    virtual void StartUse(APlayer *player, const physx::PxRaycastHit &hit) {}
+    virtual void StartUse(Actor *user, const physx::PxRaycastHit &hit) {}
 
-    virtual void ContinueUse(APlayer *player, const physx::PxRaycastHit &hit) {}
+    virtual void ContinueUse(Actor *user, const physx::PxRaycastHit &hit) {}
 
-    virtual void StopUse(APlayer *player) {}
-
-    virtual void StartAltUse(APlayer *player, const physx::PxRaycastHit &hit) {}
-
-    virtual void ContinueAltUse(APlayer *player, const physx::PxRaycastHit &hit) {}
-
-    virtual void StopAltUse(APlayer *player) {}
+    virtual void StopUse(Actor *user) {}
 
     virtual void OnTriggerEnter(Actor *other) {}
 

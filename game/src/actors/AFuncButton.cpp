@@ -8,13 +8,12 @@
 
 #include "Globals.h"
 
-void AFuncButton::StartUse(APlayer *player, const physx::PxRaycastHit &hit) {
+void AFuncButton::StartUse(Actor *user, const physx::PxRaycastHit &hit) {
     Open();
     g_Lua->CallGlobalFunction(m_event, "press");
 }
 
-void AFuncButton::StopUse(APlayer *player) {
+void AFuncButton::StopUse(Actor *user) {
     Close();
     g_Lua->CallGlobalFunction(m_event, "release");
-
 }

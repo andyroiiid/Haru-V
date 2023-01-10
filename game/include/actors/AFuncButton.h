@@ -14,9 +14,9 @@ public:
         : AFuncMove(brushes, moveSpeed, moveTime)
         , m_event(std::move(event)) {}
 
-    void StartUse(APlayer *player, const physx::PxRaycastHit &hit) override;
+    void StartUse(Actor *user, const physx::PxRaycastHit &hit) override;
 
-    void StopUse(APlayer *player) override;
+    void StopUse(Actor *user) override;
 
 private:
     std::string m_event;

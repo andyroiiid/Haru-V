@@ -31,19 +31,17 @@ public:
 
     void Draw() override;
 
-    void StartUse(APlayer *player, const physx::PxRaycastHit &hit) override;
+    void StartUse(Actor *user, const physx::PxRaycastHit &hit) override;
 
-    void ContinueUse(APlayer *player, const physx::PxRaycastHit &hit) override;
+    void ContinueUse(Actor *user, const physx::PxRaycastHit &hit) override;
 
-    void StopUse(APlayer *player) override;
-
-    void StartAltUse(APlayer *player, const physx::PxRaycastHit &hit) override;
-
-    void ContinueAltUse(APlayer *player, const physx::PxRaycastHit &hit) override;
-
-    void StopAltUse(APlayer *player) override;
+    void StopUse(Actor *user) override;
 
 private:
+    void EnableDamping();
+
+    void DisableDamping();
+
     physx::PxRigidDynamic *m_rigidbody;
     physx::PxMaterial     *m_physicsMaterial;
 
@@ -57,8 +55,4 @@ private:
 
     VulkanMesh  *m_mesh;
     PbrMaterial *m_material;
-
-    bool          m_isCharging  = false;
-    float         m_chargePower = 0.0f;
-    physx::PxVec3 m_chargePosition;
 };

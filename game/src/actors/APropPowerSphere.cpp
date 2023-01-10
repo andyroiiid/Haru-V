@@ -23,8 +23,7 @@ APropPowerSphere::APropPowerSphere(const glm::vec3 &position) {
         physx::PxTransform{position.x, position.y, position.z}, //
         physx::PxSphereGeometry(0.5f)
     );
-    m_rigidbody->setLinearDamping(0.0f);
-    m_rigidbody->setAngularDamping(0.5f);
+    EnableDamping();
 
     m_rigidbody->userData = this;
 
@@ -45,11 +44,6 @@ void APropPowerSphere::Update(float deltaTime) {
 
     m_translationMatrix = GetTransform().SetPosition(m_position + m_velocity * timeError).GetTranslationMatrix();
     m_rotation          = glm::slerp(m_rotation, m_currentRotation, glm::min(1.0f, 30.0f * deltaTime));
-
-    if (m_isCharging) {
-        m_chargePower += deltaTime * 5.0f;
-        m_chargePower = glm::clamp(m_chargePower, 0.0f, 10.0f);
-    }
 }
 
 void APropPowerSphere::FixedUpdate(float fixedDeltaTime) {
@@ -68,40 +62,32 @@ void APropPowerSphere::Draw() {
     g_Renderer->DrawPointLight(GetTransform().GetPosition(), glm::vec3{0.5f, 0.2f, 0.0f}, 4.0f);
 }
 
-void APropPowerSphere::StartUse(APlayer *player, const physx::PxRaycastHit &hit) {
-    m_isCharging = true;
+void APropPowerSphere::EnableDamping() {
+    m_rigidbody->setLinearDamping(1.0f);
+    m_rigidbody->setAngularDamping(1.0f);
 }
 
-void APropPowerSphere::ContinueUse(APlayer *player, const physx::PxRaycastHit &hit) {
-    m_chargePosition = hit.position;
-}
-
-void APropPowerSphere::StopUse(APlayer *player) {
-    const glm::vec3 &playerPosition = player->GetTransform().GetPosition();
-    physx::PxVec3    force{
-        m_chargePosition.x - playerPosition.x,
-        0.0f, // no vertical force
-        m_chargePosition.z - playerPosition.z,
-    };
-    force = force.getNormalized() * m_chargePower;
-    physx::PxRigidBodyExt::addForceAtPos(*m_rigidbody, force, m_chargePosition, physx::PxForceMode::eIMPULSE);
-
-    m_isCharging  = false;
-    m_chargePower = 0.0f;
-}
-
-void APropPowerSphere::StartAltUse(APlayer *player, const physx::PxRaycastHit &hit) {
-    // increase damping to stop the sphere
-    m_rigidbody->setLinearDamping(10.0f);
-    m_rigidbody->setAngularDamping(10.0f);
-}
-
-void APropPowerSphere::ContinueAltUse(APlayer *player, const physx::PxRaycastHit &hit) {
-    m_chargePower = 0.0f;
-}
-
-void APropPowerSphere::StopAltUse(APlayer *player) {
-    // reset damping
+void APropPowerSphere::DisableDamping() {
     m_rigidbody->setLinearDamping(0.0f);
-    m_rigidbody->setAngularDamping(0.5f);
+    m_rigidbody->setAngularDamping(0.0f);
+}
+
+void APropPowerSphere::StartUse(Actor *user, const physx::PxRaycastHit &hit) {
+    DisableDamping();
+}
+
+void APropPowerSphere::ContinueUse(Actor *user, const physx::PxRaycastHit &hit) {
+    const glm::vec3    &userPosition = user->GetTransform().GetPosition();
+    const physx::PxVec3 hitPosition  = hit.position;
+    physx::PxVec3       force{
+        hitPosition.x - userPosition.x,
+        hitPosition.y - userPosition.y,
+        hitPosition.z - userPosition.z,
+    };
+    force = force.getNormalized() * 1.0f;
+    physx::PxRigidBodyExt::addForceAtPos(*m_rigidbody, force, hitPosition, physx::PxForceMode::eFORCE);
+}
+
+void APropPowerSphere::StopUse(Actor *user) {
+    EnableDamping();
 }
