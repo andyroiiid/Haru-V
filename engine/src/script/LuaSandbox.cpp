@@ -67,8 +67,7 @@ void LuaSandbox::SetupPackageSearcher() {
 }
 
 void LuaSandbox::SetGlobalFunction(const std::string &name, lua_CFunction function) {
-    lua_pushcfunction(L, function);
-    lua_setglobal(L, name.c_str());
+    lua_register(L, name.c_str(), function);
 }
 
 void LuaSandbox::CallGlobalFunction(const std::string &name) {
