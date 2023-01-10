@@ -12,7 +12,6 @@
 #include <physics/PhysicsUtilities.h>
 
 #include "Globals.h"
-#include "actors/APlayer.h"
 #include "gfx/Renderer.h"
 
 APropPowerSphere::APropPowerSphere(const glm::vec3 &position) {
@@ -55,6 +54,10 @@ void APropPowerSphere::FixedUpdate(float fixedDeltaTime) {
     m_velocity = (m_position - lastPosition) / fixedDeltaTime;
 
     m_currentRotation = {transform.q.w, transform.q.x, transform.q.y, transform.q.z};
+
+    if (m_beingPushed) {
+        physx::PxRigidBodyExt::addForceAtPos(*m_rigidbody, m_pushForce, m_pushPosition, physx::PxForceMode::eFORCE);
+    }
 }
 
 void APropPowerSphere::Draw() {
@@ -73,20 +76,24 @@ void APropPowerSphere::DisableDamping() {
 
 void APropPowerSphere::StartUse(Actor *user, const physx::PxRaycastHit &hit) {
     DisableDamping();
+    m_beingPushed = true;
+
+    ContinueUse(user, hit); // trigger the first push position/force update
 }
 
 void APropPowerSphere::ContinueUse(Actor *user, const physx::PxRaycastHit &hit) {
-    const glm::vec3    &userPosition = user->GetTransform().GetPosition();
-    const physx::PxVec3 hitPosition  = hit.position;
-    physx::PxVec3       force{
-        hitPosition.x - userPosition.x,
-        hitPosition.y - userPosition.y,
-        hitPosition.z - userPosition.z,
+    const glm::vec3 &userPosition = user->GetTransform().GetPosition();
+
+    m_pushPosition = hit.position;
+    m_pushForce    = {
+        m_pushPosition.x - userPosition.x,
+        m_pushPosition.y - userPosition.y,
+        m_pushPosition.z - userPosition.z,
     };
-    force = force.getNormalized() * 1.0f;
-    physx::PxRigidBodyExt::addForceAtPos(*m_rigidbody, force, hitPosition, physx::PxForceMode::eFORCE);
+    m_pushForce = m_pushForce.getNormalized() * 3.0f;
 }
 
 void APropPowerSphere::StopUse(Actor *user) {
+    m_beingPushed = false;
     EnableDamping();
 }

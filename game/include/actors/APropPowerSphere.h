@@ -55,4 +55,8 @@ private:
 
     VulkanMesh  *m_mesh;
     PbrMaterial *m_material;
+
+    bool          m_beingPushed = false;
+    physx::PxVec3 m_pushPosition;
+    physx::PxVec3 m_pushForce;
 };
