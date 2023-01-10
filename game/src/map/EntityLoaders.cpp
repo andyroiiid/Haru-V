@@ -58,6 +58,12 @@ void LoadFuncBrush(const MapData::Entity &entity) {
     g_Scene->CreateActor<AFuncBrush>(entity.Brushes);
 }
 
+void LoadFuncGroup(const MapData::Entity &entity) {
+    ZoneScoped;
+
+    g_Scene->CreateActor<AFuncBrush>(entity.Brushes);
+}
+
 void LoadFuncMove(const MapData::Entity &entity) {
     ZoneScoped;
 

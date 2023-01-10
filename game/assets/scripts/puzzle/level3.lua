@@ -1,6 +1,6 @@
 local signals = require("scripts/signals.lua")
 
-trigger1 = signals.trigger(function()
+slot1 = signals.trigger(function()
     signals.open("door1")
 end, function()
     signals.close("door1")

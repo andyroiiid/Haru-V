@@ -25,6 +25,9 @@ static glm::vec3 CalculateCenter(const std::vector<MapData::Brush> &brushes) {
             sum.z       += vertex.z;
         }
     }
+    if (numVertices == 0.0f) {
+        return {0.0f, 0.0f, 0.0f};
+    }
     return sum / numVertices;
 }
 

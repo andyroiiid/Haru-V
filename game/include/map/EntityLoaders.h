@@ -12,6 +12,8 @@ void LoadInfoPlayerStart(const MapData::Entity &entity);
 
 void LoadFuncBrush(const MapData::Entity &entity);
 
+void LoadFuncGroup(const MapData::Entity &entity);
+
 void LoadFuncMove(const MapData::Entity &entity);
 
 void LoadFuncButton(const MapData::Entity &entity);
