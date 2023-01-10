@@ -21,6 +21,14 @@ public:
 
     LuaSandbox &operator=(LuaSandbox &&) = delete;
 
+    int CreateReference();
+
+    void PushReference(int reference);
+
+    void FreeReference(int reference);
+
+    int GetGlobalVariableReference(const std::string &name);
+
     void SetGlobalFunction(const std::string &name, lua_CFunction function);
 
     void CallGlobalFunction(const std::string &name);
@@ -31,10 +39,10 @@ public:
 
     void DoFile(const std::string &filename);
 
+    void PCall(int nArgs, int nResults);
+
 private:
     void SetupPackageSearcher();
-
-    void PCall(int nArgs, int nResults);
 
     lua_State *L = nullptr;
 };

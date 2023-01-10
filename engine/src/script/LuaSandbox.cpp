@@ -7,18 +7,18 @@
 #include "core/Debug.h"
 #include "file/FileSystem.h"
 
-static int LuaPrint(lua_State *L) {
-    const char *message = luaL_checkstring(L, 1);
-    DebugInfo("{}", message);
-    return 0;
-}
-
 static int LuaPackageSearcher(lua_State *L) {
     const std::string path = luaL_checkstring(L, 1);
     DebugInfo("Loading Lua package: {}", path);
     const std::string source = FileSystem::Read(path);
     luaL_loadbuffer(L, source.data(), source.size(), path.c_str());
     return 1;
+}
+
+static int LuaPrint(lua_State *L) {
+    const char *message = luaL_checkstring(L, 1);
+    DebugInfo("{}", message);
+    return 0;
 }
 
 LuaSandbox::LuaSandbox() {
@@ -64,6 +64,23 @@ void LuaSandbox::SetupPackageSearcher() {
 
     lua_pop(L, 2);
     //
+}
+
+int LuaSandbox::CreateReference() {
+    return luaL_ref(L, LUA_REGISTRYINDEX);
+}
+
+void LuaSandbox::PushReference(int reference) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, reference);
+}
+
+void LuaSandbox::FreeReference(int reference) {
+    luaL_unref(L, LUA_REGISTRYINDEX, reference);
+}
+
+int LuaSandbox::GetGlobalVariableReference(const std::string &name) {
+    lua_getglobal(L, name.c_str());
+    return CreateReference();
 }
 
 void LuaSandbox::SetGlobalFunction(const std::string &name, lua_CFunction function) {

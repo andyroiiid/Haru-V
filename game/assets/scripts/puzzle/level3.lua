@@ -7,7 +7,9 @@ end, function()
 end)
 
 trigger_end = signals.triggerEnter(function()
-    loadMap("maps/puzzle/level0.haru")
+    delay(3, function ()
+        loadMap("maps/puzzle/level0.haru")
+    end)
 end)
 
 playAudio("event:/ambience/wind_calm")

@@ -72,6 +72,12 @@ void Game::LoadMap(const std::string &mapName) {
     m_lua = std::make_unique<LuaSandbox>();
     g_Lua = m_lua.get();
 
+    SetupLuaBindings();
+
+    LoadEntities(mapName);
+}
+
+void Game::SetupLuaBindings() {
     m_lua->SetGlobalFunction("loadMap", [](lua_State *L) {
         const std::string mapName = luaL_checkstring(L, 1);
         g_Game->ScheduleMapLoad(mapName);
@@ -87,17 +93,27 @@ void Game::LoadMap(const std::string &mapName) {
         return 0;
     });
 
+    m_lua->SetGlobalFunction("delay", [](lua_State *L) {
+        const auto delay = static_cast<float>(luaL_checknumber(L, 1));
+        luaL_checktype(L, 2, LUA_TFUNCTION);
+        const int function = g_Lua->CreateReference();
+        // using another vector because we might want to queue another delayed function when executing delayed functions
+        // and we don't want to add items when iterating the vector
+        g_Game->m_queuedDelayedLuaFunctions.emplace_back(delay, function);
+        return 0;
+    });
+
     m_lua->SetGlobalFunction("playAudio", [](lua_State *L) {
         const std::string path = luaL_checkstring(L, 1);
         g_Audio->PlayOneShot(path);
         return 0;
     });
-
-    LoadEntities(mapName);
 }
 
 void Game::CleanupMap() {
     m_renderer->WaitDeviceIdle();
+
+    m_delayedLuaFunctions.clear();
 
     g_Lua = nullptr;
     m_lua.reset();
@@ -114,6 +130,21 @@ void Game::Frame(float deltaTime) {
 
     Update(deltaTime);
     Draw();
+}
+
+void Game::DispatchDelayedLuaFunctions(float deltaTime) {
+    std::vector<std::tuple<float, int>> delayedLuaFunctions = std::move(m_queuedDelayedLuaFunctions);
+    for (auto [delay, function]: m_delayedLuaFunctions) {
+        delay -= deltaTime;
+        if (delay <= 0.0f) {
+            m_lua->PushReference(function);
+            m_lua->PCall(0, 0);
+            m_lua->FreeReference(function);
+        } else {
+            delayedLuaFunctions.emplace_back(delay, function);
+        }
+    }
+    m_delayedLuaFunctions = std::move(delayedLuaFunctions);
 }
 
 void Game::Update(float deltaTime) {
@@ -140,6 +171,8 @@ void Game::Update(float deltaTime) {
 
     g_SlowMotion   = glfwGetKey(g_Window, GLFW_KEY_TAB);
     g_ShowTriggers = glfwGetKey(g_Window, GLFW_KEY_CAPS_LOCK);
+
+    DispatchDelayedLuaFunctions(deltaTime);
 
     const float timeScale = g_SlowMotion ? 0.2f : 1.0f;
     if (m_physicsScene->Update(deltaTime, timeScale)) {
