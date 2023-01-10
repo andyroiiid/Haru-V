@@ -7,16 +7,28 @@
 #include "core/Debug.h"
 #include "file/FileSystem.h"
 
-int LuaPrint(lua_State *L) {
+static int LuaPrint(lua_State *L) {
     const char *message = luaL_checkstring(L, 1);
     DebugInfo("{}", message);
     return 0;
+}
+
+static int LuaPackageSearcher(lua_State *L) {
+    const std::string path = luaL_checkstring(L, 1);
+    DebugInfo("Loading Lua package: {}", path);
+    const std::string source = FileSystem::Read(path);
+    luaL_loadbuffer(L, source.data(), source.size(), path.c_str());
+    return 1;
 }
 
 LuaSandbox::LuaSandbox() {
     L = luaL_newstate();
     DebugCheckCritical(L, "Failed to create Lua sandbox.");
     DebugInfo("{}", LUA_RELEASE);
+
+    luaL_openlibs(L);
+
+    SetupPackageSearcher();
 
     SetGlobalFunction("print", LuaPrint);
 }
@@ -25,51 +37,33 @@ LuaSandbox::~LuaSandbox() {
     lua_close(L);
 }
 
-void LuaSandbox::DebugStackItem(int idx) {
-    const int type = lua_type(L, idx);
-    switch (type) {
-    case LUA_TNONE:
-        DebugInfo("[#{}: None]", idx);
-        break;
-    case LUA_TNIL:
-        DebugInfo("[#{}: Nil]", idx);
-        break;
-    case LUA_TBOOLEAN:
-        DebugInfo("[#{}: {}]", idx, lua_toboolean(L, idx) ? "True" : "False");
-        break;
-    case LUA_TLIGHTUSERDATA:
-        DebugInfo("[#{}: <LightUserData {}>", idx, lua_topointer(L, idx));
-        break;
-    case LUA_TNUMBER:
-        DebugInfo("[#{}: {}", idx, lua_tonumber(L, idx));
-        break;
-    case LUA_TSTRING:
-        DebugInfo("[#{}: {}", idx, lua_tostring(L, idx));
-        break;
-    case LUA_TTABLE:
-        DebugInfo("[#{}: <Table {}>", idx, lua_topointer(L, idx));
-        break;
-    case LUA_TFUNCTION:
-        DebugInfo("[#{}: <Function {}>", idx, lua_topointer(L, idx));
-        break;
-    case LUA_TUSERDATA:
-        DebugInfo("[#{}: <UserData {}>", idx, lua_topointer(L, idx));
-        break;
-    case LUA_TTHREAD:
-        DebugInfo("[#{}: <Thread {}>", idx, lua_topointer(L, idx));
-        break;
-    default:
-        DebugWarning("[#{}: Unknown]", idx);
-        break;
-    }
-}
+void LuaSandbox::SetupPackageSearcher() {
+    //
+    lua_getglobal(L, "package");
+    // -1: package
+    lua_getfield(L, -1, "searchers");
+    // -2: package, -1: packager.searchers
 
-void LuaSandbox::DebugStack() {
-    const int top = lua_gettop(L);
-    DebugInfo("Lua stack ({} items):", top);
-    for (int i = 1; i <= top; i++) {
-        DebugStackItem(i);
+    if (lua_type(L, -1) != LUA_TTABLE) {
+        // -2: package, -1: packager.searchers (not table)
+        lua_pop(L, 1);
+        // -1: package
+        lua_createtable(L, 1, 0);
+        // -2: package, -1: {}
+        lua_pushvalue(L, -1);
+        // -3: package, -2: {}, -1: {}
+        lua_setfield(L, -3, "searchers");
+        // -2: package, -1: package.searchers
     }
+
+    lua_Integer n = luaL_len(L, -1);
+    lua_pushcfunction(L, LuaPackageSearcher);
+    // -3: package, -2: package.searchers, -1: LuaPackageSearcher
+    lua_seti(L, -2, n + 1);
+    // -2: package, -1: packager.searchers
+
+    lua_pop(L, 2);
+    //
 }
 
 void LuaSandbox::SetGlobalFunction(const std::string &name, lua_CFunction function) {
@@ -103,7 +97,7 @@ void LuaSandbox::CallGlobalFunction(const std::string &name, const std::string &
     PCall(1, 0);
 }
 
-void LuaSandbox::DoString(const std::string &source, const std::string &name) {
+void LuaSandbox::DoSource(const std::string &source, const std::string &name) {
     DebugInfo("Executing Lua script {}", name);
 
     if (luaL_loadbuffer(L, source.data(), source.size(), name.c_str()) != LUA_OK) {
@@ -117,7 +111,7 @@ void LuaSandbox::DoString(const std::string &source, const std::string &name) {
 
 void LuaSandbox::DoFile(const std::string &filename) {
     const std::string source = FileSystem::Read(filename);
-    DoString(source, filename);
+    DoSource(source, filename);
 }
 
 void LuaSandbox::PCall(int nArgs, int nResults) {
