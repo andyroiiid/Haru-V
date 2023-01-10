@@ -69,7 +69,6 @@ private:
     glm::vec3 m_velocity{};
     glm::vec3 m_acceleration{};
 
-    glm::vec3 m_respawnPoint{};
     glm::vec3 m_previousPosition{};
 
     bool m_prevSpace = false;

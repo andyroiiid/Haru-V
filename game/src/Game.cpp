@@ -122,7 +122,7 @@ void Game::Update(float deltaTime) {
     if (!m_nextMap.empty()) {
         CleanupMap();
         LoadMap(m_nextMap);
-        m_nextMap.clear();
+        m_currentMap = std::move(m_nextMap);
     }
 
     m_mouse->Update();
@@ -131,6 +131,12 @@ void Game::Update(float deltaTime) {
     if (glfwGetKey(g_Window, GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(g_Window, GLFW_TRUE);
     }
+
+    const bool currentR = glfwGetKey(g_Window, GLFW_KEY_R);
+    if (currentR && !m_prevR) {
+        m_nextMap = std::move(m_currentMap);
+    }
+    m_prevR = currentR;
 
     g_SlowMotion   = glfwGetKey(g_Window, GLFW_KEY_TAB);
     g_ShowTriggers = glfwGetKey(g_Window, GLFW_KEY_CAPS_LOCK);

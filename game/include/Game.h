@@ -35,6 +35,7 @@ private:
     void Draw();
 
     std::string m_nextMap;
+    std::string m_currentMap;
 
     std::unique_ptr<Renderer>                       m_renderer;
     std::unique_ptr<Mouse>                          m_mouse;
@@ -46,4 +47,6 @@ private:
     std::unique_ptr<PhysicsScene> m_physicsScene;
     std::unique_ptr<Scene>        m_scene;
     std::unique_ptr<LuaSandbox>   m_lua;
+
+    bool m_prevR = false;
 };

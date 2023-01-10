@@ -24,7 +24,6 @@ APlayer::APlayer(const glm::vec3 &position, float yaw, float mouseSpeed) {
 
     m_mouseSpeed = mouseSpeed;
 
-    m_respawnPoint     = position;
     m_previousPosition = position;
 
     g_Mouse->SetEnabled(false);
@@ -201,15 +200,6 @@ void APlayer::FixedUpdate(float fixedDeltaTime) {
 
     // clamp vertical speed (this is a hack)
     m_velocity.y = glm::min(m_velocity.y, JUMP_VELOCITY);
-
-    // check respawn
-    if (currentPosition.y < -100.0f) {
-        // just teleport player back
-        m_controller->setPosition({m_respawnPoint.x, m_respawnPoint.y, m_respawnPoint.z});
-        m_velocity         = {};
-        m_acceleration     = {};
-        m_previousPosition = m_respawnPoint;
-    }
 }
 
 void APlayer::Draw() {
