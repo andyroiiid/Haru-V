@@ -3,5 +3,5 @@
   "width": 1280,
   "height": 720,
   "maximized": true,
-  "start_map": "maps/scripting_test.haru"
+  "start_map": "maps/puzzle/level0.haru"
 }
