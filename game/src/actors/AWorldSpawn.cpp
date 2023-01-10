@@ -3,10 +3,9 @@
 //
 #include "actors/AWorldSpawn.h"
 
-#include <script/LuaSandbox.h>
-
 #include "Globals.h"
 #include "gfx/Renderer.h"
+#include "script/GameLua.h"
 
 AWorldSpawn::AWorldSpawn(
     const std::vector<MapData::Brush> &brushes,

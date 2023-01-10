@@ -57,6 +57,10 @@ add_executable(game
         src/actors/APropTestModel.cpp
         src/actors/APropPowerSphere.cpp
 
+        include/script/GameLua.h
+
+        src/script/GameLua.cpp
+
         include/map/MapData.h
         include/map/Brushes.h
         include/map/MapParser.h

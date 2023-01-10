@@ -4,9 +4,8 @@
 
 #include "actors/AFuncButton.h"
 
-#include <script/LuaSandbox.h>
-
 #include "Globals.h"
+#include "script/GameLua.h"
 
 void AFuncButton::StartUse(Actor *user, const physx::PxRaycastHit &hit) {
     Open();

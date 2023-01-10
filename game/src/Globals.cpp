@@ -20,7 +20,7 @@ Scene *g_Scene = nullptr;
 
 AudioSystem *g_Audio = nullptr;
 
-LuaSandbox *g_Lua = nullptr;
+GameLua *g_Lua = nullptr;
 
 bool g_SlowMotion = false;
 

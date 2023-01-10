@@ -4,11 +4,10 @@
 
 #include "actors/ATrigger.h"
 
-#include <script/LuaSandbox.h>
-
 #include "Globals.h"
 #include "actors/APlayer.h"
 #include "actors/APropPowerSphere.h"
+#include "script/GameLua.h"
 
 static bool CheckTargetType(Actor *actor, ATrigger::TargetType targetType) {
     switch (targetType) {

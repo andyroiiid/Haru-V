@@ -5,7 +5,9 @@ button1 = signals.buttonRelease(function()
 end)
 
 trigger_end = signals.triggerEnter(function()
-    loadMap("maps/puzzle/level2.haru")
+    delay(3, function ()
+        loadMap("maps/puzzle/level2.haru")
+    end)
 end)
 
 playAudio("event:/ambience/wind_calm")
