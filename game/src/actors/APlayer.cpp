@@ -131,6 +131,9 @@ void APlayer::Update(const float deltaTime) {
     {
         m_movementInput = transform.GetHorizontalRightVector() * GetKeyAxis(g_Window, GLFW_KEY_D, GLFW_KEY_A) +
                           transform.GetHorizontalForwardVector() * GetKeyAxis(g_Window, GLFW_KEY_W, GLFW_KEY_S);
+        if (m_movementInput.x != 0 || m_movementInput.y != 0 || m_movementInput.z != 0) {
+            m_movementInput = glm::normalize(m_movementInput);
+        }
     }
 
     // jump
