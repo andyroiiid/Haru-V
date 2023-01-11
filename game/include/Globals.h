@@ -22,6 +22,8 @@ extern class AudioSystem *g_Audio;
 
 extern class GameLua *g_Lua;
 
+extern class GameHUD *g_HUD;
+
 extern bool g_SlowMotion;
 
 extern bool g_ShowTriggers;

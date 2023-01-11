@@ -22,6 +22,8 @@ AudioSystem *g_Audio = nullptr;
 
 GameLua *g_Lua = nullptr;
 
+GameHUD *g_HUD = nullptr;
+
 bool g_SlowMotion = false;
 
 bool g_ShowTriggers = false;

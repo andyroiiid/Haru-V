@@ -14,6 +14,7 @@
 #include "gfx/Renderer.h"
 #include "physics/PhysicsSimulationEventCallback.h"
 #include "script/GameLua.h"
+#include "ui/GameHUD.h"
 
 class Game : public App {
 public:
@@ -47,6 +48,7 @@ private:
     std::unique_ptr<PhysicsScene> m_physicsScene;
     std::unique_ptr<Scene>        m_scene;
     std::unique_ptr<GameLua>      m_lua;
+    std::unique_ptr<GameHUD>      m_hud;
 
     bool m_prevR = false;
 };

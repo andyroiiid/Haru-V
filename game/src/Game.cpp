@@ -72,11 +72,17 @@ void Game::LoadMap(const std::string &mapName) {
     m_lua = std::make_unique<GameLua>();
     g_Lua = m_lua.get();
 
+    m_hud = std::make_unique<GameHUD>();
+    g_HUD = m_hud.get();
+
     LoadEntities(mapName);
 }
 
 void Game::CleanupMap() {
     m_renderer->WaitDeviceIdle();
+
+    g_HUD = nullptr;
+    m_hud.reset();
 
     g_Lua = nullptr;
     m_lua.reset();
@@ -91,18 +97,18 @@ void Game::CleanupMap() {
 void Game::Frame(float deltaTime) {
     FrameMark;
 
+    if (!m_nextMap.empty()) {
+        CleanupMap();
+        LoadMap(m_nextMap);
+        m_currentMap = std::move(m_nextMap);
+    }
+
     Update(deltaTime);
     Draw();
 }
 
 void Game::Update(float deltaTime) {
     ZoneScoped;
-
-    if (!m_nextMap.empty()) {
-        CleanupMap();
-        LoadMap(m_nextMap);
-        m_currentMap = std::move(m_nextMap);
-    }
 
     m_mouse->Update();
     m_audio->Update();
@@ -127,11 +133,15 @@ void Game::Update(float deltaTime) {
         m_scene->FixedUpdate(m_physicsScene->GetFixedTimestep() * timeScale);
     }
     m_scene->Update(deltaTime * timeScale);
+
+    m_hud->Update(deltaTime);
 }
 
 void Game::Draw() {
     ZoneScoped;
 
     m_scene->Draw();
+    m_hud->Draw();
+
     m_renderer->FinishDrawing();
 }

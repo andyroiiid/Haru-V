@@ -37,6 +37,36 @@ GameLua::GameLua() {
         g_Audio->PlayOneShot(path);
         return 0;
     });
+
+    SetGlobalFunction("fadeToColor", [](lua_State *L) {
+        const auto duration = static_cast<float>(luaL_checknumber(L, 1));
+        const auto r        = static_cast<float>(luaL_checknumber(L, 2));
+        const auto g        = static_cast<float>(luaL_checknumber(L, 3));
+        const auto b        = static_cast<float>(luaL_checknumber(L, 4));
+        g_HUD->FadeToColor(duration, {r, g, b});
+        return 0;
+    });
+
+    SetGlobalFunction("fadeFromColor", [](lua_State *L) {
+        const auto duration = static_cast<float>(luaL_checknumber(L, 1));
+        const auto r        = static_cast<float>(luaL_checknumber(L, 2));
+        const auto g        = static_cast<float>(luaL_checknumber(L, 3));
+        const auto b        = static_cast<float>(luaL_checknumber(L, 4));
+        g_HUD->FadeFromColor(duration, {r, g, b});
+        return 0;
+    });
+
+    SetGlobalFunction("fadeToBlack", [](lua_State *L) {
+        const auto duration = static_cast<float>(luaL_checknumber(L, 1));
+        g_HUD->FadeToColor(duration, {0.0f, 0.0f, 0.0f});
+        return 0;
+    });
+
+    SetGlobalFunction("fadeFromBlack", [](lua_State *L) {
+        const auto duration = static_cast<float>(luaL_checknumber(L, 1));
+        g_HUD->FadeFromColor(duration, {0.0f, 0.0f, 0.0f});
+        return 0;
+    });
 }
 
 void GameLua::Update(float deltaTime) {

@@ -73,6 +73,9 @@ add_executable(game
         src/map/EntityLoaders.cpp
         src/map/LoadEntities.cpp
 
+        include/ui/GameHUD.h
+        src/ui/GameHUD.cpp
+
         include/JsonFiles.h
         include/Globals.h
         include/Game.h
