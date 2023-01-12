@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <PxQueryReport.h>
 #include <math/Transform.h>
 
 namespace physx {

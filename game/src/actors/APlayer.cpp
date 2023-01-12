@@ -14,7 +14,8 @@
 #include "gfx/Renderer.h"
 
 APlayer::APlayer(const glm::vec3 &position, float yaw, float mouseSpeed)
-    : m_movement(this, position) {
+    : m_movement(this, position)
+    , m_use(this) {
     GetTransform().RotateY(yaw);
 
     m_mouseSpeed = mouseSpeed;
@@ -33,71 +34,7 @@ static inline float GetKeyAxis(GLFWwindow *window, int posKey, int negKey) {
     return value;
 }
 
-physx::PxRaycastHit APlayer::EyeRayCast() {
-    const Transform &transform = GetTransform();
-    const glm::vec3  position  = transform.GetPosition();
-    const glm::vec3  forward   = transform.GetForwardVector();
-
-    const physx::PxVec3 origin{position.x, position.y, position.z};
-    const physx::PxVec3 unitDir{forward.x, forward.y, forward.z};
-    return g_PhysicsScene->Raycast(origin, unitDir, INTERACTION_DISTANCE, PHYSICS_LAYER_0).block;
-}
-
-static Actor *GetActor(const physx::PxRaycastHit &hit) {
-    physx::PxActor *actor = hit.actor;
-    return actor ? static_cast<Actor *>(actor->userData) : nullptr;
-}
-
-void APlayer::UpdateInteract() {
-    // eye raycast
-    const physx::PxRaycastHit hit = EyeRayCast();
-
-    // try to acquire current target
-    Actor * const eyeTarget = GetActor(hit);
-
-    // use input
-    const bool currLmb = g_Mouse->IsButtonDown(MouseButton::Left);
-
-    if (!m_prevLmb) {
-        if (currLmb) {
-            // lmb press
-            if (eyeTarget) {
-                eyeTarget->StartUse(this, hit);
-            }
-        }
-    } else {
-        if (!currLmb) {
-            // lmb release
-            if (m_prevEyeTarget) {
-                m_prevEyeTarget->StopUse(this);
-            }
-        } else {
-            // lmb hold
-            if (eyeTarget == m_prevEyeTarget) {
-                // still looking at the same object (might be null)
-                if (eyeTarget) {
-                    eyeTarget->ContinueUse(this, hit);
-                }
-            } else {
-                // target changed
-                if (m_prevEyeTarget) {
-                    m_prevEyeTarget->StopUse(this);
-                }
-                if (eyeTarget) {
-                    eyeTarget->StartUse(this, hit);
-                }
-            }
-        }
-    }
-
-    m_prevLmb = currLmb;
-
-    m_prevEyeTarget = eyeTarget;
-}
-
 void APlayer::Update(const float deltaTime) {
-    m_movement.Update(deltaTime);
-
     Transform &transform = GetTransform();
 
     // turn
@@ -120,15 +57,17 @@ void APlayer::Update(const float deltaTime) {
     // jump
     {
         bool currSpace = glfwGetKey(g_Window, GLFW_KEY_SPACE);
-
         if (!m_prevSpace && currSpace) {
             m_movement.Jump();
         }
-
         m_prevSpace = currSpace;
     }
 
-    UpdateInteract();
+    // use input
+    m_use.SetInput(g_Mouse->IsButtonDown(MouseButton::Left));
+
+    m_movement.Update(deltaTime);
+    m_use.Update();
 
     g_Audio->SetListener3DAttributes(transform.GetPosition(), m_movement.GetVelocity(), transform.GetHorizontalForwardVector());
 }
@@ -160,17 +99,11 @@ static void DrawReticleDiagonal(const glm::vec2 &position, float gap, float max,
 
 void APlayer::DrawReticle() {
     const glm::vec2 screenCenter = g_Renderer->GetScreenExtent() * 0.5f;
+    const glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
 
-    glm::vec4 color;
-    if (m_prevLmb) {
-        color = {0.0f, 1.0f, 0.0f, 1.0f};
-    } else {
-        color = {1.0f, 1.0f, 1.0f, 1.0f};
-    }
-
-    if (m_prevEyeTarget) {
+    if (m_use.GetTarget()) {
         DrawReticleDiagonal(screenCenter, 6.0f, 18.0f, color);
-        m_textRenderer.DrawText(m_prevEyeTarget->GetActorClassName(), {100.0f, 100.0f});
+        m_textRenderer.DrawText(m_use.GetTarget()->GetActorClassName(), {100.0f, 100.0f});
     } else {
         DrawReticleStandard(screenCenter, 4.0f, 12.0f, color);
         m_textRenderer.DrawText("No Target", {100.0f, 100.0f});
