@@ -29,11 +29,6 @@ private:
     PlayerMovement m_movement;
     PlayerUse      m_use;
 
-    BitmapTextRenderer m_textRenderer{
-        "textures/bitmap_fonts/share_tech_mono.png",
-        {23.0f, 48.0f}
-    };
-
     float m_mouseSpeed;
 
     bool m_prevSpace = false;

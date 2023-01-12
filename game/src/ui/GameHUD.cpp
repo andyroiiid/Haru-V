@@ -3,6 +3,8 @@
 //
 #include "ui/GameHUD.h"
 
+#include <audio/AudioSystem.h>
+
 #include "Globals.h"
 #include "gfx/Renderer.h"
 
@@ -13,6 +15,18 @@ GameHUD::GameHUD() {
 void GameHUD::Update(float deltaTime) {
     if (m_fadeTimer > 0.0f) {
         m_fadeTimer = glm::max(0.0f, m_fadeTimer - deltaTime);
+    }
+
+    if (m_objectiveNumDisplayedChars < m_objective.length()) {
+        if (m_objectivePrintTimer <= 0.0f) {
+            m_objectivePrintTimer += 0.05f;
+            m_objectiveNumDisplayedChars++;
+            m_objectiveDisplayedText = m_objective.substr(0, m_objectiveNumDisplayedChars);
+            if (!std::isspace(m_objectiveDisplayedText.back())) {
+                g_Audio->PlayOneShot("event:/ui/objective/type");
+            }
+        }
+        m_objectivePrintTimer -= deltaTime;
     }
 }
 
@@ -33,4 +47,10 @@ void GameHUD::Draw() {
             m_whiteTexture
         );
     }
+
+    m_textRenderer.DrawText(
+        m_objectiveDisplayedText, //
+        {48.0f, screenExtent.y - 48.0f - m_textRenderer.GetCharSize().y},
+        {1.0f, 1.0f, 1.0f, 1.0f}
+    );
 }

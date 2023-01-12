@@ -103,9 +103,7 @@ void APlayer::DrawReticle() {
 
     if (m_use.GetTarget()) {
         DrawReticleDiagonal(screenCenter, 6.0f, 18.0f, color);
-        m_textRenderer.DrawText(m_use.GetTarget()->GetActorClassName(), {100.0f, 100.0f});
     } else {
         DrawReticleStandard(screenCenter, 4.0f, 12.0f, color);
-        m_textRenderer.DrawText("No Target", {100.0f, 100.0f});
     }
 }

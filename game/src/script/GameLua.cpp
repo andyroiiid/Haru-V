@@ -67,6 +67,12 @@ GameLua::GameLua() {
         g_HUD->FadeFromColor(duration, {0.0f, 0.0f, 0.0f});
         return 0;
     });
+
+    SetGlobalFunction("showObjective", [](lua_State *L) {
+        const std::string objective = luaL_checkstring(L, 1);
+        g_HUD->ShowObjective(objective);
+        return 0;
+    });
 }
 
 void GameLua::Update(float deltaTime) {

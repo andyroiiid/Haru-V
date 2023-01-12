@@ -40,9 +40,15 @@ public:
         m_fadeColor    = color;
     }
 
+    void ShowObjective(std::string objective) {
+        m_objective                  = std::move(objective);
+        m_objectiveNumDisplayedChars = 0;
+        m_objectivePrintTimer        = 0.0f;
+    }
+
 private:
     BitmapTextRenderer m_textRenderer{
-        "textures/bitmap_fonts/share_tech_mono.png",
+        "textures/bitmap_fonts/share_tech_mono_shadow.png",
         {23.0f, 48.0f}
     };
 
@@ -52,4 +58,9 @@ private:
     float     m_fadeTimer    = 0.0f;
     bool      m_fadeTo       = false; // true: transparent->color; false: color->transparent
     glm::vec3 m_fadeColor{};
+
+    std::string m_objective;
+    int         m_objectiveNumDisplayedChars = 0;
+    float       m_objectivePrintTimer        = 0.0f;
+    std::string m_objectiveDisplayedText;
 };
