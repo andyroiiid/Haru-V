@@ -4,14 +4,9 @@
 
 #pragma once
 
-#include <PxQueryReport.h>
-
 #include "actors/Actor.h"
+#include "components/PlayerMovement.h"
 #include "gfx/BitmapTextRenderer.h"
-
-namespace physx {
-class PxController;
-} // namespace physx
 
 class APlayer final : public Actor {
 public:
@@ -32,44 +27,18 @@ private:
 
     void UpdateInteract();
 
-    void UpdateGround();
-
-    void CalcHorizontalAcceleration(const glm::vec3 &direction, float acceleration, float drag);
-
-    void UpdateAcceleration();
-
     void DrawReticle();
+
+    PlayerMovement m_movement;
 
     BitmapTextRenderer m_textRenderer{
         "textures/bitmap_fonts/share_tech_mono.png",
         {23.0f, 48.0f}
     };
 
-    static constexpr float CAPSULE_RADIUS      = 0.4f;
-    static constexpr float CAPSULE_HALF_HEIGHT = 0.4f;
-    static constexpr float CAPSULE_HEIGHT      = CAPSULE_HALF_HEIGHT * 2.0f;
+    static constexpr float INTERACTION_DISTANCE = 2.0f;
 
-    static constexpr float INTERACTION_DISTANCE  = 2.0f;
-    static constexpr float GROUND_CHECK_DISTANCE = 0.3f;
-
-    static constexpr float GRAVITY             = 20.0f;
-    static constexpr float GROUND_ACCELERATION = 50.0f;
-    static constexpr float GROUND_DRAG         = 10.0f;
-    static constexpr float AIR_ACCELERATION    = 10.0f;
-    static constexpr float AIR_DRAG            = 2.0f;
-    static constexpr float JUMP_VELOCITY       = 7.0f;
-
-    physx::PxController *m_controller;
-
-    float     m_mouseSpeed;
-    glm::vec3 m_movementInput{};
-
-    bool m_isOnGround = false;
-
-    glm::vec3 m_velocity{};
-    glm::vec3 m_acceleration{};
-
-    glm::vec3 m_previousPosition{};
+    float m_mouseSpeed;
 
     bool m_prevSpace = false;
 

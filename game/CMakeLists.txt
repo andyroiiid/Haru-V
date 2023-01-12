@@ -29,6 +29,10 @@ add_executable(game
 
         src/physics/PhysicsSimulationEventCallback.cpp
 
+        include/components/PlayerMovement.h
+
+        src/components/PlayerMovement.cpp
+
         include/actors/Actor.h
         include/actors/Scene.h
         include/actors/AWorldSpawn.h
