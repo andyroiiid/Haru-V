@@ -5,7 +5,7 @@
 #include "actors/APropTestModel.h"
 
 #include "Globals.h"
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 
 APropTestModel::APropTestModel(const std::string &meshName, const std::string &materialName, const glm::vec3 &position) {
     m_transform.SetPosition(position);

@@ -57,19 +57,19 @@ struct alignas(256) LightingUniformData {
     PointLightData         PointLights[128];
 };
 
-class Renderer {
+class PbrRenderer {
 public:
-    explicit Renderer(GLFWwindow *window);
+    explicit PbrRenderer(GLFWwindow *window);
 
-    ~Renderer();
+    ~PbrRenderer();
 
-    Renderer(const Renderer &) = delete;
+    PbrRenderer(const PbrRenderer &) = delete;
 
-    Renderer &operator=(const Renderer &) = delete;
+    PbrRenderer &operator=(const PbrRenderer &) = delete;
 
-    Renderer(Renderer &&) = delete;
+    PbrRenderer(PbrRenderer &&) = delete;
 
-    Renderer &operator=(Renderer &&) = delete;
+    PbrRenderer &operator=(PbrRenderer &&) = delete;
 
     [[nodiscard]] glm::vec2 GetScreenExtent() const {
         const vk::Extent2D &swapchainExtent = m_device.GetSwapchainExtent();

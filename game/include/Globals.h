@@ -8,7 +8,7 @@ extern struct GLFWwindow *g_Window;
 
 extern class Game *g_Game;
 
-extern class Renderer *g_Renderer;
+extern class PbrRenderer *g_Renderer;
 
 extern class Mouse *g_Mouse;
 

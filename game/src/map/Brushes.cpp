@@ -12,7 +12,7 @@
 #include <vulkan/VertexFormats.h>
 
 #include "Globals.h"
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 
 static glm::vec3 CalculateCenter(const std::vector<MapData::Brush> &brushes) {
     float     numVertices = 0;

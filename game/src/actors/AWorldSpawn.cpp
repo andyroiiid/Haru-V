@@ -4,7 +4,7 @@
 #include "actors/AWorldSpawn.h"
 
 #include "Globals.h"
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 #include "script/GameLua.h"
 
 AWorldSpawn::AWorldSpawn(

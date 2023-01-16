@@ -12,7 +12,7 @@
 #include <physics/PhysicsUtilities.h>
 
 #include "Globals.h"
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 
 APropPowerSphere::APropPowerSphere(const glm::vec3 &position) {
     GetTransform().SetPosition(position);

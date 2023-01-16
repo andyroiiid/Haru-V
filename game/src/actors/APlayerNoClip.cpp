@@ -8,7 +8,7 @@
 #include <window/Mouse.h>
 
 #include "Globals.h"
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 
 APlayerNoClip::APlayerNoClip(const glm::vec3 &position) {
     GetTransform().SetPosition(position);

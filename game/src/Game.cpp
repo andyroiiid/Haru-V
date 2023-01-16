@@ -18,7 +18,7 @@ void Game::Init(GLFWwindow *window) {
 
     g_Game = this;
 
-    m_renderer = std::make_unique<Renderer>(window);
+    m_renderer = std::make_unique<PbrRenderer>(window);
     g_Renderer = m_renderer.get();
 
     m_mouse = std::make_unique<Mouse>(window);

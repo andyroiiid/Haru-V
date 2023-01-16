@@ -11,7 +11,7 @@
 #include <window/Window.h>
 
 #include "actors/Scene.h"
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 #include "physics/PhysicsSimulationEventCallback.h"
 #include "script/GameLua.h"
 #include "ui/GameHUD.h"
@@ -38,7 +38,7 @@ private:
     std::string m_nextMap;
     std::string m_currentMap;
 
-    std::unique_ptr<Renderer>                       m_renderer;
+    std::unique_ptr<PbrRenderer>                    m_renderer;
     std::unique_ptr<Mouse>                          m_mouse;
     std::unique_ptr<PhysicsSystem>                  m_physicsSystem;
     std::unique_ptr<PhysicsSimulationEventCallback> m_physicsCallback;

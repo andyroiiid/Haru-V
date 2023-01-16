@@ -2,14 +2,14 @@
 // Created by andyroiiid on 12/21/2022.
 //
 
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <vulkan/ShaderCompiler.h>
 
 #include "gfx/MeshUtilities.h"
 
-Renderer::Renderer(GLFWwindow *window)
+PbrRenderer::PbrRenderer(GLFWwindow *window)
     : m_device(window)
     , m_textureCache(m_device)
     , m_pbrMaterialCache(m_device, m_textureCache)
@@ -26,7 +26,7 @@ Renderer::Renderer(GLFWwindow *window)
     CreateScreenPrimitiveMeshes();
 }
 
-void Renderer::CreateUniformBuffers() {
+void PbrRenderer::CreateUniformBuffers() {
     m_uniformBufferSet = VulkanUniformBufferSet(
         m_device,
         {
@@ -36,7 +36,7 @@ void Renderer::CreateUniformBuffers() {
     );
 }
 
-void Renderer::CreateIblTextureSet() {
+void PbrRenderer::CreateIblTextureSet() {
     vk::DescriptorSetLayoutBinding iblBindings[]{
         {0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
         {1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment},
@@ -76,7 +76,7 @@ void Renderer::CreateIblTextureSet() {
         ->BindToDescriptorSet(m_iblTextureSet, 3);
 }
 
-void Renderer::CreatePipelines() {
+void PbrRenderer::CreatePipelines() {
     const vk::PipelineColorBlendAttachmentState NO_BLEND(
         VK_FALSE,
         vk::BlendFactor::eZero,
@@ -236,19 +236,19 @@ void Renderer::CreatePipelines() {
     );
 }
 
-void Renderer::CreateSkyboxCube() {
+void PbrRenderer::CreateSkyboxCube() {
     const std::vector<VertexPositionOnly> vertices = CreateSkyboxVertices();
 
     m_skyboxCube = VulkanMesh(m_device, vertices.size(), sizeof(VertexPositionOnly), vertices.data());
 }
 
-void Renderer::CreateFullScreenQuad() {
+void PbrRenderer::CreateFullScreenQuad() {
     std::vector<VertexCanvas> vertices;
     AppendRectVertices(vertices, {-1.0f, -1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f});
     m_fullScreenQuad = VulkanMesh(m_device, vertices.size(), sizeof(VertexCanvas), vertices.data());
 }
 
-void Renderer::CreateScreenPrimitiveMeshes() {
+void PbrRenderer::CreateScreenPrimitiveMeshes() {
     static const VertexCanvas rectVertices[4]{
         {{0.0f, 0.0f}, {0.0f, 0.0f}},
         {{1.0f, 0.0f}, {1.0f, 0.0f}},
@@ -264,7 +264,7 @@ void Renderer::CreateScreenPrimitiveMeshes() {
     m_screenLineMesh = VulkanMesh(m_device, 2, sizeof(VertexCanvas), lineVertices);
 }
 
-Renderer::~Renderer() {
+PbrRenderer::~PbrRenderer() {
     m_device.WaitIdle();
 
     m_screenRectMesh         = {};
@@ -287,7 +287,7 @@ Renderer::~Renderer() {
     m_shadowContext    = {};
 }
 
-void Renderer::SetCameraData(const glm::vec3 &cameraPosition, const glm::mat4 &view, float fov, float near, float far) {
+void PbrRenderer::SetCameraData(const glm::vec3 &cameraPosition, const glm::mat4 &view, float fov, float near, float far) {
     const vk::Extent2D &extent      = m_device.GetSwapchainExtent();
     const float         aspectRatio = static_cast<float>(extent.width) / static_cast<float>(extent.height);
 
@@ -298,19 +298,19 @@ void Renderer::SetCameraData(const glm::vec3 &cameraPosition, const glm::mat4 &v
     m_shadowMatrixCalculator.SetCameraInfo(view, fov, aspectRatio);
 }
 
-void Renderer::SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor) {
+void PbrRenderer::SetLightingData(const glm::vec3 &lightDirection, const glm::vec3 &lightColor) {
     m_lightingUniformData.LightDirection = lightDirection;
     m_lightingUniformData.LightColor     = lightColor;
 
     m_shadowMatrixCalculator.SetLightDirection(lightDirection);
 }
 
-void Renderer::SetWorldBounds(const glm::vec3 &min, const glm::vec3 &max) {
+void PbrRenderer::SetWorldBounds(const glm::vec3 &min, const glm::vec3 &max) {
     static constexpr float SHADOW_SAFE_DISTANCE = 4.0f;
     m_shadowMatrixCalculator.SetWorldBounds(min - SHADOW_SAFE_DISTANCE, max + SHADOW_SAFE_DISTANCE);
 }
 
-void Renderer::FinishDrawing() {
+void PbrRenderer::FinishDrawing() {
     const VulkanFrameInfo frameInfo = m_device.BeginFrame();
 
     m_deferredContext.CheckFramebuffersOutOfDate();
@@ -365,7 +365,7 @@ void Renderer::FinishDrawing() {
     m_device.EndFrame();
 }
 
-void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+void PbrRenderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_shadowContext.GetExtent(), false);
 
     cmd.beginRenderPass(m_shadowContext.GetRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
@@ -416,7 +416,7 @@ void Renderer::DrawToShadowMaps(vk::CommandBuffer cmd, uint32_t bufferingIndex) 
     cmd.endRenderPass();
 }
 
-void Renderer::DrawDeferred(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+void PbrRenderer::DrawDeferred(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
 
     cmd.beginRenderPass(m_deferredContext.GetDeferredRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
@@ -470,7 +470,7 @@ void Renderer::DrawDeferred(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     cmd.endRenderPass();
 }
 
-void Renderer::DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+void PbrRenderer::DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_deferredContext.GetExtent());
 
     cmd.beginRenderPass(m_deferredContext.GetForwardRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
@@ -536,7 +536,7 @@ void Renderer::DrawForward(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     cmd.endRenderPass();
 }
 
-void Renderer::PostProcess(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+void PbrRenderer::PostProcess(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_toneMappingContext.GetExtent());
 
     cmd.beginRenderPass(m_toneMappingContext.GetRenderPassBeginInfo(bufferingIndex), vk::SubpassContents::eInline);
@@ -558,7 +558,7 @@ void Renderer::PostProcess(vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     cmd.endRenderPass();
 }
 
-void Renderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex) {
+void PbrRenderer::DrawToScreen(const vk::RenderPassBeginInfo *primaryRenderPassBeginInfo, vk::CommandBuffer cmd, uint32_t bufferingIndex) {
     const auto [viewport, scissor] = CalcViewportAndScissorFromExtent(m_device.GetSwapchainExtent());
 
     cmd.beginRenderPass(primaryRenderPassBeginInfo, vk::SubpassContents::eInline);

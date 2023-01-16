@@ -6,7 +6,7 @@
 #include <audio/AudioSystem.h>
 
 #include "Globals.h"
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 
 GameHUD::GameHUD() {
     m_whiteTexture = g_Renderer->LoadSingleTextureMaterial("textures/dev/white.png");

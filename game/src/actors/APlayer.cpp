@@ -11,7 +11,7 @@
 #include <window/Mouse.h>
 
 #include "Globals.h"
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 
 APlayer::APlayer(const glm::vec3 &position, float yaw, float mouseSpeed)
     : m_movement(this, position)

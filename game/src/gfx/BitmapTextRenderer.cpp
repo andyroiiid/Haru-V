@@ -4,7 +4,7 @@
 #include "gfx/BitmapTextRenderer.h"
 
 #include "Globals.h"
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 
 BitmapTextRenderer::BitmapTextRenderer(const std::string &fontTexture, const glm::vec2 &charSize)
     : m_charSize(charSize) {

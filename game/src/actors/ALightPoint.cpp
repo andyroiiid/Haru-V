@@ -4,7 +4,7 @@
 #include "actors/ALightPoint.h"
 
 #include "Globals.h"
-#include "gfx/Renderer.h"
+#include "gfx/PbrRenderer.h"
 
 ALightPoint::ALightPoint(const glm::vec3 &position, const glm::vec3 &color, float radius)
     : m_position(position)
