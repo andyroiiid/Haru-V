@@ -95,7 +95,12 @@ target_include_directories(game PRIVATE include)
 
 target_link_libraries(game PRIVATE engine)
 
-add_custom_command(TARGET game POST_BUILD
+add_custom_target(copy_game_assets)
+add_custom_command(TARGET copy_game_assets POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rm -R $<TARGET_FILE_DIR:game>/game)
+add_custom_command(TARGET copy_game_assets POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/assets $<TARGET_FILE_DIR:game>/game)
+
+add_dependencies(game copy_game_assets)
 
 copy_fmod_dlls(game)
