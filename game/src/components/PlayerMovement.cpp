@@ -23,7 +23,9 @@ PlayerMovement::PlayerMovement(Actor *owner, const glm::vec3 &position)
 
     m_controller->getActor()->userData = owner;
 
-    m_previousPosition = position;
+    m_position = position;
+
+    m_predictedPosition = position;
 }
 
 PlayerMovement::~PlayerMovement() {
@@ -31,13 +33,12 @@ PlayerMovement::~PlayerMovement() {
 }
 
 void PlayerMovement::Update(float deltaTime) {
-    const glm::vec3     lastEyePosition = m_transform.GetPosition();
-    const physx::PxVec3 position        = toVec3(m_controller->getPosition());
-    const float         timeError       = glm::min(g_PhysicsScene->GetFixedTimestep(), g_PhysicsScene->GetFixedUpdateTimeError());
-    const glm::vec3     predictedPosition{
-        position.x + m_velocity.x * timeError,
-        position.y + m_velocity.y * timeError,
-        position.z + m_velocity.z * timeError};
+    const glm::vec3 lastEyePosition   = m_transform.GetPosition();
+    const glm::vec3 predictedPosition = glm::mix(
+        m_position,
+        m_predictedPosition,
+        g_PhysicsScene->GetFixedUpdateTimeError() / g_PhysicsScene->GetFixedTimestep()
+    );
     const glm::vec3 targetEyePosition = predictedPosition + glm::vec3{0.0f, CAPSULE_HALF_HEIGHT, 0.0f};
     m_transform.SetPosition(glm::mix(lastEyePosition, targetEyePosition, glm::min(1.0f, 30.0f * deltaTime)));
 }
@@ -68,6 +69,24 @@ void PlayerMovement::UpdateAcceleration() {
     m_acceleration.z   = m_movementInput.z * acceleration - m_velocity.z * drag;
 }
 
+// based on Kalman filter from: https://github.com/Garima13a/Kalman-Filters/blob/master/2.%201D%20Kalman%20Filter%2C%20solution.ipynb
+
+static void KalmanUpdate(glm::vec3 &posPredicted, glm::vec3 &varPredicted, const glm::vec3 &posObserved, const glm::vec3 &varObserved) {
+    const glm::vec3 pos = (varObserved * posPredicted + varPredicted * posObserved) / (varPredicted + varObserved);
+    const glm::vec3 var = varPredicted * varObserved / (varPredicted + varObserved);
+
+    posPredicted = pos;
+    varPredicted = var;
+}
+
+static void KalmanPredict(glm::vec3 &posPredicted, glm::vec3 &varPredicted, const glm::vec3 &deltaObserved, const glm::vec3 &varObserved) {
+    const glm::vec3 mean = posPredicted + deltaObserved;
+    const glm::vec3 var  = varPredicted + varObserved;
+
+    posPredicted = mean;
+    varPredicted = var;
+}
+
 void PlayerMovement::FixedUpdate(float fixedDeltaTime) {
     CheckGround();
 
@@ -83,9 +102,14 @@ void PlayerMovement::FixedUpdate(float fixedDeltaTime) {
     // calc projected velocity
     const physx::PxVec3 pos = toVec3(m_controller->getPosition());
     const glm::vec3     currentPosition{pos.x, pos.y, pos.z};
-    m_velocity         = (currentPosition - m_previousPosition) / fixedDeltaTime;
-    m_previousPosition = currentPosition;
+    const glm::vec3     deltaPosition = currentPosition - m_position;
+
+    m_velocity = deltaPosition / fixedDeltaTime;
+    m_position = currentPosition;
 
     // clamp vertical speed (this is a hack)
     m_velocity.y = glm::min(m_velocity.y, JUMP_VELOCITY);
+
+    KalmanUpdate(m_predictedPosition, m_predictedVariance, m_position, {8.0f, 8.0f, 8.0f});
+    KalmanPredict(m_predictedPosition, m_predictedVariance, deltaPosition, {4.0f, 4.0f, 4.0f});
 }

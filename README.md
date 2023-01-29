@@ -29,6 +29,7 @@ A Vulkan-based rewrite of [Haru Engine](https://github.com/andyroiiid/haru).
 - Physics
     - [x] PhysX 5 Integration
     - [x] Rigidbody movement extrapolation/interpolation
+    - [x] Character controller with [Kalman Filter](https://en.wikipedia.org/wiki/Kalman_filter) movement prediction
 
 ## Dependencies
 

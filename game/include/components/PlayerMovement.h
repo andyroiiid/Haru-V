@@ -73,5 +73,8 @@ private:
     glm::vec3 m_velocity{};
     glm::vec3 m_acceleration{};
 
-    glm::vec3 m_previousPosition{};
+    glm::vec3 m_position{};
+
+    glm::vec3 m_predictedPosition{};
+    glm::vec3 m_predictedVariance{10000.0f, 10000.0f, 10000.0f};
 };
